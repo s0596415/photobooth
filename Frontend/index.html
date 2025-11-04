@@ -1,151 +1,184 @@
 <!DOCTYPE html>
 <html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Winter Photobooth</title>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script> <!-- antonia - qr code funktion-->
-    
-    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <!-- antonia - qr code funktion-->
 
-    <script src="script.js" defer></script> <!-- antonia -->
-</head>
+    <link rel="stylesheet" href="style.css" />
 
-<body>
+    <script src="script.js" defer></script>
+    <!-- antonia -->
+  </head>
+
+  <body>
     <div class="snowflakes" id="snowflakes"></div>
 
     <div class="container">
-        <div id="start-screen" class="screen active">
-            <h1>❄️ Winter Photobooth</h1>
-            <p class="subtitle">Wähle dein Foto-Layout</p>
+      <div id="start-screen" class="screen active">
+        <h1>❄️ Winter Photobooth</h1>
+        <p class="subtitle">Wähle dein Foto-Layout</p>
 
-            <div class="layout-grid">
-                <div class="layout-card" data-layout="1">
-                    <div class="layout-preview" style="grid-template-columns: 1fr; grid-template-rows: repeat(3, 1fr);">
-                        <div class="layout-box"></div>
-                        <div class="layout-box"></div>
-                        <div class="layout-box"></div>
-                    </div>
-                    <div class="layout-name">1×3 Classic</div>
-                    <div class="layout-info">3 Fotos</div>
-                </div>
-
-                <div class="layout-card" data-layout="2">
-                    <div class="layout-preview" style="grid-template-columns: 1fr; grid-template-rows: repeat(4, 1fr);">
-                        <div class="layout-box"></div>
-                        <div class="layout-box"></div>
-                        <div class="layout-box"></div>
-                        <div class="layout-box"></div>
-                    </div>
-                    <div class="layout-name">1×4 Strip</div>
-                    <div class="layout-info">4 Fotos</div>
-                </div>
-
-                <div class="layout-card" data-layout="3">
-                    <div class="layout-preview" style="grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr);">
-                        <div class="layout-box"></div>
-                        <div class="layout-box"></div>
-                        <div class="layout-box"></div>
-                        <div class="layout-box"></div>
-                    </div>
-                    <div class="layout-name">2×2 Instax</div>
-                    <div class="layout-info">4 Fotos</div>
-                </div>
+        <div class="layout-grid">
+          <div class="layout-card" data-layout="1">
+            <div
+              class="layout-preview"
+              style="
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(3, 1fr);
+              "
+            >
+              <div class="layout-box"></div>
+              <div class="layout-box"></div>
+              <div class="layout-box"></div>
             </div>
+            <div class="layout-name">1×3 Classic</div>
+            <div class="layout-info">3 Fotos</div>
+          </div>
 
-            <button class="btn btn-primary btn-full" id="start-btn" style="display: none;">
-                Weiter 📷
-            </button>
+          <div class="layout-card" data-layout="2">
+            <div
+              class="layout-preview"
+              style="
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(4, 1fr);
+              "
+            >
+              <div class="layout-box"></div>
+              <div class="layout-box"></div>
+              <div class="layout-box"></div>
+              <div class="layout-box"></div>
+            </div>
+            <div class="layout-name">1×4 Strip</div>
+            <div class="layout-info">4 Fotos</div>
+          </div>
+
+          <div class="layout-card" data-layout="3">
+            <div
+              class="layout-preview"
+              style="
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: repeat(2, 1fr);
+              "
+            >
+              <div class="layout-box"></div>
+              <div class="layout-box"></div>
+              <div class="layout-box"></div>
+              <div class="layout-box"></div>
+            </div>
+            <div class="layout-name">2×2 Instax</div>
+            <div class="layout-info">4 Fotos</div>
+          </div>
         </div>
 
-        <div id="camera-screen" class="screen">
-            <div class="camera-layout">
-                <div>
-                    <div class="video-container">
-                        <video id="video" autoplay playsinline></video>
-                        <div class="countdown-overlay" id="countdown">3</div>
-                    </div>
+        <button
+          class="btn btn-primary btn-full"
+          id="start-btn"
+          style="display: none"
+        >
+          Weiter 📷
+        </button>
+      </div>
 
-                    <div class="button-group" style="margin-top: 1rem;">
-                        <button class="btn btn-primary" id="capture-btn" style="flex: 1;">
-                            Foto aufnehmen <span id="photo-counter">(1/3)</span>
-                        </button>
-                    </div>
-
-                    <div class="button-group" id="camera-actions" style="display: none;">
-                        <button class="btn btn-secondary" id="retake-btn" style="flex: 1;">
-                            🔄 Neu aufnehmen
-                        </button>
-                        <button class="btn btn-primary" id="next-btn" style="flex: 1;">
-                            Weiter ✨
-                        </button>
-                    </div>
-                </div>
-
-                <div class="preview-panel">
-                    <h3>Vorschau</h3>
-                    <div class="preview-grid" id="preview-grid"></div>
-                </div>
-            </div>
-        </div>
-
-        <div id="customize-screen" class="screen">
-            <h1>Gestalte deinen Photostrip</h1>
-            <p class="subtitle">Wähle einen Hintergrund</p>
-
-            <div class="canvas-container">
-                <canvas id="photostrip-canvas"></canvas>
+      <div id="camera-screen" class="screen">
+        <div class="camera-layout">
+          <div>
+            <div class="video-container">
+              <video id="video" autoplay playsinline></video>
+              <div class="countdown-overlay" id="countdown">3</div>
             </div>
 
-            <div class="customization-panel">
-                <h3>Winter-Hintergründe</h3>
-                <div class="background-grid" id="bg-grid"></div>
-
-                <h3>Volltonfarben</h3>
-                <div class="color-grid" id="color-grid"></div>
+            <div class="button-group" style="margin-top: 1rem">
+              <button class="btn btn-primary" id="capture-btn" style="flex: 1">
+                Foto aufnehmen <span id="photo-counter">(1/3)</span>
+              </button>
             </div>
 
-            <button class="btn btn-primary btn-full" id="customize-next-btn">
+            <div class="button-group" id="camera-actions" style="display: none">
+              <button class="btn btn-secondary" id="retake-btn" style="flex: 1">
+                🔄 Neu aufnehmen
+              </button>
+              <button class="btn btn-primary" id="next-btn" style="flex: 1">
                 Weiter ✨
-            </button>
+              </button>
+            </div>
+          </div>
+
+          <div class="preview-panel">
+            <h3>Vorschau</h3>
+            <div class="preview-grid" id="preview-grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="customize-screen" class="screen">
+        <h1>Gestalte deinen Photostrip</h1>
+        <p class="subtitle">Wähle einen Hintergrund</p>
+
+        <div class="canvas-container">
+          <canvas id="photostrip-canvas"></canvas>
         </div>
 
-        <div id="download-screen" class="screen">
-            <h1>Dein Photostrip ist fertig!</h1>
-            <p class="subtitle">Herunterladen oder teilen</p>
+        <div class="customization-panel">
+          <h3>Winter-Hintergründe</h3>
+          <div class="background-grid" id="bg-grid"></div>
 
-            <div class="canvas-container">
-                <canvas id="final-canvas"></canvas>
-            </div>
+          <h3>Volltonfarben</h3>
+          <div class="color-grid" id="color-grid"></div>
+        </div>
 
-            <div class="download-buttons">
-                <button class="btn btn-primary" id="download-btn">
-                    ⬇️ Foto herunterladen
-                </button>
-                <button class="btn btn-primary" id="qr-btn" style="background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);">
-                    📱 QR-Code erstellen
-                </button>
-            </div>
+        <button class="btn btn-primary btn-full" id="customize-next-btn">
+          Weiter ✨
+        </button>
+      </div>
 
-            <div class="qr-placeholder" id="qr-code-target"> <!-- antonia -->
-    </div>
-<p style="font-size: 0.9rem; color: #666; margin-top: 1rem;">Winter Photobooth - <span id="qr-date"></span></p>
+      <div id="download-screen" class="screen">
+        <h1>Dein Photostrip ist fertig!</h1>
+        <p class="subtitle">Herunterladen oder teilen</p>
 
+        <div class="canvas-container">
+          <canvas id="final-canvas"></canvas>
+        </div>
 
-            <!-- <div class="qr-container" id="qr-container">
+        <div class="download-buttons">
+          <button class="btn btn-primary" id="download-btn">
+            ⬇️ Foto herunterladen
+          </button>
+          <button
+            class="btn btn-primary"
+            id="qr-btn"
+            style="
+              background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);
+            "
+          >
+            📱 QR-Code erstellen
+          </button>
+        </div>
+
+       <div class="qr-container" id="qr-container"> 
                 <p style="color: #1565c0; margin-bottom: 1rem;">Scanne um dein Foto zu speichern!</p>
-                <div class="qr-placeholder">
-                    <p style="font-size: 0.9rem; color: #666;">Winter Photobooth - <span id="qr-date"></span></p>
-                    <p style="font-size: 0.8rem; color: #999; margin-top: 0.5rem;">QR-Code würde hier mit einer QR-Bibliothek erscheinen</p>
-                </div>
-            </div> -->
+                
+                <div class="qr-placeholder" id="qr-code-target"></div>
+                
+                <p style="font-size: 0.9rem; color: #666; margin-top: 1rem;">Winter Photobooth - <span id="qr-date"></span></p>
+            </div>
 
             <button class="btn btn-secondary btn-full" id="restart-btn">
                 🔄 Neu starten
             </button>
         </div>
     </div>
-
 </body>
-</html>
+
+<!-- antonia -->
+
+<!-- <div class="qr-container" id="qr-container">
+                <p style="color: #1565c0; margin-bottom: 1rem;">Scanne um dein Foto zu speichern!</p>
+                <div class="qr-placeholder">
+                    <p style="font-size: 0.9rem; color: #666;">Winter Photobooth - <span id="qr-date"></span></p>
+                    <p style="font-size: 0.8rem; color: #999; margin-top: 0.5rem;">QR-Code würde hier mit einer QR-Bibliothek erscheinen</p>
+                </div>
+            </div> -->
