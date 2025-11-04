@@ -84,15 +84,18 @@
       </div>
 
       <div id="camera-screen" class="screen">
-        <div class="camera-layout">
-          <div>
+        <div class="camera-layout"><div>
+            <button class="btn btn-secondary" id="back-to-start" style="margin-bottom: 1rem; width: 100%;">
+            ← Zurück zur Auswahl
+        </button>
+
             <div class="video-container">
               <video id="video" autoplay playsinline></video>
               <div class="countdown-overlay" id="countdown">3</div>
 
               <div class="spinner-overlay" id="spinner">
                 <div class="spinner-dot"></div>
-                <!-- Lade-Spinner hinzugefügt wenn berechtigung für Kamera erteilt wird -->
+                <!-- Lade-Spinner hinzugefügt, wenn berechtigung für Kamera erteilt wird -->
                 <div class="spinner-dot"></div>
                 <div class="spinner-dot"></div>
               </div>
@@ -122,6 +125,10 @@
       </div>
 
       <div id="customize-screen" class="screen">
+        <button class="btn btn-secondary" id="back-to-camera" style="margin-bottom: 1rem;">
+        ← Zurück zur Kamera
+    </button>
+    
         <h1>Gestalte deinen Photostrip</h1>
         <p class="subtitle">Wähle einen Hintergrund</p>
 
@@ -143,6 +150,10 @@
       </div>
 
       <div id="download-screen" class="screen">
+        <button class="btn btn-secondary" id="back-to-customize" style="margin-bottom: 1rem;">
+        ← Zurück zur Gestaltung
+    </button>
+    
         <h1>Dein Photostrip ist fertig!</h1>
         <p class="subtitle">Herunterladen oder teilen</p>
 

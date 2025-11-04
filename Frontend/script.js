@@ -360,6 +360,35 @@ document.getElementById('restart-btn').addEventListener('click', () => {
     showScreen('start');
 });
 
+// --- "Zurück"-Button Event Listeners ---
+
+document.getElementById('back-to-start').addEventListener('click', () => {
+    // WICHTIG: Kamera stoppen, wenn man zum Start zurückkehrt
+    if (state.stream) {
+        state.stream.getTracks().forEach(track => track.stop());
+        state.stream = null; // Stream-Referenz löschen
+    }
+    // Ggf. Foto-Array leeren, falls man mittendrin abbricht
+    state.photos = [];
+    updatePreviewGrid(); 
+    document.getElementById('capture-btn').style.display = 'block';
+    document.getElementById('camera-actions').style.display = 'none';
+
+    showScreen('start');
+});
+
+document.getElementById('back-to-camera').addEventListener('click', () => {
+    // Beim Zurückgehen zur Kamera muss sie neu gestartet werden
+    showScreen('camera');
+    spinner.classList.add('active'); // Spinner zeigen
+    startCamera(); // Kamera neu starten
+});
+
+document.getElementById('back-to-customize').addEventListener('click', () => {
+    // Der Customize-Canvas ist noch im Speicher, einfach anzeigen
+    showScreen('customize');
+});
+
 // --- INIT ---
 createSnowflakes();
 
