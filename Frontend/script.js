@@ -38,6 +38,7 @@ const countdownOverlay = document.getElementById('countdown');
 const previewGrid = document.getElementById('preview-grid');
 const photostripCanvas = document.getElementById('photostrip-canvas');
 const finalCanvas = document.getElementById('final-canvas');
+const spinner = document.getElementById('spinner'); /* antonia */
 
 // --- FUNCTIONS ---
 
@@ -64,7 +65,7 @@ function showScreen(screenName) {
     state.screen = screenName;
 }
 
-// 4. "async/await" für die Kamera - viel sauberer als .then()
+/* // 4. "async/await" für die Kamera - viel sauberer als .then()
 async function startCamera() {
     try {
         const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } });
@@ -73,6 +74,21 @@ async function startCamera() {
     } catch (err) {
         console.error("Kamerafehler:", err);
         alert('Kamerazugriff verweigert. Bitte erlaube den Kamerazugriff.');
+    }
+} */
+
+    async function startCamera() {
+    try {
+        const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } });
+        state.stream = mediaStream;
+        video.srcObject = mediaStream;
+    } catch (err) {
+        console.error("Kamerafehler:", err);
+        alert('Kamerazugriff verweigert. Bitte erlaube den Kamerazugriff.');
+        showScreen('start'); // Bei Fehler zurück zum Startbildschirm
+    } finally {
+        // "finally" wird IMMER ausgeführt (bei Erfolg oder Fehler)
+        spinner.classList.remove('active'); // NEU: Spinner verstecken
     }
 }
 
@@ -241,6 +257,7 @@ document.querySelectorAll('.layout-card').forEach(card => {
 
 document.getElementById('start-btn').addEventListener('click', () => {
     showScreen('camera');
+    spinner.classList.add('active'); /* antonia */
     startCamera();
     updatePreviewGrid();
 });

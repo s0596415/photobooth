@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Winter Photobooth</title>
+    <title>FIW Winterfest Photobooth</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <!-- antonia - qr code funktion-->
@@ -19,7 +19,7 @@
 
     <div class="container">
       <div id="start-screen" class="screen active">
-        <h1>❄️ Winter Photobooth</h1>
+        <h1>❄️ FIW Winterfest Photobooth ❄️</h1>
         <p class="subtitle">Wähle dein Foto-Layout</p>
 
         <div class="layout-grid">
@@ -89,6 +89,13 @@
             <div class="video-container">
               <video id="video" autoplay playsinline></video>
               <div class="countdown-overlay" id="countdown">3</div>
+
+              <div class="spinner-overlay" id="spinner">
+                <div class="spinner-dot"></div>
+                <!-- Lade-Spinner hinzugefügt wenn berechtigung für Kamera erteilt wird -->
+                <div class="spinner-dot"></div>
+                <div class="spinner-dot"></div>
+              </div>
             </div>
 
             <div class="button-group" style="margin-top: 1rem">
@@ -158,27 +165,32 @@
           </button>
         </div>
 
-       <div class="qr-container" id="qr-container"> 
-                <p style="color: #1565c0; margin-bottom: 1rem;">Scanne um dein Foto zu speichern!</p>
-                
-                <div class="qr-placeholder" id="qr-code-target"></div>
-                
-                <p style="font-size: 0.9rem; color: #666; margin-top: 1rem;">Winter Photobooth - <span id="qr-date"></span></p>
-            </div>
+        <div class="qr-container" id="qr-container">
+          <p style="color: #1565c0; margin-bottom: 1rem">
+            Scanne um dein Foto zu speichern!
+          </p>
 
-            <button class="btn btn-secondary btn-full" id="restart-btn">
-                🔄 Neu starten
-            </button>
+          <div class="qr-placeholder" id="qr-code-target"></div>
+
+          <p style="font-size: 0.9rem; color: #666; margin-top: 1rem">
+            Winter Photobooth - <span id="qr-date"></span>
+          </p>
         </div>
+
+        <button class="btn btn-secondary btn-full" id="restart-btn">
+          🔄 Neu starten
+        </button>
+      </div>
     </div>
-</body>
+  </body>
 
-<!-- antonia -->
+  <!-- antonia -->
 
-<!-- <div class="qr-container" id="qr-container">
+  <!-- <div class="qr-container" id="qr-container">
                 <p style="color: #1565c0; margin-bottom: 1rem;">Scanne um dein Foto zu speichern!</p>
                 <div class="qr-placeholder">
                     <p style="font-size: 0.9rem; color: #666;">Winter Photobooth - <span id="qr-date"></span></p>
                     <p style="font-size: 0.8rem; color: #999; margin-top: 0.5rem;">QR-Code würde hier mit einer QR-Bibliothek erscheinen</p>
                 </div>
             </div> -->
+</html>

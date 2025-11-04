@@ -362,3 +362,37 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Spinner (am Ende der style.css einfügen) */
+.spinner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.7);
+    display: none; /* Wichtig: Standardmäßig versteckt */
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.spinner-overlay.active {
+    display: flex; /* Wird per JS sichtbar gemacht */
+}
+
+.spinner-dot {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background-color: #fff;
+    animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.spinner-dot:nth-child(1) { animation-delay: -0.32s; }
+.spinner-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1.0); }
+}
