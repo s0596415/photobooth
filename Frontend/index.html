@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Winter Photobooth</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 50%, #fce4ec 100%);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .snowflakes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .snowflake {
+            position: absolute;
+            color: #bbdefb;
+            opacity: 0.6;
+            font-size: 20px;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-10vh) rotate(0deg);
+            }
+            100% {
+                transform: translateY(110vh) rotate(360deg);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 3rem;
+            color: #1565c0;
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #1976d2;
+            margin-bottom: 3rem;
+            font-size: 1.2rem;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .layout-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .layout-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+
+        .layout-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .layout-card.selected {
+            background: linear-gradient(135deg, #2196f3 0%, #9c27b0 100%);
+            color: white;
+            transform: scale(1.05);
+            border-color: #1565c0;
+        }
+
+        .layout-preview {
+            display: grid;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .layout-box {
+            aspect-ratio: 4/3;
+            background: #bbdefb;
+            border-radius: 0.5rem;
+        }
+
+        .layout-card.selected .layout-box {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .layout-name {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 1rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2196f3 0%, #9c27b0 100%);
+            color: white;
+            box-shadow: 0 5px 20px rgba(33,150,243,0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(33,150,243,0.5);
+        }
+
+        .btn-secondary {
+            background: #9e9e9e;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #757575;
+        }
+
+        .btn-full {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            display: flex;
+        }
+
+        .camera-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        .video-container {
+            position: relative;
+            background: black;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        #video {
+            width: 100%;
+            display: block;
+        }
+
+        .countdown-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 10rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        .countdown-overlay.active {
+            display: flex;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .preview-panel {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .preview-panel h3 {
+            color: #1565c0;
+            margin-bottom: 1rem;
+        }
+
+        .preview-grid {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .preview-slot {
+            aspect-ratio: 4/3;
+            background: #f5f5f5;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .preview-slot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .canvas-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        #photostrip-canvas {
+            max-width: 100%;
+            height: auto;
+            border-radius: 1rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .customization-panel {
+            background: white;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .customization-panel h3 {
+            color: #1565c0;
+            margin-bottom: 1rem;
+        }
+
+        .background-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .bg-option {
+            height: 80px;
+            border-radius: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+
+        .bg-option:hover {
+            transform: scale(1.1);
+        }
+
+        .bg-option.selected {
+            border-color: #2196f3;
+            box-shadow: 0 0 0 3px rgba(33,150,243,0.3);
+            transform: scale(1.15);
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 1rem;
+        }
+
+        .color-option {
+            height: 60px;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #ddd;
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+
+        .color-option.selected {
+            border-color: #2196f3;
+            box-shadow: 0 0 0 3px rgba(33,150,243,0.3);
+            transform: scale(1.15);
+        }
+
+        .download-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .qr-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .qr-container.active {
+            display: block;
+        }
+
+        .qr-placeholder {
+            display: inline-block;
+            background: #e3f2fd;
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .camera-layout {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .layout-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="snowflakes" id="snowflakes"></div>
+
+    <div class="container">
+        <div id="start-screen" class="screen active">
+            <h1>❄️ Winter Photobooth</h1>
+            <p class="subtitle">Wähle dein Foto-Layout</p>
+
+            <div class="layout-grid">
+                <div class="layout-card" data-layout="1">
+                    <div class="layout-preview" style="grid-template-columns: 1fr; grid-template-rows: repeat(3, 1fr);">
+                        <div class="layout-box"></div>
+                        <div class="layout-box"></div>
+                        <div class="layout-box"></div>
+                    </div>
+                    <div class="layout-name">1×3 Classic</div>
+                    <div class="layout-info">3 Fotos</div>
+                </div>
+
+                <div class="layout-card" data-layout="2">
+                    <div class="layout-preview" style="grid-template-columns: 1fr; grid-template-rows: repeat(4, 1fr);">
+                        <div class="layout-box"></div>
+                        <div class="layout-box"></div>
+                        <div class="layout-box"></div>
+                        <div class="layout-box"></div>
+                    </div>
+                    <div class="layout-name">1×4 Strip</div>
+                    <div class="layout-info">4 Fotos</div>
+                </div>
+
+                <div class="layout-card" data-layout="3">
+                    <div class="layout-preview" style="grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr);">
+                        <div class="layout-box"></div>
+                        <div class="layout-box"></div>
+                        <div class="layout-box"></div>
+                        <div class="layout-box"></div>
+                    </div>
+                    <div class="layout-name">2×2 Instax</div>
+                    <div class="layout-info">4 Fotos</div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary btn-full" id="start-btn" style="display: none;">
+                Weiter 📷
+            </button>
+        </div>
+
+        <div id="camera-screen" class="screen">
+            <div class="camera-layout">
+                <div>
+                    <div class="video-container">
+                        <video id="video" autoplay playsinline></video>
+                        <div class="countdown-overlay" id="countdown">3</div>
+                    </div>
+
+                    <div class="button-group" style="margin-top: 1rem;">
+                        <button class="btn btn-primary" id="capture-btn" style="flex: 1;">
+                            Foto aufnehmen <span id="photo-counter">(1/3)</span>
+                        </button>
+                    </div>
+
+                    <div class="button-group" id="camera-actions" style="display: none;">
+                        <button class="btn btn-secondary" id="retake-btn" style="flex: 1;">
+                            🔄 Neu aufnehmen
+                        </button>
+                        <button class="btn btn-primary" id="next-btn" style="flex: 1;">
+                            Weiter ✨
+                        </button>
+                    </div>
+                </div>
+
+                <div class="preview-panel">
+                    <h3>Vorschau</h3>
+                    <div class="preview-grid" id="preview-grid"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="customize-screen" class="screen">
+            <h1>Gestalte deinen Photostrip</h1>
+            <p class="subtitle">Wähle einen Hintergrund</p>
+
+            <div class="canvas-container">
+                <canvas id="photostrip-canvas"></canvas>
+            </div>
+
+            <div class="customization-panel">
+                <h3>Winter-Hintergründe</h3>
+                <div class="background-grid" id="bg-grid"></div>
+
+                <h3>Volltonfarben</h3>
+                <div class="color-grid" id="color-grid"></div>
+            </div>
+
+            <button class="btn btn-primary btn-full" id="customize-next-btn">
+                Weiter ✨
+            </button>
+        </div>
+
+        <div id="download-screen" class="screen">
+            <h1>Dein Photostrip ist fertig!</h1>
+            <p class="subtitle">Herunterladen oder teilen</p>
+
+            <div class="canvas-container">
+                <canvas id="final-canvas"></canvas>
+            </div>
+
+            <div class="download-buttons">
+                <button class="btn btn-primary" id="download-btn">
+                    ⬇️ Foto herunterladen
+                </button>
+                <button class="btn btn-primary" id="qr-btn" style="background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);">
+                    📱 QR-Code erstellen
+                </button>
+            </div>
+
+            <div class="qr-container" id="qr-container">
+                <p style="color: #1565c0; margin-bottom: 1rem;">Scanne um dein Foto zu speichern!</p>
+                <div class="qr-placeholder">
+                    <p style="font-size: 0.9rem; color: #666;">Winter Photobooth - <span id="qr-date"></span></p>
+                    <p style="font-size: 0.8rem; color: #999; margin-top: 0.5rem;">QR-Code würde hier mit einer QR-Bibliothek erscheinen</p>
+                </div>
+            </div>
+
+            <button class="btn btn-secondary btn-full" id="restart-btn">
+                🔄 Neu starten
+            </button>
+        </div>
+    </div>
+
+    <script>
+        var state = {
+            screen: 'start',
+            selectedLayout: null,
+            photos: [],
+            stream: null,
+            countdown: null,
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+        };
+
+        var layouts = {
+            1: { cols: 1, rows: 3, count: 3 },
+            2: { cols: 1, rows: 4, count: 4 },
+            3: { cols: 2, rows: 2, count: 4 }
+        };
+
+        var backgrounds = [
+            { name: 'Snowflakes', gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
+            { name: 'Frosty Blue', gradient: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)' },
+            { name: 'Pine Forest', gradient: 'linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)' },
+            { name: 'Winter Sky', gradient: 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)' },
+            { name: 'Christmas', gradient: 'linear-gradient(135deg, #d31027 0%, #ea384d 100%)' }
+        ];
+
+        var colors = ['#ffffff', '#e3f2fd', '#f3e5f5', '#e8f5e9', '#fff3e0', '#fce4ec'];
+
+        var screens = {
+            start: document.getElementById('start-screen'),
+            camera: document.getElementById('camera-screen'),
+            customize: document.getElementById('customize-screen'),
+            download: document.getElementById('download-screen')
+        };
+
+        var video = document.getElementById('video');
+        var countdownOverlay = document.getElementById('countdown');
+        var previewGrid = document.getElementById('preview-grid');
+        var photostripCanvas = document.getElementById('photostrip-canvas');
+        var finalCanvas = document.getElementById('final-canvas');
+
+        function createSnowflakes() {
+            var container = document.getElementById('snowflakes');
+            for (var i = 0; i < 20; i++) {
+                var snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.textContent = '❄';
+                snowflake.style.left = Math.random() * 100 + '%';
+                snowflake.style.top = Math.random() * 100 + '%';
+                snowflake.style.fontSize = (Math.random() * 20 + 10) + 'px';
+                container.appendChild(snowflake);
+            }
+        }
+
+        function showScreen(screenName) {
+            for (var key in screens) {
+                screens[key].classList.remove('active');
+            }
+            screens[screenName].classList.add('active');
+            state.screen = screenName;
+        }
+
+        var layoutCards = document.querySelectorAll('.layout-card');
+        for (var i = 0; i < layoutCards.length; i++) {
+            layoutCards[i].addEventListener('click', function() {
+                var allCards = document.querySelectorAll('.layout-card');
+                for (var j = 0; j < allCards.length; j++) {
+                    allCards[j].classList.remove('selected');
+                }
+                this.classList.add('selected');
+                state.selectedLayout = parseInt(this.dataset.layout);
+                document.getElementById('start-btn').style.display = 'flex';
+            });
+        }
+
+        document.getElementById('start-btn').addEventListener('click', function() {
+            showScreen('camera');
+            startCamera();
+            updatePreviewGrid();
+        });
+
+        function startCamera() {
+            navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } })
+                .then(function(mediaStream) {
+                    state.stream = mediaStream;
+                    video.srcObject = mediaStream;
+                })
+                .catch(function(err) {
+                    alert('Kamerazugriff verweigert. Bitte erlaube den Kamerazugriff.');
+                });
+        }
+
+        function updatePreviewGrid() {
+            var layout = layouts[state.selectedLayout];
+            previewGrid.style.gridTemplateColumns = 'repeat(' + layout.cols + ', 1fr)';
+            previewGrid.style.gridTemplateRows = 'repeat(' + layout.rows + ', 1fr)';
+            previewGrid.innerHTML = '';
+            
+            for (var i = 0; i < layout.count; i++) {
+                var slot = document.createElement('div');
+                slot.className = 'preview-slot';
+                if (state.photos[i]) {
+                    var img = document.createElement('img');
+                    img.src = state.photos[i];
+                    slot.appendChild(img);
+                }
+                previewGrid.appendChild(slot);
+            }
+        }
+
+        function updatePhotoCounter() {
+            var layout = layouts[state.selectedLayout];
+            var counter = document.getElementById('photo-counter');
+            counter.textContent = '(' + (state.photos.length + 1) + '/' + layout.count + ')';
+        }
+
+        document.getElementById('capture-btn').addEventListener('click', function() {
+            var count = 3;
+            countdownOverlay.textContent = count;
+            countdownOverlay.classList.add('active');
+            document.getElementById('capture-btn').disabled = true;
+
+            var interval = setInterval(function() {
+                count--;
+                if (count === 0) {
+                    clearInterval(interval);
+                    takePhoto();
+                    countdownOverlay.classList.remove('active');
+                    document.getElementById('capture-btn').disabled = false;
+                } else {
+                    countdownOverlay.textContent = count;
+                }
+            }, 1000);
+        });
+
+        function takePhoto() {
+            var canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0);
+            var photoData = canvas.toDataURL('image/png');
+            state.photos.push(photoData);
+            
+            updatePreviewGrid();
+            updatePhotoCounter();
+
+            var layout = layouts[state.selectedLayout];
+            if (state.photos.length === layout.count) {
+                document.getElementById('capture-btn').style.display = 'none';
+                document.getElementById('camera-actions').style.display = 'flex';
+            }
+        }
+
+        document.getElementById('retake-btn').addEventListener('click', function() {
+            state.photos = [];
+            updatePreviewGrid();
+            updatePhotoCounter();
+            document.getElementById('capture-btn').style.display = 'block';
+            document.getElementById('camera-actions').style.display = 'none';
+        });
+
+        document.getElementById('next-btn').addEventListener('click', function() {
+            if (state.stream) {
+                var tracks = state.stream.getTracks();
+                for (var i = 0; i < tracks.length; i++) {
+                    tracks[i].stop();
+                }
+            }
+            showScreen('customize');
+            setupCustomization();
+            generatePhotostrip(photostripCanvas);
+        });
+
+        function setupCustomization() {
+            var bgGrid = document.getElementById('bg-grid');
+            bgGrid.innerHTML = '';
+            for (var i = 0; i < backgrounds.length; i++) {
+                var bg = backgrounds[i];
+                var div = document.createElement('div');
+                div.className = 'bg-option' + (i === 0 ? ' selected' : '');
+                div.style.background = bg.gradient;
+                div.title = bg.name;
+                div.dataset.gradient = bg.gradient;
+                div.addEventListener('click', function() {
+                    var allBg = document.querySelectorAll('.bg-option');
+                    for (var j = 0; j < allBg.length; j++) {
+                        allBg[j].classList.remove('selected');
+                    }
+                    var allColors = document.querySelectorAll('.color-option');
+                    for (var k = 0; k < allColors.length; k++) {
+                        allColors[k].classList.remove('selected');
+                    }
+                    this.classList.add('selected');
+                    state.background = this.dataset.gradient;
+                    generatePhotostrip(photostripCanvas);
+                });
+                bgGrid.appendChild(div);
+            }
+
+            var colorGrid = document.getElementById('color-grid');
+            colorGrid.innerHTML = '';
+            for (var i = 0; i < colors.length; i++) {
+                var color = colors[i];
+                var div = document.createElement('div');
+                div.className = 'color-option';
+                div.style.backgroundColor = color;
+                div.dataset.color = color;
+                div.addEventListener('click', function() {
+                    var allBg = document.querySelectorAll('.bg-option');
+                    for (var j = 0; j < allBg.length; j++) {
+                        allBg[j].classList.remove('selected');
+                    }
+                    var allColors = document.querySelectorAll('.color-option');
+                    for (var k = 0; k < allColors.length; k++) {
+                        allColors[k].classList.remove('selected');
+                    }
+                    this.classList.add('selected');
+                    state.background = this.dataset.color;
+                    generatePhotostrip(photostripCanvas);
+                });
+                colorGrid.appendChild(div);
+            }
+        }
+
+        function generatePhotostrip(canvas) {
+            var layout = layouts[state.selectedLayout];
+            var photoWidth = 400;
+            var photoHeight = 300;
+            var padding = 20;
+
+            canvas.width = layout.cols * photoWidth + (layout.cols + 1) * padding;
+            canvas.height = layout.rows * photoHeight + (layout.rows + 1) * padding;
+
+            var ctx = canvas.getContext('2d');
+
+            if (state.background.indexOf('linear-gradient') === 0) {
+                var colorMatches = state.background.match(/#[a-f0-9]{6}/gi);
+                if (colorMatches && colorMatches.length >= 2) {
+                    var grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                    grad.addColorStop(0, colorMatches[0]);
+                    grad.addColorStop(1, colorMatches[colorMatches.length - 1]);
+                    ctx.fillStyle = grad;
+                }
+            } else {
+                ctx.fillStyle = state.background;
+            }
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            for (var i = 0; i < 50; i++) {
+                var x = Math.random() * canvas.width;
+                var y = Math.random() * canvas.height;
+                var size = Math.random() * 3 + 1;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            for (var idx = 0; idx < state.photos.length; idx++) {
+                var photo = state.photos[idx];
+                var img = new Image();
+                img.src = photo;
+                (function(i) {
+                    img.onload = function() {
+                        var col = i % layout.cols;
+                        var row = Math.floor(i / layout.cols);
+                        var x = col * photoWidth + (col + 1) * padding;
+                        var y = row * photoHeight + (row + 1) * padding;
+
+                        ctx.save();
+                        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+                        ctx.shadowBlur = 10;
+                        ctx.shadowOffsetX = 0;
+                        ctx.shadowOffsetY = 5;
+                        ctx.fillStyle = 'white';
+                        ctx.fillRect(x - 5, y - 5, photoWidth + 10, photoHeight + 10);
+                        ctx.restore();
+
+                        ctx.drawImage(img, x, y, photoWidth, photoHeight);
+                    };
+                })(idx);
+            }
+        }
+
+        document.getElementById('customize-next-btn').addEventListener('click', function() {
+            showScreen('download');
+            generatePhotostrip(finalCanvas);
+        });
+
+        document.getElementById('download-btn').addEventListener('click', function() {
+            var dataUrl = finalCanvas.toDataURL('image/png');
+            var link = document.createElement('a');
+            link.download = 'winter-photobooth.png';
+            link.href = dataUrl;
+            link.click();
+        });
+
+        document.getElementById('qr-btn').addEventListener('click', function() {
+            var qrContainer = document.getElementById('qr-container');
+            var qrDate = document.getElementById('qr-date');
+            qrDate.textContent = new Date().toLocaleString('de-DE');
+            qrContainer.classList.add('active');
+        });
+
+        document.getElementById('restart-btn').addEventListener('click', function() {
+            state = {
+                screen: 'start',
+                selectedLayout: null,
+                photos: [],
+                stream: null,
+                countdown: null,
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+            };
+            var allCards = document.querySelectorAll('.layout-card');
+            for (var i = 0; i < allCards.length; i++) {
+                allCards[i].classList.remove('selected');
+            }
+            document.getElementById('start-btn').style.display = 'none';
+            document.getElementById('capture-btn').style.display = 'block';
+            document.getElementById('camera-actions').style.display = 'none';
+            document.getElementById('qr-container').classList.remove('active');
+            showScreen('start');
+        });
+
+        createSnowflakes();
+    </script>
+</body>
+</html>
