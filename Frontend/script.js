@@ -293,12 +293,45 @@
             link.click();
         });
 
-        document.getElementById('qr-btn').addEventListener('click', function() {
+        /* document.getElementById('qr-btn').addEventListener('click', function() {
             var qrContainer = document.getElementById('qr-container');
             var qrDate = document.getElementById('qr-date');
             qrDate.textContent = new Date().toLocaleString('de-DE');
             qrContainer.classList.add('active');
+        }); code ersetzt - antonia*/
+
+// NEU
+document.getElementById('qr-btn').addEventListener('click', function() {
+    var qrContainer = document.getElementById('qr-container');
+    var qrDate = document.getElementById('qr-date');
+    var qrTarget = document.getElementById('qr-code-target');
+
+    // 1. Datum setzen und alten QR-Code (falls vorhanden) löschen
+    qrDate.textContent = new Date().toLocaleString('de-DE');
+    qrTarget.innerHTML = ''; // Wichtig, falls man mehrmals klickt
+
+    // 2. Daten-URL vom Canvas holen (ALS KOMPRIMIERTES JPEG!)
+    // Wir nutzen 'image/jpeg' und 70% Qualität (0.7).
+    // Ein PNG wäre viel zu groß für einen QR-Code.
+    var dataUrl = finalCanvas.toDataURL('image/jpeg', 0.7);
+
+    // 3. QR-Code mit der "Qrious"-Bibliothek erstellen
+    try {
+        var qr = new QRious({
+            element: qrTarget, // Das HTML-Element, wo der Code hin soll
+            value: dataUrl,      // Der Inhalt (unsere lange Bild-URL)
+            size: 250,           // Größe in Pixeln (z.B. 250x250)
+            level: 'L'           // 'L' = Low Fehlertoleranz, kann mehr Daten speichern
         });
+    } catch (e) {
+        // Falls die Daten-URL selbst als JPG noch zu lang ist
+        console.error("QR-Code-Fehler:", e);
+        qrTarget.innerHTML = '<p style="color: red; font-size: 0.9rem;">Fehler: Das Bild ist zu groß, um einen QR-Code zu erstellen.</p>';
+    }
+
+    // 4. Den QR-Container anzeigen
+    qrContainer.classList.add('active');
+});
 
         document.getElementById('restart-btn').addEventListener('click', function() {
             state = {
