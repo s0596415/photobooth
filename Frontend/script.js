@@ -12,7 +12,7 @@ let state = {
 const layouts = {
     1: { cols: 1, rows: 3, count: 3 },
     2: { cols: 1, rows: 4, count: 4 },
-    3: { cols: 2, rows: 2, count: 4 }
+    3: { cols: 1, rows: 1, count: 1 }
 };
 
 const backgrounds = [
@@ -255,8 +255,6 @@ document.getElementById('start-btn').addEventListener('click', () => {
     updatePhotoCounter(true); // Ruft den "Hinweis"-Text auf
 });
 
-// ERSETZE DEINE "capture-btn"-Funktion KOMPLETT HIERMIT:
-
 document.getElementById('capture-btn').addEventListener('click', async () => {
     const layout = layouts[state.selectedLayout];
     const captureBtn = document.getElementById('capture-btn');
@@ -264,16 +262,22 @@ document.getElementById('capture-btn').addEventListener('click', async () => {
     captureBtn.disabled = true; 
     
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    const isMultiPhotoLayout = (layout.count > 1);
 
     for (let i = 0; i < layout.count; i++) {
-        const isLastPhoto = (i === layout.count - 1); // Prüfen, ob es das letzte Foto ist
+        const isLastPhoto = (i === layout.count - 1); 
         
-        // Text für den Start des Countdowns anpassen
-        if (isLastPhoto) {
-            captureBtn.firstChild.textContent = 'Letztes Foto! Lächeln! '; // Spezieller Text für den letzten Schuss
+        // --- HIER IST DIE ÄNDERUNG ---
+        // Passt den Text auf dem Button an
+        if (isMultiPhotoLayout && isLastPhoto) {
+            captureBtn.firstChild.textContent = 'Letztes Foto! Lächeln! '; 
         } else {
-            captureBtn.firstChild.textContent = 'Fertig machen... ';
+            // Zeigt "Fertig machen..." bei Einzelfotos ODER 
+            // bei den ersten Fotos einer Mehrfach-Sequenz an.
+            captureBtn.firstChild.textContent = 'Fertig machen... '; 
         }
+        // --- ENDE DER ÄNDERUNG ---
+
         updatePhotoCounter(); 
         
         let count = 3;
@@ -296,8 +300,8 @@ document.getElementById('capture-btn').addEventListener('click', async () => {
         countdownOverlay.classList.remove('active');
         takePhoto(); 
         
-        // --- HIER IST DEINE HINWEIS-LOGIK ---
-        if (!isLastPhoto) { // Hinweis nur anzeigen, wenn es NICHT das letzte Foto ist
+        // Die Hinweis-Logik (nach dem Foto)
+        if (isMultiPhotoLayout && !isLastPhoto) { 
             countdownOverlay.textContent = 'Super! Mach dich bereit für das nächste Foto...';
             countdownOverlay.classList.add('is-hint'); 
             countdownOverlay.classList.add('active'); 
@@ -306,25 +310,13 @@ document.getElementById('capture-btn').addEventListener('click', async () => {
             
             countdownOverlay.classList.remove('active');
             countdownOverlay.classList.remove('is-hint');
-        } else {
-            // Dies ist das letzte Foto.
-            // Der Button wird von takePhoto() deaktiviert und die Kamera-Aktionen eingeblendet.
-            // Hier könnten wir einen finalen Hinweistext anzeigen, 
-            // der länger bleibt, z.B. "Fertig! Sieh dir deine Fotos an."
-            countdownOverlay.textContent = 'Fertig!';
+        } else if (isMultiPhotoLayout && isLastPhoto) { 
+            countdownOverlay.textContent = 'Fertig! Sieh dir deine Fotos an.';
             countdownOverlay.classList.add('is-hint');
             countdownOverlay.classList.add('active');
-            
-            // Dieses Overlay bleibt aktiv, bis der Benutzer auf "Weiter" oder "Neu" klickt.
-            // Es wird beim Screenwechsel automatisch entfernt.
         }
-        // --- ENDE DER HINWEIS-LOGIK ---
+        // Bei Einzelfotos wird dieser Block korrekt übersprungen.
     }
-
-    // Der Button wird nur wieder aktiviert, wenn die Sequenz durchläuft UND dann
-    // später "Neu aufnehmen" geklickt wird.
-    // Beim letzten Foto bleibt er disabled, bis die Kamera-Aktionen verwendet werden.
-    // captureBtn.disabled = false; // Diese Zeile entfernen, da die Buttons jetzt von takePhoto gesteuert werden
 });
 
 // KORRIGIERTER retake-btn Listener
@@ -391,6 +383,7 @@ document.getElementById('qr-btn').addEventListener('click', () => {
     qrContainer.classList.add('active');
 });
 
+// NEU (korrigiert)
 document.getElementById('restart-btn').addEventListener('click', () => {
     state = {
         screen: 'start',
@@ -406,9 +399,18 @@ document.getElementById('restart-btn').addEventListener('click', () => {
     });
 
     document.getElementById('start-btn').style.display = 'none';
-    document.getElementById('capture-btn').style.display = 'block';
+    
+    const captureBtn = document.getElementById('capture-btn');
+    captureBtn.style.display = 'block';
+    captureBtn.disabled = false; // <-- HIER KORRIGIERT
+
     document.getElementById('camera-actions').style.display = 'none';
     document.getElementById('qr-container').classList.remove('active');
+
+    // Blendet den "Fertig!"-Hinweis aus
+    countdownOverlay.classList.remove('active');
+    countdownOverlay.classList.remove('is-hint');
+
     showScreen('start');
 });
 
