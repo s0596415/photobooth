@@ -396,3 +396,9 @@
     0%, 80%, 100% { transform: scale(0); }
     40% { transform: scale(1.0); }
 }
+
+/* Am Ende der style.css hinzufügen: */
+.countdown-overlay.is-hint {
+    font-size: 4rem; /* Kleinere Schrift für Text-Hinweise */
+    padding: 0 2rem; /* Etwas Platz an den Seiten */
+}
