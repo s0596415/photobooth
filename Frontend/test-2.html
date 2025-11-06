@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIW Winterfest Photobooth</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 50%, #fce4ec 100%);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .snowflakes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .snowflake {
+            position: absolute;
+            color: #bbdefb;
+            opacity: 0.6;
+            font-size: 20px;
+            animation: fall 15s linear infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg); }
+            100% { transform: translateY(110vh) rotate(360deg); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #1565c0;
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #1976d2;
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+
+        /* Laura: Neues Layout Fotostreifen*/
+        .layout-grid {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            justify-content: center;
+        }
+
+        .layout-card {
+            background: white;
+            padding: 1.2rem;
+            border-radius: 0.8rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+            width: 200px;
+        }
+
+        .layout-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.2);
+        }
+
+        .layout-card.selected {
+            border-color: #2196f3;
+            box-shadow: 0 12px 32px rgba(33, 150, 243, 0.4);
+            transform: translateY(-5px);
+        }
+
+        .layout-preview {
+            background: #1565c0;
+            padding: 0.8rem 0.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.8rem;
+            box-shadow: inset 0 2px 7px rgba(0,0,0,0.3);
+        }
+
+        .layout-strip {
+
+            padding: 0.2rem;
+            border-radius: 0.2rem;
+            box-shadow: 0 2px 4px rgba(240, 238, 238, 0.2);
+        }
+
+        .layout-photos {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        .layout-photos.grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+        }
+
+        .layout-box {
+            aspect-ratio: 4/3;
+            background: #fffcfc;
+            border-radius: 0.15rem;
+
+        }
+
+        .layout-card.selected .layout-box {
+            background: #d4e6f5;
+        }
+
+        .layout-name {
+            font-weight: bold;
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+            text-align: center;
+        }
+
+        .layout-card > div:last-child {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 0.8rem;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        /*Buttom weiter farb anpassung*/
+        .btn-primary {
+            background: linear-gradient(135deg, #2196f3 0%, #22c2ea 100%);
+            color: white;
+        }
+
+        .btn-primary:hover { transform: translateY(-2px); }
+
+        /*Box für zurück zur Auswahl*/
+        .btn-secondary { background: #a8c9f5; color: white; }
+        .btn-secondary:hover { background: #6b8ddd; }
+
+        .btn-full {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .camera-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+
+
+        .video-container {
+            position: relative;
+            background: black;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+         #video {
+        width: 120%;           /* 20% größer */
+        max-width: 750px;      /* verhindert zu große Darstellung */
+        display: block;
+        transform: scaleX(-1);
+        }
+
+
+        .countdown-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 8rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        .countdown-overlay.active { display: flex; }
+
+        .spinner-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .spinner-overlay.active { display: flex; }
+
+        .spinner-dot {
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .spinner-dot:nth-child(1) { animation-delay: -0.32s; }
+        .spinner-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        /*Vorschau*/
+        .preview-panel {
+            background: white;
+            border-radius: 1rem;
+            padding: 1rem;
+        }
+
+        .preview-panel h3 {
+            color: #1565c0;
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .preview-grid { display: grid; gap: 0.3rem; }
+
+        .preview-slot {
+            aspect-ratio: 4/3;
+            background: #f5f5f5;
+            border-radius: 0.3rem;
+            overflow: hidden;
+        }
+
+        .preview-slot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 0.8rem;
+        }
+
+        .capture-button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .color-mode-toggle {
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(255,255,255,0.9);
+            border-radius: 2rem;
+            padding: 0.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .mode-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 1.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: transparent;
+        }
+
+        /*Schalter farbe wechseln*/
+        .mode-btn.active {
+            background: linear-gradient(135deg, #2196f3 0%, #86bffb 100%);
+            color: white;
+        }
+
+        /*Kreis für Kamera auslöser*/
+        .circular-capture-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 5px solid white;
+            background: linear-gradient(135deg, #2196f3 0%, #ebaef6 100%);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .circular-capture-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        }
+
+        .circular-capture-btn:active {
+            transform: scale(0.95);
+        }
+
+        .circular-capture-btn.recording {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .photo-counter-display {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #1565c0;
+        }
+
+
+        /* CUSTOMIZE SCREEN LAYOUT */
+        .customize-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .canvas-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            text-align: center;
+            align-items: center;
+            margin-bottom: 2rem;
+
+        }
+
+        #photostrip-canvas {
+            max-width: 50%;
+            height: auto;
+            border-radius: 1rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .customization-panel {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            display: inline block;
+        }
+
+        .customization-panel h3 {
+            color: #1565c0;
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+        }
+
+        .background-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 0.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .bg-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .bg-option:hover { transform: scale(1.05); }
+
+        .bg-option.selected {
+            border-color: #2196f3;
+            transform: scale(1.05);
+            box-shadow: 0 0 0 3px rgba(33,150,243,0.3);
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+            gap: 0.2rem;
+        }
+
+        .color-option {
+            height: 40px;
+            width: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid #ddd;
+        }
+
+        .color-option:hover { transform: scale(1.05); }
+
+        .color-option.selected {
+            border-color: #2196f3;
+            transform: scale(1.05);
+            box-shadow: 0 0 0 3px rgba(33,150,243,0.3);
+        }
+
+        .download-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 0 auto 1.5rem;
+            max-width: 600px;
+        }
+
+        .qr-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            text-align: center;
+            margin: 0 auto 1.5rem;
+            max-width: 600px;
+            display: none;
+        }
+
+        .qr-container.active { display: block; }
+
+        .qr-placeholder {
+            display: inline-block;
+            margin-top: 1rem;
+        }
+
+        #qr-code-target {
+            display: inline-block;
+        }
+
+        @media (max-width: 968px) {
+            .camera-layout, .customize-layout { grid-template-columns: 1fr; }
+            h1 { font-size: 1.8rem; }
+            .layout-grid { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="snowflakes" id="snowflakes"></div>
+
+    <div class="container">
+        <div id="start-screen" class="screen active">
+            <h1>❄️ FIW Winterfest Photobooth ❄️</h1>
+            <p class="subtitle">Wähle dein Foto-Layout</p>
+
+            <div class="layout-grid">
+                <div class="layout-card" data-layout="2">
+                    <div class="layout-preview">
+                        <div class="layout-strip">
+                            <div class="layout-photos">
+                                <div class="layout-box"></div>
+                                <div class="layout-box"></div>
+                                <div class="layout-box"></div>
+                                <div class="layout-box"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layout-name">1×4 Frame</div>
+                    <div>4 Fotos </div>
+                </div>
+
+                <div class="layout-card" data-layout="1">
+                    <div class="layout-preview">
+                        <div class="layout-strip">
+                            <div class="layout-photos">
+                                <div class="layout-box"></div>
+                                <div class="layout-box"></div>
+                                <div class="layout-box"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layout-name">1×3 Frame</div>
+                    <div>3 Fotos </div>
+                </div>
+
+                 <div class="layout-card" data-layout="3">
+                    <div class="layout-preview" style="grid-template-columns: 1fr;">
+                        <div class="layout-box" style="aspect-ratio: 3/4;"></div>
+                    </div>
+                    <div class="layout-name">Instax Hochformat</div>
+                    <div>1 Foto</div>
+                </div>
+            </div>
+
+
+            <button class="btn btn-primary btn-full" id="start-btn" style="display: none;">Weiter zur Kamera</button>
+        </div>
+
+        <div id="camera-screen" class="screen">
+            <div class="camera-layout">
+                <div>
+
+
+                    <div class="video-container">
+                        <video id="video" autoplay playsinline></video>
+                        <div class="countdown-overlay" id="countdown">3</div>
+                        <div class="spinner-overlay" id="spinner">
+                            <div class="spinner-dot"></div>
+                            <div class="spinner-dot"></div>
+                            <div class="spinner-dot"></div>
+                        </div>
+                    </div>
+
+
+                    <div class="capture-button-container">
+                        <div class="color-mode-toggle">
+                            <button class="mode-btn active" data-mode="color">Farbig</button>
+                            <button class="mode-btn" data-mode="bw">Schwarz weiß</button>
+                        </div>
+
+
+                        <button class="circular-capture-btn" id="capture-btn"></button>
+
+                        <div class="photo-counter-display" id="photo-counter">(1/3)</div>
+                    </div>
+
+                      <!-- Zurück zur Auswahl Button -->
+               <!-- <button id="back-to-options" class="btn btn-secondary" style="margin-top: 0.8rem;">
+                    ← Zurück zur Auswahl
+                </button> -->
+
+                    <div class="button-group" id="camera-actions" style="display: none;">
+                        <button class="btn btn-secondary" id="retake-btn" style="flex: 1;"> Neu aufnehmen</button>
+                        <button class="btn btn-primary" id="next-btn" style="flex: 1;">Weiter </button>
+                    </div>
+                </div>
+
+                <div class="preview-panel">
+                    <h3>Vorschau</h3>
+                    <div class="preview-grid" id="preview-grid"></div>
+                </div>
+            </div>
+        </div>
+
+       <div id="customize-screen" class="screen">
+           <!-- <button class="btn btn-secondary" id="back-to-camera" style="margin-bottom: 1rem;">
+                ← Zurück zur Kamera
+            </button> -->
+
+            <h1>Gestalte deinen Fotostreifen</h1>
+            <p class="subtitle">Wähle einen Hintergrund</p>
+
+            <div class="customize-layout">
+                <div class="canvas-container">
+                    <canvas id="photostrip-canvas"></canvas>
+                </div>
+
+                <div class="customization-panel">
+                    <h3>Winter Motive</h3>
+                    <div class="background-grid" id="bg-grid"></div>
+                    <h3>Farbiger Hintergrund</h3>
+                    <div class="color-grid" id="color-grid"></div>
+                    <button class="btn btn-primary" id="customize-next-btn" style="width: 100%; margin-top: 1rem;">Fertig ✨</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="download-screen" class="screen">
+            <h1>Dein Photostrip ist fertig!</h1>
+            <p class="subtitle">Herunterladen oder teilen</p>
+
+            <div class="canvas-container" style="max-width: 800px; margin: 0 auto 1.5rem;">
+                <canvas id="final-canvas"></canvas>
+            </div>
+
+            <div class="download-buttons">
+                <button class="btn btn-primary" id="download-btn">⬇️ Foto herunterladen</button>
+                <button class="btn btn-primary" id="qr-btn" style="background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);">📱 QR-Code erstellen</button>
+            </div>
+
+            <div class="qr-container" id="qr-container">
+                <p style="color: #1565c0; margin-bottom: 1rem;">Scanne um dein Foto zu speichern!</p>
+                <div class="qr-placeholder" id="qr-code-target"></div>
+                <p style="font-size: 0.9rem; color: #666; margin-top: 1rem;">Winter Photobooth - <span id="qr-date"></span></p>
+            </div>
+
+            <button class="btn btn-secondary btn-full" id="restart-btn">🔄 Neu starten</button>
+        </div>
+    </div>
+
+
+    <script>
+        // 1. Das "state"-Objekt ist "let", da es beim Neustart komplett überschrieben wird.
+let state = {
+    screen: 'start',
+    selectedLayout: null,
+    photos: [],
+    stream: null,
+    countdown: null,
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    colorMode: 'color' // NEU: von V1
+};
+
+// 2. Alle "globalen" Variablen, die sich nie ändern, sind jetzt "const".
+const layouts = {
+    1: { cols: 1, rows: 3, count: 3 },
+    2: { cols: 1, rows: 4, count: 4 },
+    3: { cols: 1, rows: 1, count: 1 }, // Instax
+
+};
+// Link mit bildern als Hintergrund
+const backgrounds = [
+    { name: 'Snowflakes', image: 'Bilder/1.png' },
+    { name: 'Christmas Tree', image: 'Bilder/2.png'},
+    { name: 'Snow', image: 'Bilder/3.png' },
+     { name: 'Snow', image: 'Bilder/4.png' },
+];
+
+const colors = ['#ffffff', '#e3f2fd', '#f3e5f5', '#e8f5e9', '#fff3e0', '#fce4ec'];
+
+// 3. Alle DOM-Element-Referenzen sind ebenfalls "const".
+const screens = {
+    start: document.getElementById('start-screen'),
+    camera: document.getElementById('camera-screen'),
+    customize: document.getElementById('customize-screen'),
+    download: document.getElementById('download-screen')
+};
+
+const video = document.getElementById('video');
+const countdownOverlay = document.getElementById('countdown');
+const previewGrid = document.getElementById('preview-grid');
+const photostripCanvas = document.getElementById('photostrip-canvas');
+const finalCanvas = document.getElementById('final-canvas');
+const spinner = document.getElementById('spinner');
+
+// --- FUNCTIONS ---
+
+function createSnowflakes() {
+    const container = document.getElementById('snowflakes');
+    if (!container) return; // Sicherheitshalber
+    for (let i = 0; i < 20; i++) {
+        const snowflake = document.createElement('div');
+        snowflake.className = 'snowflake';
+        snowflake.textContent = '❄';
+        snowflake.style.left = Math.random() * 100 + '%';
+        snowflake.style.top = Math.random() * 100 + '%';
+        snowflake.style.fontSize = (Math.random() * 20 + 10) + 'px';
+        container.appendChild(snowflake);
+    }
+}
+
+function showScreen(screenName) {
+    for (const key in screens) {
+        if (screens[key]) {
+             screens[key].classList.remove('active');
+        }
+    }
+    if (screens[screenName]) {
+        screens[screenName].classList.add('active');
+    }
+    state.screen = screenName;
+}
+
+async function startCamera() {
+    try {
+        const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } });
+        state.stream = mediaStream;
+        video.srcObject = mediaStream;
+    } catch (err) {
+        console.error("Kamerafehler:", err);
+        alert('Kamerazugriff verweigert. Bitte erlaube den Kamerazugriff.');
+        showScreen('start'); // Bei Fehler zurück zum Startbildschirm
+    } finally {
+        spinner.classList.remove('active'); // Spinner verstecken
+    }
+}
+
+function updatePreviewGrid() {
+    const layout = layouts[state.selectedLayout];
+    if (!layout) return; // Abbruch, wenn kein Layout gewählt
+
+    previewGrid.style.gridTemplateColumns = `repeat(${layout.cols}, 1fr)`;
+    previewGrid.style.gridTemplateRows = `repeat(${layout.rows}, 1fr)`;
+    previewGrid.innerHTML = '';
+
+    for (let i = 0; i < layout.count; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'preview-slot';
+        if (state.photos[i]) {
+            const img = document.createElement('img');
+            img.src = state.photos[i];
+            slot.appendChild(img);
+        }
+        previewGrid.appendChild(slot);
+    }
+}
+
+// ANGEPASST: updatePhotoCounter (V2) - Funktioniert jetzt mit dem <div> von V1
+function updatePhotoCounter(initial = false) {
+    const layout = layouts[state.selectedLayout];
+    if (!layout) return;
+
+    const counter = document.getElementById('photo-counter');
+    const captureBtn = document.getElementById('capture-btn');
+
+    if (initial) {
+        counter.textContent = `(${layout.count} Foto${layout.count > 1 ? 's' : ''})`;
+    } else {
+        const current = state.photos.length < layout.count ? state.photos.length + 1 : layout.count;
+        counter.textContent = `(${current}/${layout.count})`;
+    }
+}
+
+// NEU: S/W-Filterfunktion von V1
+function applyColorMode(ctx, canvas) {
+    if (state.colorMode === "bw") {
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+        for (let i = 0; i < data.length; i += 4) {
+            const gray =
+                data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+            data[i] = gray;
+            data[i + 1] = gray;
+            data[i + 2] = gray;
+        }
+        ctx.putImageData(imageData, 0, 0);
+    }
+}
+
+// GEMERGT: takePhoto (V2-Logik + V1-Spiegelung & S/W-Filter)
+function takePhoto() {
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+
+    // NEU: Spiegelung von V1
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+
+    // NEU: S/W-Filterung von V1
+    applyColorMode(ctx, canvas);
+
+    const photoData = canvas.toDataURL('image/png');
+    state.photos.push(photoData);
+
+    updatePreviewGrid();
+
+    // V2-Logik beibehalten
+    if (state.photos.length !== layouts[state.selectedLayout].count) {
+        updatePhotoCounter();
+    }
+
+    const layout = layouts[state.selectedLayout];
+    if (state.photos.length === layout.count) {
+        document.getElementById('capture-btn').style.display = 'none';
+        document.getElementById('camera-actions').style.display = 'flex';
+    }
+}
+//Laura: Funktion angepasst
+function setupCustomization() {
+    const bgGrid = document.getElementById('bg-grid');
+    bgGrid.innerHTML = '';
+
+    backgrounds.forEach((bg, index) => {
+        const div = document.createElement('div');
+        div.className = 'bg-option' + (index === 0 ? ' selected' : '');
+        div.style.backgroundImage = `url(${bg.image})`; // Bild im Kreis
+        div.style.backgroundSize = 'cover';
+        div.style.backgroundPosition = 'center';
+        div.title = bg.name;
+        div.dataset.background = bg.image; // <- hier auf Bild setzen
+
+        div.addEventListener('click', () => {
+            document.querySelectorAll('.bg-option').forEach(el => el.classList.remove('selected'));
+            div.classList.add('selected');
+            state.background = div.dataset.background; // <- Bild wird nun als Hintergrund genutzt
+            generatePhotostrip(photostripCanvas);
+        });
+
+        bgGrid.appendChild(div);
+    });
+
+    // Farben bleiben gleich
+    const colorGrid = document.getElementById('color-grid');
+    colorGrid.innerHTML = '';
+    colors.forEach(color => {
+        const div = document.createElement('div');
+        div.className = 'color-option';
+        div.style.backgroundColor = color;
+        div.dataset.color = color;
+
+        div.addEventListener('click', () => {
+            document.querySelectorAll('.bg-option').forEach(el => el.classList.remove('selected'));
+            document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
+            div.classList.add('selected');
+            state.background = div.dataset.color;
+            generatePhotostrip(photostripCanvas);
+        });
+        colorGrid.appendChild(div);
+    });
+}
+
+
+// --- GENERIEREN DES FOTOSTREIFENS ---
+function generatePhotostrip(canvas) {
+    const layout = layouts[state.selectedLayout]; // aktuelles Layout laden
+    const photoWidth = (layout.cols === 2) ? 250 : 400;  // Breite der Fotos (kleiner bei 2x2)
+    const photoHeight = (layout.cols === 2) ? 250 : 300; // Höhe der Fotos
+    const padding = 20; // Abstand zwischen den Fotos
+
+    // Canvas-Größe berechnen (inkl. Padding + extra Platz unten für Instax-Stil)
+    canvas.width = layout.cols * photoWidth + (layout.cols + 1) * padding;
+    canvas.height = layout.rows * photoHeight + (layout.rows + 1) * padding + 100;
+    const ctx = canvas.getContext('2d');
+
+    // --- FUNKTION ZUM ZEICHNEN DER FOTOS ---
+    function drawPhotos() {
+        // Gesamtgröße des Fotoblocks
+        const photoBlockWidth = layout.cols * photoWidth + (layout.cols - 1) * padding;
+        const photoBlockHeight = layout.rows * photoHeight + (layout.rows - 1) * padding;
+
+        // Startposition für zentrierten Block auf dem Canvas
+        const startX = (canvas.width - photoBlockWidth) / 2;
+        const startY = (canvas.height - photoBlockHeight - 100) / 2; // extra unten für Instax
+
+        state.photos.forEach((photo, idx) => {
+            const img = new Image();
+            img.src = photo;
+            const col = idx % layout.cols;             // Spalte des Fotos
+            const row = Math.floor(idx / layout.cols); // Reihe des Fotos
+
+            img.onload = () => {
+                const x = startX + col * (photoWidth + padding); // X-Position
+                const y = startY + row * (photoHeight + padding); // Y-Position
+
+                // Schatten für Fotostreifen
+                ctx.save();
+                ctx.shadowColor = 'rgba(0,0,0,0.3)';
+                ctx.shadowBlur = 10;
+                ctx.shadowOffsetY = 5;
+                ctx.restore();
+
+                ctx.drawImage(img, x, y, photoWidth, photoHeight); // Foto zeichnen
+            };
+        });
+    }
+
+    // --- HINTERGRUND HANDHABEN ---
+    if (state.backgroundImage) {
+        // Wenn ein Hintergrundbild gewählt wurde
+        const bgImg = new Image();
+        bgImg.src = state.backgroundImage;
+        bgImg.onload = () => {
+            // Bild proportional skalieren, sodass es das Canvas ausfüllt
+            const scale = Math.max(canvas.width / bgImg.width, canvas.height / bgImg.height);
+            const bw = bgImg.width * scale;
+            const bh = bgImg.height * scale;
+            const bx = (canvas.width - bw) / 2; // zentrieren horizontal
+            const by = (canvas.height - bh) / 2; // zentrieren vertikal
+            ctx.drawImage(bgImg, bx, by, bw, bh);
+
+            drawPhotos(); // Fotos erst nach Laden des Hintergrunds
+        };
+    } else {
+        // Wenn Farbe oder Gradient als Hintergrund
+        if (state.background?.startsWith('linear-gradient')) {
+            const colorMatches = state.background.match(/#[a-f0-9]{6}/gi);
+            if (colorMatches && colorMatches.length >= 2) {
+                const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                grad.addColorStop(0, colorMatches[0]);
+                grad.addColorStop(1, colorMatches[colorMatches.length - 1]);
+                ctx.fillStyle = grad;
+            } else {
+                ctx.fillStyle = state.background; // fallback
+            }
+        } else {
+            ctx.fillStyle = state.background || '#ffffff'; // Farbe auswählen oder weiß
+        }
+        ctx.fillRect(0, 0, canvas.width, canvas.height); // Hintergrund füllen
+        drawPhotos(); // Fotos zeichnen
+    }
+}
+
+// --- CUSTOMIZATION (HINTERGRUND + FARBEN) ---
+function setupCustomization() {
+    const bgGrid = document.getElementById('bg-grid'); // Container für Hintergrundbilder
+    bgGrid.innerHTML = ''; // alte Optionen löschen
+    const colorGrid = document.getElementById('color-grid'); // Container für Farben
+    colorGrid.innerHTML = ''; // alte Optionen löschen
+
+    // --- HINTERGRUNDBILDER ---
+    backgrounds.forEach((bg, index) => {
+        const div = document.createElement('div');
+        div.className = 'bg-option' + (index === 0 ? ' selected' : ''); // erste ausgewählt
+        div.style.backgroundImage = `url(${bg.image})`;
+        div.style.backgroundSize = 'cover';   // Bild skalieren
+        div.style.backgroundPosition = 'center'; // zentrieren
+        div.title = bg.name;
+
+        div.addEventListener('click', () => {
+            document.querySelectorAll('.bg-option').forEach(el => el.classList.remove('selected'));
+            document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
+            div.classList.add('selected');
+
+            state.backgroundImage = bg.image;   // Bild wählen
+            state.background = null;             // Farbe deaktivieren
+            generatePhotostrip(photostripCanvas);
+        });
+
+        bgGrid.appendChild(div);
+    });
+
+    // --- FARBOPTIONEN ---
+    colors.forEach(color => {
+        const div = document.createElement('div');
+        div.className = 'color-option';
+        div.style.backgroundColor = color;
+        div.dataset.color = color;
+
+        div.addEventListener('click', () => {
+            document.querySelectorAll('.bg-option').forEach(el => el.classList.remove('selected'));
+            document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
+            div.classList.add('selected');
+
+            state.background = color;          // Farbe wählen
+            state.backgroundImage = null;       // Bild deaktivieren
+            generatePhotostrip(photostripCanvas);
+        });
+
+        colorGrid.appendChild(div);
+    });
+}
+
+// --- EVENT LISTENERS ---
+
+document.querySelectorAll('.layout-card').forEach(card => {
+    card.addEventListener('click', function() {
+        document.querySelectorAll('.layout-card').forEach(otherCard => {
+            otherCard.classList.remove('selected');
+        });
+        this.classList.add('selected');
+        state.selectedLayout = parseInt(this.dataset.layout);
+        document.getElementById('start-btn').style.display = 'flex';
+    });
+});
+
+document.getElementById('start-btn').addEventListener('click', () => {
+    showScreen('camera');
+    spinner.classList.add('active');
+    startCamera();
+    updatePreviewGrid();
+    updatePhotoCounter(true); // Ruft den "Hinweis"-Text auf
+});
+
+// NEU: Event-Listener für S/W-Schalter (von V1)
+document.querySelectorAll(".mode-btn").forEach((btn) => {
+    btn.addEventListener("click", function () {
+        document
+            .querySelectorAll(".mode-btn")
+            .forEach((b) => b.classList.remove("active"));
+        this.classList.add("active");
+        state.colorMode = this.dataset.mode;
+    });
+});
+
+// GEMERGT: capture-btn Listener (V2-Logik, aber ohne Text-Updates für den Button)
+document.getElementById('capture-btn').addEventListener('click', async () => {
+    const layout = layouts[state.selectedLayout];
+    const captureBtn = document.getElementById('capture-btn');
+
+    captureBtn.disabled = true;
+
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    const isMultiPhotoLayout = (layout.count > 1);
+
+    for (let i = 0; i < layout.count; i++) {
+        const isLastPhoto = (i === layout.count - 1);
+
+        // V2-Text-Update-Logik (captureBtn.firstChild.textContent) entfernt,
+        // da der runde Button keinen Text hat.
+
+        updatePhotoCounter(); // Zähler aktualisieren
+
+        let count = 3;
+        countdownOverlay.textContent = count;
+        countdownOverlay.classList.remove('is-hint');
+        countdownOverlay.classList.add('active');
+
+        while (count > 0) {
+            await sleep(1000);
+            count--;
+            if (count > 0) {
+                countdownOverlay.textContent = count;
+            }
+        }
+
+        countdownOverlay.textContent = '📷';
+        countdownOverlay.classList.remove('is-hint');
+        await sleep(500);
+
+        countdownOverlay.classList.remove('active');
+        takePhoto();
+
+        if (isMultiPhotoLayout && !isLastPhoto) {
+            countdownOverlay.textContent = 'Super! Mach dich bereit für das nächste Foto...';
+            countdownOverlay.classList.add('is-hint');
+            countdownOverlay.classList.add('active');
+            await sleep(2500);
+            countdownOverlay.classList.remove('active');
+            countdownOverlay.classList.remove('is-hint');
+        } else if (isLastPhoto) { // Zeigt "Fertig" bei Multi-Foto und Einzelfoto
+            countdownOverlay.textContent = 'Fertig! Sieh dir deine Fotos an.';
+            countdownOverlay.classList.add('is-hint');
+            countdownOverlay.classList.add('active');
+        }
+    }
+});
+
+// V2-Listener (korrigiert)
+document.getElementById('retake-btn').addEventListener('click', () => {
+    state.photos = [];
+    updatePreviewGrid();
+    updatePhotoCounter(true); // Setzt den "Hinweis"-Text zurück
+
+    const captureBtn = document.getElementById('capture-btn');
+    captureBtn.style.display = 'block';
+    captureBtn.disabled = false;
+
+    document.getElementById('camera-actions').style.display = 'none';
+
+    countdownOverlay.classList.remove('active');
+    countdownOverlay.classList.remove('is-hint');
+});
+
+document.getElementById('next-btn').addEventListener('click', () => {
+    if (state.stream) {
+        state.stream.getTracks().forEach(track => track.stop());
+    }
+    showScreen('customize');
+    setupCustomization();
+    generatePhotostrip(photostripCanvas);
+});
+
+document.getElementById('customize-next-btn').addEventListener('click', () => {
+    showScreen('download');
+    generatePhotostrip(finalCanvas);
+});
+
+document.getElementById('download-btn').addEventListener('click', () => {
+    const dataUrl = finalCanvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.download = 'fiw-winter-photobooth.png';
+    link.href = dataUrl;
+    link.click();
+});
+
+// KORRIGIERTER QR-Code-Listener (von V1-Reparatur)
+document.getElementById("qr-btn").addEventListener("click", () => {
+    const qrContainer = document.getElementById("qr-container");
+    const qrDate = document.getElementById("qr-date");
+    const qrTarget = document.getElementById("qr-code-target");
+
+    qrDate.textContent = new Date().toLocaleString("de-DE");
+    qrTarget.innerHTML = "";
+
+    // JPEG für kleinere Dateigröße bei QR-Codes
+    const dataUrl = finalCanvas.toDataURL("image/jpeg", 0.7);
+
+    try {
+        const qrCanvas = document.createElement("canvas");
+        new QRious({
+            element: qrCanvas,
+            value: dataUrl,
+            size: 250,
+            level: "L", // 'L' (Low) für maximale Datenkapazität
+        });
+        qrTarget.appendChild(qrCanvas);
+    } catch (e) {
+        console.error("QR-Code-Fehler:", e);
+        qrTarget.innerHTML =
+            '<p style="color: red; font-size: 0.9rem;">Fehler: Das Bild ist zu groß für einen QR-Code. Versuche einen einfacheren Hintergrund.</p>';
+    }
+
+    qrContainer.classList.add("active");
+});
+
+// KORRIGIERTER restart-btn Listener (V2)
+document.getElementById('restart-btn').addEventListener('click', () => {
+    // Stoppt Stream, falls Benutzer von Kamera direkt neu startet (obwohl nicht sichtbar)
+    if (state.stream) {
+        state.stream.getTracks().forEach(track => track.stop());
+    }
+
+    state = {
+        screen: 'start',
+        selectedLayout: null,
+        photos: [],
+        stream: null,
+        countdown: null,
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        colorMode: 'color' // Zustand zurücksetzen
+    };
+
+    document.querySelectorAll('.layout-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+
+    // S/W-Schalter zurücksetzen
+    document.querySelectorAll(".mode-btn").forEach((btn) => {
+        if (btn.dataset.mode === "color") {
+            btn.classList.add("active");
+        } else {
+            btn.classList.remove("active");
+        }
+    });
+
+    document.getElementById('start-btn').style.display = 'none';
+
+    const captureBtn = document.getElementById('capture-btn');
+    captureBtn.style.display = 'block';
+    captureBtn.disabled = false;
+
+    document.getElementById('camera-actions').style.display = 'none';
+    document.getElementById('qr-container').classList.remove('active');
+
+    countdownOverlay.classList.remove('active');
+    countdownOverlay.classList.remove('is-hint');
+
+    showScreen('start');
+});
+
+// "Zurück"-Button Event Listeners (V2)
+document.getElementById('back-to-start').addEventListener('click', () => {
+    if (state.stream) {
+        state.stream.getTracks().forEach(track => track.stop());
+        state.stream = null;
+    }
+    state.photos = [];
+    updatePreviewGrid();
+
+    const captureBtn = document.getElementById('capture-btn');
+    captureBtn.style.display = 'block';
+    captureBtn.disabled = false; // Wichtig
+    document.getElementById('camera-actions').style.display = 'none';
+
+    showScreen('start');
+});
+
+document.getElementById('back-to-camera').addEventListener('click', () => {
+    showScreen('camera');
+    spinner.classList.add('active');
+    startCamera();
+    updatePhotoCounter(true); // "Hinweis"-Text wiederherstellen
+});
+
+document.getElementById('back-to-customize').addEventListener('click', () => {
+    showScreen('customize');
+});
+document.getElementById('customize-next-btn').addEventListener('click', () => {
+    showScreen('download');
+
+    // Feste Größe, z.B. 800x1200px (oder anpassen nach Design)
+    generatePhotostrip(finalCanvas, 800, 1200);
+});
+
+// --- INIT ---
+createSnowflakes();
+    </script>
+</body>
+</html>
