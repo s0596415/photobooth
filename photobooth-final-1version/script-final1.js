@@ -17,13 +17,14 @@ const layouts = {
     4: { cols: 2, rows: 2, count: 4 }  // NEU: V1 "2x2 Grid"
 };
 
+// Link mit bildern als Hintergrund
 const backgrounds = [
-    { name: 'Snowflakes', gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
-    { name: 'Frosty Blue', gradient: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)' },
-    { name: 'Pine Forest', gradient: 'linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)' },
-    { name: 'Winter Sky', gradient: 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)' },
-    { name: 'Christmas', gradient: 'linear-gradient(135deg, #d31027 0%, #ea384d 100%)' }
+    { name: 'Snowflakes', image: 'Bilder/1.png' },
+    { name: 'Christmas Tree', image: 'Bilder/2.png'},
+    { name: 'Snow', image: 'Bilder/3.png' },
+     { name: 'Snow', image: 'Bilder/4.png' },
 ];
+
 
 const colors = ['#ffffff', '#e3f2fd', '#f3e5f5', '#e8f5e9', '#fff3e0', '#fce4ec'];
 
