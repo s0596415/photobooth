@@ -1,16 +1,26 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FIW Winterfest Photobooth</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FIW Winterfest Photobooth test.html</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
         
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 50%, #fce4ec 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                sans-serif;
+            background: linear-gradient(135deg,
+                    #e3f2fd 0%,
+                    #f3e5f5 50%,
+                    #fce4ec 100%);
             overflow-x: hidden;
             min-height: 100vh;
         }
@@ -34,8 +44,13 @@
         }
 
         @keyframes fall {
-            0% { transform: translateY(-10vh) rotate(0deg); }
-            100% { transform: translateY(110vh) rotate(360deg); }
+            0% {
+                transform: translateY(-10vh) rotate(0deg);
+            }
+
+            100% {
+                transform: translateY(110vh) rotate(360deg);
+            }
         }
 
         .container {
@@ -46,8 +61,13 @@
             padding: 2rem;
         }
 
-        .screen { display: none; }
-        .screen.active { display: block; }
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
 
         h1 {
             text-align: center;
@@ -63,7 +83,6 @@
             font-size: 1rem;
         }
 
-        
         /* Laura: Neues Layout Fotostreifen*/
         .layout-grid {
             display: flex;
@@ -79,16 +98,16 @@
             background: white;
             padding: 1.2rem;
             border-radius: 0.8rem;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
             cursor: pointer;
             transition: all 0.3s;
             border: 3px solid transparent;
             width: 200px;
         }
 
-        .layout-card:hover { 
+        .layout-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 12px 28px rgba(0,0,0,0.2);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
         }
 
         .layout-card.selected {
@@ -102,11 +121,10 @@
             padding: 0.8rem 0.5rem;
             border-radius: 0.5rem;
             margin-bottom: 0.8rem;
-            box-shadow: inset 0 2px 7px rgba(0,0,0,0.3);
+            box-shadow: inset 0 2px 7px rgba(0, 0, 0, 0.3);
         }
 
         .layout-strip {
-           
             padding: 0.2rem;
             border-radius: 0.2rem;
             box-shadow: 0 2px 4px rgba(240, 238, 238, 0.2);
@@ -128,10 +146,9 @@
             aspect-ratio: 4/3;
             background: #fffcfc;
             border-radius: 0.15rem;
-           
         }
 
-        .layout-card.selected .layout-box { 
+        .layout-card.selected .layout-box {
             background: #d4e6f5;
         }
 
@@ -142,7 +159,7 @@
             text-align: center;
         }
 
-        .layout-card > div:last-child {
+        .layout-card>div:last-child {
             text-align: center;
             color: #666;
             font-size: 0.9rem;
@@ -164,11 +181,19 @@
             color: white;
         }
 
-        .btn-primary:hover { transform: translateY(-2px); }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
 
         /*Box für zurück zur Auswahl*/
-        .btn-secondary { background: #a8c9f5; color: white; }
-        .btn-secondary:hover { background: #6b8ddd; }
+        .btn-secondary {
+            background: #a8c9f5;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #6b8ddd;
+        }
 
         .btn-full {
             width: 100%;
@@ -192,8 +217,8 @@
             overflow: hidden;
         }
 
-        #video { 
-            width: 100%; 
+        #video {
+            width: 100%;
             display: block;
             transform: scaleX(-1);
         }
@@ -201,7 +226,7 @@
         .countdown-overlay {
             position: absolute;
             inset: 0;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.7);
             display: none;
             align-items: center;
             justify-content: center;
@@ -210,19 +235,23 @@
             font-weight: bold;
         }
 
-        .countdown-overlay.active { display: flex; }
+        .countdown-overlay.active {
+            display: flex;
+        }
 
         .spinner-overlay {
             position: absolute;
             inset: 0;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0, 0, 0, 0.8);
             display: none;
             align-items: center;
             justify-content: center;
             gap: 1rem;
         }
 
-        .spinner-overlay.active { display: flex; }
+        .spinner-overlay.active {
+            display: flex;
+        }
 
         .spinner-dot {
             width: 20px;
@@ -232,12 +261,25 @@
             animation: bounce 1.4s infinite ease-in-out both;
         }
 
-        .spinner-dot:nth-child(1) { animation-delay: -0.32s; }
-        .spinner-dot:nth-child(2) { animation-delay: -0.16s; }
+        .spinner-dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .spinner-dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
 
         @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1); }
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0);
+            }
+
+            40% {
+                transform: scale(1);
+            }
         }
 
         /*Vorschau*/
@@ -254,7 +296,10 @@
             text-align: center;
         }
 
-        .preview-grid { display: grid; gap: 0.3rem; }
+        .preview-grid {
+            display: grid;
+            gap: 0.3rem;
+        }
 
         .preview-slot {
             aspect-ratio: 4/3;
@@ -286,10 +331,10 @@
         .color-mode-toggle {
             display: flex;
             gap: 0.5rem;
-            background: rgba(255,255,255,0.9);
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 2rem;
             padding: 0.5rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
 
         .mode-btn {
@@ -318,12 +363,12 @@
             cursor: pointer;
             transition: all 0.3s;
             position: relative;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
         }
 
         .circular-capture-btn:hover {
             transform: scale(1.1);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
         }
 
         .circular-capture-btn:active {
@@ -335,8 +380,15 @@
         }
 
         @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
         }
 
         .photo-counter-display {
@@ -365,12 +417,13 @@
             justify-content: center;
         }
 
-        #photostrip-canvas, #final-canvas {
+        #photostrip-canvas,
+        #final-canvas {
             max-width: 100%;
             max-height: 70vh;
             height: auto;
             border-radius: 0.5rem;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
         }
 
         .customization-panel {
@@ -400,12 +453,14 @@
             border: 3px solid transparent;
         }
 
-        .bg-option:hover { transform: scale(1.05); }
+        .bg-option:hover {
+            transform: scale(1.05);
+        }
 
         .bg-option.selected {
             border-color: #2196f3;
             transform: scale(1.05);
-            box-shadow: 0 0 0 3px rgba(33,150,243,0.3);
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.3);
         }
 
         .color-grid {
@@ -422,12 +477,14 @@
             border: 2px solid #ddd;
         }
 
-        .color-option:hover { transform: scale(1.05); }
+        .color-option:hover {
+            transform: scale(1.05);
+        }
 
         .color-option.selected {
             border-color: #2196f3;
             transform: scale(1.05);
-            box-shadow: 0 0 0 3px rgba(33,150,243,0.3);
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.3);
         }
 
         .download-buttons {
@@ -448,7 +505,9 @@
             display: none;
         }
 
-        .qr-container.active { display: block; }
+        .qr-container.active {
+            display: block;
+        }
 
         .qr-placeholder {
             display: inline-block;
@@ -460,12 +519,78 @@
         }
 
         @media (max-width: 968px) {
-            .camera-layout, .customize-layout { grid-template-columns: 1fr; }
-            h1 { font-size: 1.8rem; }
-            .layout-grid { flex-direction: column; align-items: center; }
+
+            .camera-layout,
+            .customize-layout {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .layout-grid {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        /* Spinner (am Ende der style.css einfügen) */
+        .spinner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            /* Wichtig: Standardmäßig versteckt */
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .spinner-overlay.active {
+            display: flex;
+            /* Wird per JS sichtbar gemacht */
+        }
+
+        .spinner-dot {
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background-color: #fff;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .spinner-dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .spinner-dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0);
+            }
+
+            40% {
+                transform: scale(1);
+            }
+        }
+
+        .countdown-overlay.is-hint {
+            font-size: 4rem;
+            padding: 0 2rem;
         }
     </style>
 </head>
+
 <body>
     <div class="snowflakes" id="snowflakes"></div>
 
@@ -487,7 +612,7 @@
                         </div>
                     </div>
                     <div class="layout-name">1×4 Frame</div>
-                    <div>4 Fotos </div>
+                    <div>4 Fotos</div>
                 </div>
 
                 <div class="layout-card" data-layout="1">
@@ -501,7 +626,7 @@
                         </div>
                     </div>
                     <div class="layout-name">1×3 Frame</div>
-                    <div>3 Fotos </div>
+                    <div>3 Fotos</div>
                 </div>
 
                 <div class="layout-card" data-layout="3">
@@ -516,17 +641,19 @@
                         </div>
                     </div>
                     <div class="layout-name">2×2 Frame</div>
-                    <div>4 Fotos </div>
+                    <div>4 Fotos</div>
                 </div>
             </div>
 
-            <button class="btn btn-primary btn-full" id="start-btn" style="display: none;">Weiter zur Kamera</button>
+            <button class="btn btn-primary btn-full" id="start-btn" style="display: none">
+                Weiter zur Kamera
+            </button>
         </div>
 
         <div id="camera-screen" class="screen">
             <div class="camera-layout">
                 <div>
-                    <button class="btn btn-secondary" id="back-to-start" style="margin-bottom: 1rem; width: 100%;">
+                    <button class="btn btn-secondary" id="back-to-start" style="margin-bottom: 1rem; width: 100%">
                         ← Zurück zur Auswahl
                     </button>
 
@@ -542,18 +669,24 @@
 
                     <div class="capture-button-container">
                         <div class="color-mode-toggle">
-                            <button class="mode-btn active" data-mode="color">Farbig</button>
+                            <button class="mode-btn active" data-mode="color">
+                                Farbig
+                            </button>
                             <button class="mode-btn" data-mode="bw">Schwarz weiß</button>
                         </div>
-                        
+
                         <button class="circular-capture-btn" id="capture-btn"></button>
-                        
+
                         <div class="photo-counter-display" id="photo-counter">(1/3)</div>
                     </div>
 
-                    <div class="button-group" id="camera-actions" style="display: none;">
-                        <button class="btn btn-secondary" id="retake-btn" style="flex: 1;">🔄 Neu aufnehmen</button>
-                        <button class="btn btn-primary" id="next-btn" style="flex: 1;">Weiter ✨</button>
+                    <div class="button-group" id="camera-actions" style="display: none">
+                        <button class="btn btn-secondary" id="retake-btn" style="flex: 1">
+                            🔄 Neu aufnehmen
+                        </button>
+                        <button class="btn btn-primary" id="next-btn" style="flex: 1">
+                            Weiter ✨
+                        </button>
                     </div>
                 </div>
 
@@ -565,10 +698,10 @@
         </div>
 
         <div id="customize-screen" class="screen">
-            <button class="btn btn-secondary" id="back-to-camera" style="margin-bottom: 1rem;">
+            <button class="btn btn-secondary" id="back-to-camera" style="margin-bottom: 1rem">
                 ← Zurück zur Kamera
             </button>
-            
+
             <h1>Gestalte deinen Fotostreifen</h1>
             <p class="subtitle">Wähle einen Hintergrund</p>
 
@@ -582,7 +715,9 @@
                     <div class="background-grid" id="bg-grid"></div>
                     <h3>Farbiger Hintergrund</h3>
                     <div class="color-grid" id="color-grid"></div>
-                    <button class="btn btn-primary" id="customize-next-btn" style="width: 100%; margin-top: 1rem;">Fertig ✨</button>
+                    <button class="btn btn-primary" id="customize-next-btn" style="width: 100%; margin-top: 1rem">
+                        Fertig ✨
+                    </button>
                 </div>
             </div>
         </div>
@@ -591,92 +726,129 @@
             <h1>Dein Photostrip ist fertig!</h1>
             <p class="subtitle">Herunterladen oder teilen</p>
 
-            <div class="canvas-container" style="max-width: 800px; margin: 0 auto 1.5rem;">
+            <div class="canvas-container" style="max-width: 800px; margin: 0 auto 1.5rem">
                 <canvas id="final-canvas"></canvas>
             </div>
 
             <div class="download-buttons">
-                <button class="btn btn-primary" id="download-btn">⬇️ Foto herunterladen</button>
-                <button class="btn btn-primary" id="qr-btn" style="background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);">📱 QR-Code erstellen</button>
+                <button class="btn btn-primary" id="download-btn">
+                    ⬇️ Foto herunterladen
+                </button>
+                <button class="btn btn-primary" id="qr-btn" style="
+              background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);
+            ">
+                    📱 QR-Code erstellen
+                </button>
             </div>
 
             <div class="qr-container" id="qr-container">
-                <p style="color: #1565c0; margin-bottom: 1rem;">Scanne um dein Foto zu speichern!</p>
+                <p style="color: #1565c0; margin-bottom: 1rem">
+                    Scanne um dein Foto zu speichern!
+                </p>
                 <div class="qr-placeholder" id="qr-code-target"></div>
-                <p style="font-size: 0.9rem; color: #666; margin-top: 1rem;">Winter Photobooth - <span id="qr-date"></span></p>
+                <p style="font-size: 0.9rem; color: #666; margin-top: 1rem">
+                    Winter Photobooth - <span id="qr-date"></span>
+                </p>
             </div>
 
-            <button class="btn btn-secondary btn-full" id="restart-btn">🔄 Neu starten</button>
+            <button class="btn btn-secondary btn-full" id="restart-btn">
+                🔄 Neu starten
+            </button>
         </div>
     </div>
 
     <script>
         let state = {
-            screen: 'start',
+            screen: "start",
             selectedLayout: null,
             photos: [],
             stream: null,
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            colorMode: 'color',
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            colorMode: "color",
             isRecording: false,
-            recordingTimer: null
+            recordingTimer: null,
         };
 
         const layouts = {
             1: { cols: 1, rows: 3, count: 3, isGrid: false },
             2: { cols: 1, rows: 4, count: 4, isGrid: false },
-            3: { cols: 2, rows: 2, count: 4, isGrid: true }
+            3: { cols: 2, rows: 2, count: 4, isGrid: true },
         };
 
         const backgrounds = [
-            { name: 'Snowflakes', gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
-            { name: 'Frosty Blue', gradient: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)' },
-            { name: 'Pine Forest', gradient: 'linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)' },
-            { name: 'Winter Sky', gradient: 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)' },
-            { name: 'Christmas', gradient: 'linear-gradient(135deg, #d31027 0%, #ea384d 100%)' }
+            {
+                name: "Snowflakes",
+                gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            },
+            {
+                name: "Frosty Blue",
+                gradient: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
+            },
+            {
+                name: "Pine Forest",
+                gradient:
+                    "linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)",
+            },
+            {
+                name: "Winter Sky",
+                gradient: "linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)",
+            },
+            {
+                name: "Christmas",
+                gradient: "linear-gradient(135deg, #d31027 0%, #ea384d 100%)",
+            },
         ];
 
-        const colors = ['#ffffff', '#e3f2fd', '#f3e5f5', '#e8f5e9', '#fff3e0', '#fce4ec'];
+        const colors = [
+            "#ffffff",
+            "#e3f2fd",
+            "#f3e5f5",
+            "#e8f5e9",
+            "#fff3e0",
+            "#fce4ec",
+        ];
 
-        const video = document.getElementById('video');
-        const countdownOverlay = document.getElementById('countdown');
-        const previewGrid = document.getElementById('preview-grid');
-        const photostripCanvas = document.getElementById('photostrip-canvas');
-        const finalCanvas = document.getElementById('final-canvas');
-        const spinner = document.getElementById('spinner');
+        const video = document.getElementById("video");
+        const countdownOverlay = document.getElementById("countdown");
+        const previewGrid = document.getElementById("preview-grid");
+        const photostripCanvas = document.getElementById("photostrip-canvas");
+        const finalCanvas = document.getElementById("final-canvas");
+        const spinner = document.getElementById("spinner");
 
         function createSnowflakes() {
-            const container = document.getElementById('snowflakes');
+            const container = document.getElementById("snowflakes");
             for (let i = 0; i < 20; i++) {
-                const snowflake = document.createElement('div');
-                snowflake.className = 'snowflake';
-                snowflake.textContent = '❄';
-                snowflake.style.left = Math.random() * 100 + '%';
-                snowflake.style.top = Math.random() * 100 + '%';
-                snowflake.style.fontSize = (Math.random() * 20 + 10) + 'px';
+                const snowflake = document.createElement("div");
+                snowflake.className = "snowflake";
+                snowflake.textContent = "❄";
+                snowflake.style.left = Math.random() * 100 + "%";
+                snowflake.style.top = Math.random() * 100 + "%";
+                snowflake.style.fontSize = Math.random() * 20 + 10 + "px";
                 container.appendChild(snowflake);
             }
         }
 
         function showScreen(screenName) {
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.classList.remove('active');
+            document.querySelectorAll(".screen").forEach((screen) => {
+                screen.classList.remove("active");
             });
-            document.getElementById(screenName + '-screen').classList.add('active');
+            document.getElementById(screenName + "-screen").classList.add("active");
             state.screen = screenName;
         }
 
         async function startCamera() {
             try {
-                const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } });
+                const mediaStream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: 1280, height: 720 },
+                });
                 state.stream = mediaStream;
                 video.srcObject = mediaStream;
             } catch (err) {
                 console.error("Kamerafehler:", err);
-                alert('Kamerazugriff verweigert. Bitte erlaube den Kamerazugriff.');
-                showScreen('start');
+                alert("Kamerazugriff verweigert. Bitte erlaube den Kamerazugriff.");
+                showScreen("start");
             } finally {
-                spinner.classList.remove('active');
+                spinner.classList.remove("active");
             }
         }
 
@@ -684,13 +856,13 @@
             const layout = layouts[state.selectedLayout];
             previewGrid.style.gridTemplateColumns = `repeat(${layout.cols}, 1fr)`;
             previewGrid.style.gridTemplateRows = `repeat(${layout.rows}, 1fr)`;
-            previewGrid.innerHTML = '';
-            
+            previewGrid.innerHTML = "";
+
             for (let i = 0; i < layout.count; i++) {
-                const slot = document.createElement('div');
-                slot.className = 'preview-slot';
+                const slot = document.createElement("div");
+                slot.className = "preview-slot";
                 if (state.photos[i]) {
-                    const img = document.createElement('img');
+                    const img = document.createElement("img");
                     img.src = state.photos[i];
                     slot.appendChild(img);
                 }
@@ -701,16 +873,22 @@
 
         function updatePhotoCounter() {
             const layout = layouts[state.selectedLayout];
-            const current = state.photos.length < layout.count ? state.photos.length + 1 : layout.count;
-            document.getElementById('photo-counter').textContent = `(${current}/${layout.count})`;
+            const current =
+                state.photos.length < layout.count
+                    ? state.photos.length + 1
+                    : layout.count;
+            document.getElementById(
+                "photo-counter"
+            ).textContent = `(${current}/${layout.count})`;
         }
 
         function applyColorMode(ctx, canvas) {
-            if (state.colorMode === 'bw') {
+            if (state.colorMode === "bw") {
                 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 const data = imageData.data;
                 for (let i = 0; i < data.length; i += 4) {
-                    const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+                    const gray =
+                        data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
                     data[i] = gray;
                     data[i + 1] = gray;
                     data[i + 2] = gray;
@@ -720,60 +898,68 @@
         }
 
         function takePhoto() {
-            const canvas = document.createElement('canvas');
+            const canvas = document.createElement("canvas");
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-            const ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext("2d");
             ctx.scale(-1, 1);
             ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
             applyColorMode(ctx, canvas);
-            const photoData = canvas.toDataURL('image/png');
+            const photoData = canvas.toDataURL("image/png");
             state.photos.push(photoData);
-            
+
             updatePreviewGrid();
 
             const layout = layouts[state.selectedLayout];
             if (state.photos.length === layout.count) {
                 state.isRecording = false;
-                document.getElementById('capture-btn').classList.remove('recording');
-                document.getElementById('capture-btn').style.display = 'none';
-                document.getElementById('camera-actions').style.display = 'flex';
+                document.getElementById("capture-btn").classList.remove("recording");
+                document.getElementById("capture-btn").style.display = "none";
+                document.getElementById("camera-actions").style.display = "flex";
             }
         }
 
         function setupCustomization() {
-            const bgGrid = document.getElementById('bg-grid');
-            bgGrid.innerHTML = '';
-            
+            const bgGrid = document.getElementById("bg-grid");
+            bgGrid.innerHTML = "";
+
             backgrounds.forEach((bg, index) => {
-                const div = document.createElement('div');
-                div.className = 'bg-option' + (index === 0 ? ' selected' : '');
+                const div = document.createElement("div");
+                div.className = "bg-option" + (index === 0 ? " selected" : "");
                 div.style.background = bg.gradient;
                 div.title = bg.name;
                 div.dataset.gradient = bg.gradient;
 
-                div.addEventListener('click', () => {
-                    document.querySelectorAll('.bg-option').forEach(el => el.classList.remove('selected'));
-                    document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
-                    div.classList.add('selected');
+                div.addEventListener("click", () => {
+                    document
+                        .querySelectorAll(".bg-option")
+                        .forEach((el) => el.classList.remove("selected"));
+                    document
+                        .querySelectorAll(".color-option")
+                        .forEach((el) => el.classList.remove("selected"));
+                    div.classList.add("selected");
                     state.background = div.dataset.gradient;
                     generatePhotostrip(photostripCanvas);
                 });
                 bgGrid.appendChild(div);
             });
 
-            const colorGrid = document.getElementById('color-grid');
-            colorGrid.innerHTML = '';
-            colors.forEach(color => {
-                const div = document.createElement('div');
-                div.className = 'color-option';
+            const colorGrid = document.getElementById("color-grid");
+            colorGrid.innerHTML = "";
+            colors.forEach((color) => {
+                const div = document.createElement("div");
+                div.className = "color-option";
                 div.style.backgroundColor = color;
                 div.dataset.color = color;
 
-                div.addEventListener('click', () => {
-                    document.querySelectorAll('.bg-option').forEach(el => el.classList.remove('selected'));
-                    document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
-                    div.classList.add('selected');
+                div.addEventListener("click", () => {
+                    document
+                        .querySelectorAll(".bg-option")
+                        .forEach((el) => el.classList.remove("selected"));
+                    document
+                        .querySelectorAll(".color-option")
+                        .forEach((el) => el.classList.remove("selected"));
+                    div.classList.add("selected");
                     state.background = div.dataset.color;
                     generatePhotostrip(photostripCanvas);
                 });
@@ -794,15 +980,23 @@
                 canvas.height = stripWidth + outerPadding * 2;
             } else {
                 canvas.width = stripWidth;
-                canvas.height = layout.rows * photoH + (layout.rows + 1) * padding + outerPadding * 2;
+                canvas.height =
+                    layout.rows * photoH +
+                    (layout.rows + 1) * padding +
+                    outerPadding * 2;
             }
 
-            const ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext("2d");
 
-            if (state.background.startsWith('linear-gradient')) {
+            if (state.background.startsWith("linear-gradient")) {
                 const colorMatches = state.background.match(/#[a-f0-9]{6}/gi);
                 if (colorMatches && colorMatches.length >= 2) {
-                    const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                    const grad = ctx.createLinearGradient(
+                        0,
+                        0,
+                        canvas.width,
+                        canvas.height
+                    );
                     grad.addColorStop(0, colorMatches[0]);
                     grad.addColorStop(1, colorMatches[colorMatches.length - 1]);
                     ctx.fillStyle = grad;
@@ -812,23 +1006,34 @@
             }
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = 'rgba(255,255,255,0.08)';
+            ctx.fillStyle = "rgba(255,255,255,0.08)";
             for (let i = 0; i < 50; i++) {
                 ctx.beginPath();
-                ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * 3 + 1, 0, Math.PI * 2);
+                ctx.arc(
+                    Math.random() * canvas.width,
+                    Math.random() * canvas.height,
+                    Math.random() * 3 + 1,
+                    0,
+                    Math.PI * 2
+                );
                 ctx.fill();
             }
 
-            const stripX = (canvas.width - (layout.isGrid ? (photoW * 2 + padding) : photoW)) / 2;
+            const stripX =
+                (canvas.width - (layout.isGrid ? photoW * 2 + padding : photoW)) / 2;
             const stripY = outerPadding;
-            const stripW = layout.isGrid ? photoW * 2 + padding * 3 : photoW + padding * 2;
-            const stripH = layout.isGrid ? photoH * 2 + padding * 3 : layout.rows * photoH + (layout.rows + 1) * padding;
+            const stripW = layout.isGrid
+                ? photoW * 2 + padding * 3
+                : photoW + padding * 2;
+            const stripH = layout.isGrid
+                ? photoH * 2 + padding * 3
+                : layout.rows * photoH + (layout.rows + 1) * padding;
 
             ctx.save();
-            ctx.shadowColor = 'rgba(0,0,0,0.4)';
+            ctx.shadowColor = "rgba(0,0,0,0.4)";
             ctx.shadowBlur = 20;
             ctx.shadowOffsetY = 10;
-            ctx.fillStyle = 'white';
+            ctx.fillStyle = "white";
             ctx.fillRect(stripX, stripY, stripW, stripH);
             ctx.restore();
 
@@ -836,10 +1041,10 @@
                 const photo = state.photos[idx];
                 const img = new Image();
                 img.src = photo;
-                
+
                 img.onload = () => {
                     let x, y;
-                    
+
                     if (layout.isGrid) {
                         const col = idx % 2;
                         const row = Math.floor(idx / 2);
@@ -856,91 +1061,95 @@
         }
 
         // EVENT LISTENERS
-        document.querySelectorAll('.layout-card').forEach(card => {
-            card.addEventListener('click', function() { 
-                document.querySelectorAll('.layout-card').forEach(otherCard => {
-                    otherCard.classList.remove('selected');
+        document.querySelectorAll(".layout-card").forEach((card) => {
+            card.addEventListener("click", function () {
+                document.querySelectorAll(".layout-card").forEach((otherCard) => {
+                    otherCard.classList.remove("selected");
                 });
-                this.classList.add('selected');
+                this.classList.add("selected");
                 state.selectedLayout = parseInt(this.dataset.layout);
-                document.getElementById('start-btn').style.display = 'block';
+                document.getElementById("start-btn").style.display = "block";
             });
         });
 
-        document.getElementById('start-btn').addEventListener('click', () => {
-            showScreen('camera');
-            spinner.classList.add('active');
+        document.getElementById("start-btn").addEventListener("click", () => {
+            showScreen("camera");
+            spinner.classList.add("active");
             startCamera();
             updatePreviewGrid();
         });
 
-        document.querySelectorAll('.mode-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
+        document.querySelectorAll(".mode-btn").forEach((btn) => {
+            btn.addEventListener("click", function () {
+                document
+                    .querySelectorAll(".mode-btn")
+                    .forEach((b) => b.classList.remove("active"));
+                this.classList.add("active");
                 state.colorMode = this.dataset.mode;
             });
         });
 
-        document.getElementById('capture-btn').addEventListener('click', () => {
+        document.getElementById("capture-btn").addEventListener("click", () => {
             if (state.isRecording) return;
-            
+
             state.isRecording = true;
-            document.getElementById('capture-btn').classList.add('recording');
-            
+            document.getElementById("capture-btn").classList.add("recording");
+
             function captureSequence() {
                 const layout = layouts[state.selectedLayout];
-                
+
                 if (state.photos.length >= layout.count) {
                     state.isRecording = false;
-                    document.getElementById('capture-btn').classList.remove('recording');
+                    document
+                        .getElementById("capture-btn")
+                        .classList.remove("recording");
                     return;
                 }
-                
+
                 let count = 3;
                 countdownOverlay.textContent = count;
-                countdownOverlay.classList.add('active');
-                
+                countdownOverlay.classList.add("active");
+
                 const interval = setInterval(() => {
                     count--;
                     if (count === 0) {
                         clearInterval(interval);
                         takePhoto();
-                        countdownOverlay.classList.remove('active');
+                        countdownOverlay.classList.remove("active");
                         state.recordingTimer = setTimeout(captureSequence, 1000);
                     } else {
                         countdownOverlay.textContent = count;
                     }
                 }, 1000);
             }
-            
+
             captureSequence();
         });
 
-        document.getElementById('retake-btn').addEventListener('click', () => {
+        document.getElementById("retake-btn").addEventListener("click", () => {
             if (state.recordingTimer) {
                 clearTimeout(state.recordingTimer);
             }
             state.photos = [];
             state.isRecording = false;
-            document.getElementById('capture-btn').classList.remove('recording');
+            document.getElementById("capture-btn").classList.remove("recording");
             updatePreviewGrid();
-            document.getElementById('capture-btn').style.display = 'block';
-            document.getElementById('camera-actions').style.display = 'none';
+            document.getElementById("capture-btn").style.display = "block";
+            document.getElementById("camera-actions").style.display = "none";
         });
 
-        document.getElementById('next-btn').addEventListener('click', () => {
+        document.getElementById("next-btn").addEventListener("click", () => {
             if (state.stream) {
-                state.stream.getTracks().forEach(track => track.stop());
+                state.stream.getTracks().forEach((track) => track.stop());
             }
-            showScreen('customize');
+            showScreen("customize");
             setupCustomization();
             generatePhotostrip(photostripCanvas);
         });
 
-        document.getElementById('back-to-start').addEventListener('click', () => {
+        document.getElementById("back-to-start").addEventListener("click", () => {
             if (state.stream) {
-                state.stream.getTracks().forEach(track => track.stop());
+                state.stream.getTracks().forEach((track) => track.stop());
                 state.stream = null;
             }
             if (state.recordingTimer) {
@@ -948,101 +1157,109 @@
             }
             state.photos = [];
             state.isRecording = false;
-            document.getElementById('capture-btn').classList.remove('recording');
+            document.getElementById("capture-btn").classList.remove("recording");
             updatePreviewGrid();
-            document.getElementById('capture-btn').style.display = 'block';
-            document.getElementById('camera-actions').style.display = 'none';
-            showScreen('start');
+            document.getElementById("capture-btn").style.display = "block";
+            document.getElementById("camera-actions").style.display = "none";
+            showScreen("start");
         });
 
-        document.getElementById('back-to-camera').addEventListener('click', () => {
-            showScreen('camera');
-            spinner.classList.add('active');
-            startCamera();
-        });
+        document
+            .getElementById("back-to-camera")
+            .addEventListener("click", () => {
+                showScreen("camera");
+                spinner.classList.add("active");
+                startCamera();
+            });
 
-        document.getElementById('customize-next-btn').addEventListener('click', () => {
-            showScreen('download');
-            generatePhotostrip(finalCanvas);
-        });
+        document
+            .getElementById("customize-next-btn")
+            .addEventListener("click", () => {
+                showScreen("download");
+                generatePhotostrip(finalCanvas);
+            });
 
-        document.getElementById('download-btn').addEventListener('click', () => {
-            const dataUrl = finalCanvas.toDataURL('image/png');
-            const link = document.createElement('a');
-            link.download = 'fiw-winter-photobooth.png';
+        document.getElementById("download-btn").addEventListener("click", () => {
+            const dataUrl = finalCanvas.toDataURL("image/png");
+            const link = document.createElement("a");
+            link.download = "fiw-winter-photobooth.png";
             link.href = dataUrl;
             link.click();
         });
 
-        document.getElementById('qr-btn').addEventListener('click', () => {
-            const qrContainer = document.getElementById('qr-container');
-            const qrDate = document.getElementById('qr-date');
-            const qrTarget = document.getElementById('qr-code-target');
+        document.getElementById("qr-btn").addEventListener("click", () => {
+            const qrContainer = document.getElementById("qr-container");
+            const qrDate = document.getElementById("qr-date");
+            const qrTarget = document.getElementById("qr-code-target");
 
-            qrDate.textContent = new Date().toLocaleString('de-DE');
-            qrTarget.innerHTML = '';
+            qrDate.textContent = new Date().toLocaleString("de-DE");
+            qrTarget.innerHTML = "";
 
-            const dataUrl = finalCanvas.toDataURL('image/jpeg', 0.7);
+            const dataUrl = finalCanvas.toDataURL("image/jpeg", 0.7);
 
             try {
                 new QRious({
-                    element: document.createElement('canvas'),
+                    element: document.createElement("canvas"),
                     value: dataUrl,
                     size: 250,
-                    level: 'L'
+                    level: "L",
                 });
-                const qrCanvas = qrTarget.appendChild(document.createElement('canvas'));
+                const qrCanvas = qrTarget.appendChild(
+                    document.createElement("canvas")
+                );
                 new QRious({
                     element: qrCanvas,
                     value: dataUrl,
                     size: 250,
-                    level: 'L'
+                    level: "L",
                 });
             } catch (e) {
                 console.error("QR-Code-Fehler:", e);
-                qrTarget.innerHTML = '<p style="color: red; font-size: 0.9rem;">Fehler: Das Bild ist zu groß für einen QR-Code.</p>';
+                qrTarget.innerHTML =
+                    '<p style="color: red; font-size: 0.9rem;">Fehler: Das Bild ist zu groß für einen QR-Code.</p>';
             }
 
-            qrContainer.classList.add('active');
+            qrContainer.classList.add("active");
         });
 
-        document.getElementById('restart-btn').addEventListener('click', () => {
+        document.getElementById("restart-btn").addEventListener("click", () => {
             if (state.recordingTimer) {
                 clearTimeout(state.recordingTimer);
             }
-            
+
             state = {
-                screen: 'start',
+                screen: "start",
                 selectedLayout: null,
                 photos: [],
                 stream: null,
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                colorMode: 'color',
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                colorMode: "color",
                 isRecording: false,
-                recordingTimer: null
+                recordingTimer: null,
             };
-            
-            document.querySelectorAll('.layout-card').forEach(card => {
-                card.classList.remove('selected');
+
+            document.querySelectorAll(".layout-card").forEach((card) => {
+                card.classList.remove("selected");
             });
 
-            document.querySelectorAll('.mode-btn').forEach(btn => {
-                if (btn.dataset.mode === 'color') {
-                    btn.classList.add('active');
+            document.querySelectorAll(".mode-btn").forEach((btn) => {
+                if (btn.dataset.mode === "color") {
+                    btn.classList.add("active");
                 } else {
-                    btn.classList.remove('active');
+                    btn.classList.remove("active");
                 }
             });
-            
-            document.getElementById('start-btn').style.display = 'none';
-            document.getElementById('capture-btn').style.display = 'block';
-            document.getElementById('capture-btn').classList.remove('recording');
-            document.getElementById('camera-actions').style.display = 'none';
-            document.getElementById('qr-container').classList.remove('active');
-            showScreen('start');
+
+            document.getElementById("start-btn").style.display = "none";
+            document.getElementById("capture-btn").style.display = "block";
+            document.getElementById("capture-btn").classList.remove("recording");
+            document.getElementById("camera-actions").style.display = "none";
+            document.getElementById("qr-container").classList.remove("active");
+            showScreen("start");
         });
 
         createSnowflakes();
     </script>
 </body>
+
 </html>
