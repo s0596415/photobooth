@@ -5,7 +5,7 @@ let state = {
     photos: [],
     stream: null,
     countdown: null,
-    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    background: '#ffffff', // Lila Hintergrund wurde durch weiß ersetzt
     colorMode: 'color' // NEU: von V1
 };
 
@@ -22,7 +22,8 @@ const backgrounds = [
     { name: 'Snowflakes', image: 'Bilder/1.png' },
     { name: 'Christmas Tree', image: 'Bilder/2.png'},
     { name: 'Snow', image: 'Bilder/3.png' },
-     { name: 'Snow', image: 'Bilder/4.png' },
+    { name: 'Snow', image: 'Bilder/4.png' },
+    { name: 'Snow', image: 'Bilder/5.png' },
 ];
 
 
@@ -167,28 +168,31 @@ function takePhoto() {
         document.getElementById('camera-actions').style.display = 'flex';
     }
 }
-
+//Laura: Funktion angepasst
 function setupCustomization() {
     const bgGrid = document.getElementById('bg-grid');
     bgGrid.innerHTML = '';
-    
+
     backgrounds.forEach((bg, index) => {
         const div = document.createElement('div');
         div.className = 'bg-option' + (index === 0 ? ' selected' : '');
-        div.style.background = bg.gradient;
+        div.style.backgroundImage = `url(${bg.image})`; // Bild im Kreis
+        div.style.backgroundSize = 'cover';
+        div.style.backgroundPosition = 'center';
         div.title = bg.name;
-        div.dataset.gradient = bg.gradient;
+        div.dataset.background = bg.image; // <- hier auf Bild setzen
 
         div.addEventListener('click', () => {
             document.querySelectorAll('.bg-option').forEach(el => el.classList.remove('selected'));
-            document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
             div.classList.add('selected');
-            state.background = div.dataset.gradient;
+            state.background = div.dataset.background; // <- Bild wird nun als Hintergrund genutzt
             generatePhotostrip(photostripCanvas);
         });
+
         bgGrid.appendChild(div);
     });
 
+    // Farben bleiben gleich
     const colorGrid = document.getElementById('color-grid');
     colorGrid.innerHTML = '';
     colors.forEach(color => {
@@ -207,67 +211,134 @@ function setupCustomization() {
         colorGrid.appendChild(div);
     });
 }
-
-// GEMERGT: generatePhotostrip (V2-Logik, die V1s 2x2-Layout unterstützt)
+// --- GENERIEREN DES FOTOSTREIFENS ---
 function generatePhotostrip(canvas) {
-    const layout = layouts[state.selectedLayout];
-    const photoWidth = (layout.cols === 2) ? 250 : 400; // Kleinere Fotos für 2x2
-    const photoHeight = (layout.cols === 2) ? 250 : 300; // Kleinere Fotos für 2x2
-    const padding = 20;
+    const layout = layouts[state.selectedLayout]; // aktuelles Layout laden
+    const photoWidth = (layout.cols === 2) ? 250 : 400;  // Breite der Fotos (kleiner bei 2x2)
+    const photoHeight = (layout.cols === 2) ? 250 : 300; // Höhe der Fotos
+    const padding = 20; // Abstand zwischen den Fotos
 
+    // Canvas-Größe berechnen (inkl. Padding + extra Platz unten für Instax-Stil)
     canvas.width = layout.cols * photoWidth + (layout.cols + 1) * padding;
-    canvas.height = layout.rows * photoHeight + (layout.rows + 1) * padding;
-
+    canvas.height = layout.rows * photoHeight + (layout.rows + 1) * padding + 100;
     const ctx = canvas.getContext('2d');
 
-    if (state.background.startsWith('linear-gradient')) {
-        const colorMatches = state.background.match(/#[a-f0-9]{6}/gi);
-        if (colorMatches && colorMatches.length >= 2) {
-            const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-            grad.addColorStop(0, colorMatches[0]);
-            grad.addColorStop(1, colorMatches[colorMatches.length - 1]);
-            ctx.fillStyle = grad;
-        }
-    } else {
-        ctx.fillStyle = state.background;
+    // --- FUNKTION ZUM ZEICHNEN DER FOTOS ---
+    function drawPhotos() {
+        // Gesamtgröße des Fotoblocks
+        const photoBlockWidth = layout.cols * photoWidth + (layout.cols - 1) * padding;
+        const photoBlockHeight = layout.rows * photoHeight + (layout.rows - 1) * padding;
+
+        // Startposition für zentrierten Block auf dem Canvas
+        const startX = (canvas.width - photoBlockWidth) / 2;
+        const startY = (canvas.height - photoBlockHeight - 100) / 2; // extra unten für Instax
+
+        state.photos.forEach((photo, idx) => {
+            const img = new Image();
+            img.src = photo;
+            const col = idx % layout.cols;             // Spalte des Fotos
+            const row = Math.floor(idx / layout.cols); // Reihe des Fotos
+
+            img.onload = () => {
+                const x = startX + col * (photoWidth + padding); // X-Position
+                const y = startY + row * (photoHeight + padding); // Y-Position
+
+                // Schatten für Fotostreifen
+                ctx.save();
+                ctx.shadowColor = 'rgba(0,0,0,0.3)';
+                ctx.shadowBlur = 10;
+                ctx.shadowOffsetY = 5;
+                ctx.restore();
+
+                ctx.drawImage(img, x, y, photoWidth, photoHeight); // Foto zeichnen
+            };
+        });
     }
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-    for (let i = 0; i < 50; i++) {
-        const x = Math.random() * canvas.width;
-        const y = Math.random() * canvas.height;
-        const size = Math.random() * 3 + 1;
-        ctx.beginPath();
-        ctx.arc(x, y, size, 0, Math.PI * 2);
-        ctx.fill();
-    }
+    // --- HINTERGRUND HANDHABEN ---
+    if (state.backgroundImage) {
+        // Wenn ein Hintergrundbild gewählt wurde
+        const bgImg = new Image();
+        bgImg.src = state.backgroundImage;
+        bgImg.onload = () => {
+            // Bild proportional skalieren, sodass es das Canvas ausfüllt
+            const scale = Math.max(canvas.width / bgImg.width, canvas.height / bgImg.height);
+            const bw = bgImg.width * scale;
+            const bh = bgImg.height * scale;
+            const bx = (canvas.width - bw) / 2; // zentrieren horizontal
+            const by = (canvas.height - bh) / 2; // zentrieren vertikal
+            ctx.drawImage(bgImg, bx, by, bw, bh);
 
-    for (let idx = 0; idx < state.photos.length; idx++) {
-        const photo = state.photos[idx];
-        const img = new Image();
-        img.src = photo;
-        
-        // Wichtig: 'idx' in einer lokalen Variable für 'onload' speichern
-        const localIdx = idx;
-        img.onload = () => {
-            const col = localIdx % layout.cols;
-            const row = Math.floor(localIdx / layout.cols);
-            const x = col * photoWidth + (col + 1) * padding;
-            const y = row * photoHeight + (row + 1) * padding;
-
-            ctx.save();
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-            ctx.shadowBlur = 10;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 5;
-            ctx.fillStyle = 'white';
-            ctx.fillRect(x - 5, y - 5, photoWidth + 10, photoHeight + 10);
-            ctx.restore();
-
-            ctx.drawImage(img, x, y, photoWidth, photoHeight);
+            drawPhotos(); // Fotos erst nach Laden des Hintergrunds
         };
+    } else {
+        // Wenn Farbe oder Gradient als Hintergrund
+        if (state.background?.startsWith('linear-gradient')) {
+            const colorMatches = state.background.match(/#[a-f0-9]{6}/gi);
+            if (colorMatches && colorMatches.length >= 2) {
+                const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                grad.addColorStop(0, colorMatches[0]);
+                grad.addColorStop(1, colorMatches[colorMatches.length - 1]);
+                ctx.fillStyle = grad;
+            } else {
+                ctx.fillStyle = state.background; // fallback
+            }
+        } else {
+            ctx.fillStyle = state.background || '#f8f8f8ff'; // Farbe auswählen oder weiß
+        }
+        ctx.fillRect(0, 0, canvas.width, canvas.height); // Hintergrund füllen
+        drawPhotos(); // Fotos zeichnen
     }
+}
+
+// --- CUSTOMIZATION (HINTERGRUND + FARBEN) ---
+function setupCustomization() {
+    const bgGrid = document.getElementById('bg-grid'); // Container für Hintergrundbilder
+    bgGrid.innerHTML = ''; // alte Optionen löschen
+    const colorGrid = document.getElementById('color-grid'); // Container für Farben
+    colorGrid.innerHTML = ''; // alte Optionen löschen
+
+    // --- HINTERGRUNDBILDER ---
+    backgrounds.forEach((bg, index) => {
+        const div = document.createElement('div');
+        div.className = 'bg-option' + (index === 0 ? ' selected' : ''); // erste ausgewählt
+        div.style.backgroundImage = `url(${bg.image})`;
+        div.style.backgroundSize = 'cover';   // Bild skalieren
+        div.style.backgroundPosition = 'center'; // zentrieren
+        div.title = bg.name;
+
+        div.addEventListener('click', () => {
+            document.querySelectorAll('.bg-option').forEach(el => el.classList.remove('selected'));
+            document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
+            div.classList.add('selected');
+
+            state.backgroundImage = bg.image;   // Bild wählen
+            state.background = null;             // Farbe deaktivieren
+            generatePhotostrip(photostripCanvas);
+        });
+
+        bgGrid.appendChild(div);
+    });
+
+    // --- FARBOPTIONEN ---
+    colors.forEach(color => {
+        const div = document.createElement('div');
+        div.className = 'color-option';
+        div.style.backgroundColor = color;
+        div.dataset.color = color;
+
+        div.addEventListener('click', () => {
+            document.querySelectorAll('.bg-option').forEach(el => el.classList.remove('selected'));
+            document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
+            div.classList.add('selected');
+
+            state.background = color;          // Farbe wählen
+            state.backgroundImage = null;       // Bild deaktivieren
+            generatePhotostrip(photostripCanvas);
+        });
+
+        colorGrid.appendChild(div);
+    });
 }
 
 // --- EVENT LISTENERS ---

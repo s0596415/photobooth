@@ -119,24 +119,24 @@
                 ← Zurück zur Kamera
             </button>
 
-            <h1>Gestalte deinen Photostrip</h1>
+               <h1>Gestalte deinen Fotostreifen</h1>
             <p class="subtitle">Wähle einen Hintergrund</p>
 
-            <div class="canvas-container">
-                <canvas id="photostrip-canvas"></canvas>
-            </div>
+            <div class="customize-layout">
+                <div class="canvas-container">
+                    <canvas id="photostrip-canvas"></canvas>
+                </div>
 
-            <div class="customization-panel">
-                <h3>Winter-Hintergründe</h3>
-                <div class="background-grid" id="bg-grid"></div>
-                <h3>Volltonfarben</h3>
-                <div class="color-grid" id="color-grid"></div>
+                <div class="customization-panel">
+                    <h3>Winter Motive</h3>
+                    <div class="background-grid" id="bg-grid"></div>
+                    <h3>Farbiger Hintergrund</h3>
+                    <div class="color-grid" id="color-grid"></div>
+                    <button class="btn btn-primary" id="customize-next-btn" style="width: 100%; margin-top: 1rem;">Fertig </button>
+                </div>
             </div>
-
-            <button class="btn btn-primary btn-full" id="customize-next-btn">
-                Weiter ✨
-            </button>
         </div>
+          
 
         <div id="download-screen" class="screen">
             <button class="btn btn-secondary" id="back-to-customize" style="margin-bottom: 1rem;">
@@ -155,14 +155,14 @@
                     ⬇️ Foto herunterladen
                 </button>
                 <button class="btn btn-primary" id="qr-btn" style="
-            background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);
+            background: linear-gradient(135deg, #4b5db4 0%, #ecb8c9 100%);
           ">
-                    📱 QR-Code erstellen
+                     QR-Code
                 </button>
             </div>
 
             <div class="qr-container" id="qr-container">
-                <p style="color: #1565c0; margin-bottom: 1rem">
+                <p style="color: #5a8bc3; margin-bottom: 1rem">
                     Scanne um dein Foto zu speichern!
                 </p>
                 <div class="qr-placeholder" id="qr-code-target"></div>

@@ -307,45 +307,38 @@ h1 {
     background: linear-gradient(135deg, #2196f3 0%, #86bffb 100%);
     color: white;
 }
+/*Kreis für Kamera auslöser*/
+        .circular-capture-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 5px solid white;
+            background: linear-gradient(135deg, #2196f3 0%, #ebaef6 100%);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
 
-.circular-capture-btn {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    border: 5px solid white;
-    background: linear-gradient(135deg, #2196f3 0%, #ebaef6 100%);
-    cursor: pointer;
-    transition: all 0.3s;
-    position: relative;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-}
+        .circular-capture-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        }
 
-.circular-capture-btn:hover {
-    transform: scale(1.1);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-}
+        .circular-capture-btn:active {
+            transform: scale(0.95);
+        }
 
-.circular-capture-btn:active {
-    transform: scale(0.95);
-}
+        /*neu eingefügt*/
+        .circular-capture-btn.recording {
+            animation: pulse 1s infinite;
+        }
 
-/* Deaktivierten Stil für runden Button hinzugefügt */
-.circular-capture-btn:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-    transform: scale(1);
-    box-shadow: none;
-}
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
 
-@keyframes pulse {
-    0%,
-    100% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.05);
-    }
-}
 
 .photo-counter-display {
     text-align: center;
@@ -388,6 +381,14 @@ h1 {
     object-fit: cover;
 }
 
+ /* CUSTOMIZE SCREEN LAYOUT */
+        .customize-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 /* Customize-Screen (V2) */
 .canvas-container {
     background: white;
@@ -413,7 +414,7 @@ h1 {
     background: white;
     padding: 1.5rem;
     border-radius: 1rem;
-    margin-bottom: 1.5rem;
+    display: inline-block;
 }
 
 .customization-panel h3 {
