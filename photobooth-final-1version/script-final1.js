@@ -24,6 +24,7 @@ const backgrounds = [
     { name: 'Snow', image: 'Bilder/3.png' },
     { name: 'Snow', image: 'Bilder/4.png' },
     { name: 'Snow', image: 'Bilder/5.png' },
+    { name: 'Snow', image: 'Bilder/6.png' },
 ];
 
 

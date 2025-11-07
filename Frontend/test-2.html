@@ -1083,36 +1083,41 @@ document.getElementById('download-btn').addEventListener('click', () => {
     link.href = dataUrl;
     link.click();
 });
-
-// KORRIGIERTER QR-Code-Listener (von V1-Reparatur)
 document.getElementById("qr-btn").addEventListener("click", () => {
     const qrContainer = document.getElementById("qr-container");
     const qrDate = document.getElementById("qr-date");
     const qrTarget = document.getElementById("qr-code-target");
 
+    // Aktuelles Datum/Uhrzeit anzeigen
     qrDate.textContent = new Date().toLocaleString("de-DE");
+
+    // QR-Code-Ziel leeren
     qrTarget.innerHTML = "";
 
-    // JPEG für kleinere Dateigröße bei QR-Codes
-    const dataUrl = finalCanvas.toDataURL("image/jpeg", 0.7);
+    // Lokale HTTPS-Adresse deines Servers
+    const serverIP = "http://141.45.59.217:8080/foto"; // Port 8443 für HTTPS
+    const photoURL = `${serverIP}/foto?${Date.now()}`; 
+    // ?timestamp verhindert, dass der Browser ein altes Bild cached
 
-    try {
-        const qrCanvas = document.createElement("canvas");
-        new QRious({
-            element: qrCanvas,
-            value: dataUrl,
-            size: 250,
-            level: "L", // 'L' (Low) für maximale Datenkapazität
-        });
-        qrTarget.appendChild(qrCanvas);
-    } catch (e) {
-        console.error("QR-Code-Fehler:", e);
-        qrTarget.innerHTML =
-            '<p style="color: red; font-size: 0.9rem;">Fehler: Das Bild ist zu groß für einen QR-Code. Versuche einen einfacheren Hintergrund.</p>';
-    }
+    // QR-Code erzeugen
+    const qrCanvas = document.createElement("canvas");
+    new QRious({
+        element: qrCanvas,
+        value: photoURL,
+        size: 250,
+        level: "L"
+    });
 
+    // QR-Code im Container einfügen
+    qrTarget.appendChild(qrCanvas);
+
+    // Container sichtbar machen
     qrContainer.classList.add("active");
 });
+
+d
+
+
 
 // KORRIGIERTER restart-btn Listener (V2)
 document.getElementById('restart-btn').addEventListener('click', () => {
