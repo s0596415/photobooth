@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FIW Winterfest Photobooth</title>
+    <title>FIW Winterfest Photobooth !test-2.html!</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <style>
         * {
@@ -864,51 +864,7 @@
                 document.getElementById('camera-actions').style.display = 'flex';
             }
         }
-        //Laura: Funktion angepasst
-        function setupCustomization() {
-            const bgGrid = document.getElementById('bg-grid');
-            bgGrid.innerHTML = '';
-
-            backgrounds.forEach((bg, index) => {
-                const div = document.createElement('div');
-                div.className = 'bg-option' + (index === 0 ? ' selected' : '');
-                div.style.backgroundImage = `url(${bg.image})`; // Bild im Kreis
-                div.style.backgroundSize = 'cover';
-                div.style.backgroundPosition = 'center';
-                div.title = bg.name;
-                div.dataset.background = bg.image; // <- hier auf Bild setzen
-
-                div.addEventListener('click', () => {
-                    document.querySelectorAll('.bg-option').forEach(el => el.classList.remove('selected'));
-                    div.classList.add('selected');
-                    state.background = div.dataset.background; // <- Bild wird nun als Hintergrund genutzt
-                    generatePhotostrip(photostripCanvas);
-                });
-
-                bgGrid.appendChild(div);
-            });
-
-            // Farben bleiben gleich
-            const colorGrid = document.getElementById('color-grid');
-            colorGrid.innerHTML = '';
-            colors.forEach(color => {
-                const div = document.createElement('div');
-                div.className = 'color-option';
-                div.style.backgroundColor = color;
-                div.dataset.color = color;
-
-                div.addEventListener('click', () => {
-                    document.querySelectorAll('.bg-option').forEach(el => el.classList.remove('selected'));
-                    document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
-                    div.classList.add('selected');
-                    state.background = div.dataset.color;
-                    generatePhotostrip(photostripCanvas);
-                });
-                colorGrid.appendChild(div);
-            });
-        }
-
-
+        
         // --- GENERIEREN DES FOTOSTREIFENS ---
         function generatePhotostrip(canvas) {
             const layout = layouts[state.selectedLayout]; // aktuelles Layout laden
@@ -1163,7 +1119,8 @@
             link.href = dataUrl;
             link.click();
         });
-        document.getElementById("qr-btn").addEventListener("click", () => {
+
+/*         /* document.getElementById("qr-btn").addEventListener("click", () => {
             const qrContainer = document.getElementById("qr-container");
             const qrDate = document.getElementById("qr-date");
             const qrTarget = document.getElementById("qr-code-target");
@@ -1195,9 +1152,113 @@
             qrContainer.classList.add("active");
         });
 
-        d
+        document.getElementById("qr-btn").addEventListener("click", () => {
+    const qrContainer = document.getElementById("qr-container");
+    const qrDate = document.getElementById("qr-date");
+    const qrTarget = document.getElementById("qr-code-target");
+
+    // Aktuelles Datum/Uhrzeit anzeigen
+    qrDate.textContent = new Date().toLocaleString("de-DE");
+
+    // QR-Code-Ziel leeren
+    qrTarget.innerHTML = "";
+
+    // NEU: Bild-Daten direkt vom finalen Canvas holen
+    // Diese Variable 'finalCanvas' muss aus dem Rest deines Skripts verfügbar sein.
+    const photoDataURL = finalCanvas.toDataURL('image/png');
+
+    // QR-Code erzeugen
+    const qrCanvas = document.createElement("canvas");
+    
+    // NEU: try...catch Block für den Fall, dass die dataURL zu lang ist
+    try {
+        new QRious({
+            element: qrCanvas,
+            value: photoDataURL, // GEÄNDERT: Hier die Bild-URL statt der Server-IP
+            size: 250,
+            level: "L" // 'L' (Low) ist am besten für lange Datenmengen
+        });
+
+        // QR-Code im Container einfügen
+        qrTarget.appendChild(qrCanvas);
+
+    } catch (err) {
+        // Fallback, falls die Bilddaten zu groß für einen QR-Code sind
+        console.error("Fehler bei QR-Code-Erstellung:", err);
+        qrTarget.innerHTML = "<strong>Fehler:</strong> Das Bild ist zu groß für einen QR-Code.<br>Bitte lade es stattdessen direkt herunter.";
+    }
+
+    // Container sichtbar machen
+    qrContainer.classList.add("active");
+}); */
+
+document.getElementById("qr-btn").addEventListener("click", async () => {
+    const qrContainer = document.getElementById("qr-container");
+    const qrDate = document.getElementById("qr-date");
+    const qrTarget = document.getElementById("qr-code-target");
+
+    // Aktuelles Datum/Uhrzeit anzeigen
+    qrDate.textContent = new Date().toLocaleString("de-DE");
+
+    // QR-Code-Ziel leeren und Lade-Status anzeigen
+    qrTarget.innerHTML = "QR-Code wird erstellt (lade hoch)...";
+    qrContainer.classList.add("active");
+
+    /* // Die Adresse deines Servers (aus deinem Original-Code)
+    const uploadURL = "http://141.45.59.217:8080/foto"; */
+
+    // Die Adresse deines Servers (aus deinem Original-Code)
+    //const uploadURL = "http://141.45.59.217:8080/upload"; VON LAURA // <-------------------IP ADRESSE ANPASSEN
+    const uploadURL = "http://192.168.0.54:8080/upload"; // VON ANTONIA <-----------------------------IP ADRESSE ANPASSEN
+
+    try {
+        // 1. Bild-Daten vom Canvas als "Blob" holen (effizienter für Upload)
+        const blob = await new Promise(resolve => finalCanvas.toBlob(resolve, 'image/png'));
+
+        // 2. FormData erstellen, um das Bild zu senden
+        const formData = new FormData();
+        /* formData.append('photo', blob, 'fiw-photobooth.png'); */ // Der Server muss das Feld 'photo' erwarten
+        formData.append('file', blob, 'fiw-photobooth.png'); // KORRIGIERT: '
 
 
+        // 3. Bild an den Server hochladen (POST-Request)
+        const response = await fetch(uploadURL, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            // Server hat einen Fehler gemeldet
+            throw new Error(`Server-Fehler: ${response.statusText}`);
+        }
+
+        // 4. Antwort vom Server als JSON lesen
+        // WICHTIG: Der Server MUSS eine JSON-Antwort senden, die die URL des Bildes enthält
+        // z.B.: { "url": "http://141.45.59.217:8080/uploads/bild123.png" }
+        const result = await response.json();
+        
+        if (!result.url) {
+             throw new Error("Server hat keine gültige URL zurückgegeben.");
+        }
+
+        // 5. QR-Code mit der *einfachen Server-URL* erstellen
+        qrTarget.innerHTML = ""; // Lade-Text entfernen
+        const qrCanvas = document.createElement("canvas");
+        new QRious({
+            element: qrCanvas,
+            value: result.url, // HIER die URL vom Server
+            size: 250,
+            level: "L"
+        });
+        
+        qrTarget.appendChild(qrCanvas);
+
+    } catch (err) {
+        // Fehlerbehandlung (z.B. Server nicht erreichbar, Upload fehlgeschlagen)
+        console.error("Upload- oder QR-Fehler:", err);
+        qrTarget.innerHTML = `<strong>Fehler:</strong> Bild konnte nicht hochgeladen werden.<br>(${err.message})`;
+    }
+});
 
         // KORRIGIERTER restart-btn Listener (V2)
         document.getElementById('restart-btn').addEventListener('click', () => {
@@ -1244,7 +1305,7 @@
             showScreen('start');
         });
 
-        // "Zurück"-Button Event Listeners (V2)
+        /* // "Zurück"-Button Event Listeners (V2)
         document.getElementById('back-to-start').addEventListener('click', () => {
             if (state.stream) {
                 state.stream.getTracks().forEach(track => track.stop());
@@ -1259,7 +1320,7 @@
             document.getElementById('camera-actions').style.display = 'none';
 
             showScreen('start');
-        });
+        }); //das macht angeblich fehler
 
         document.getElementById('back-to-camera').addEventListener('click', () => {
             showScreen('camera');
@@ -1270,13 +1331,14 @@
 
         document.getElementById('back-to-customize').addEventListener('click', () => {
             showScreen('customize');
-        });
+        }); 
+
         document.getElementById('customize-next-btn').addEventListener('click', () => {
             showScreen('download');
 
             // Feste Größe, z.B. 800x1200px (oder anpassen nach Design)
             generatePhotostrip(finalCanvas, 800, 1200);
-        });
+        });*/ //das macht angelblich fehler
 
         // --- INIT ---
         createSnowflakes();
