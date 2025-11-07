@@ -225,6 +225,11 @@ h1 {
     display: flex;
 }
 
+.countdown-overlay.is-hint {
+    font-size: 4rem;
+    padding: 0 2rem;
+}
+
 @keyframes pulse {
 
     0%,
@@ -444,9 +449,4 @@ h1 {
     40% {
         transform: scale(1);
     }
-}
-
-.countdown-overlay.is-hint {
-    font-size: 4rem;
-    padding: 0 2rem;
 }
