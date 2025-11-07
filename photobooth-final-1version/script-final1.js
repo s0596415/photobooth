@@ -22,9 +22,11 @@ const backgrounds = [
     { name: 'Snowflakes', image: 'Bilder/1.png' },
     { name: 'Christmas Tree', image: 'Bilder/2.png'},
     { name: 'Snow', image: 'Bilder/3.png' },
-    { name: 'Snow', image: 'Bilder/4.png' },
+    { name: 'Snow', image: 'Bilder/4.jpeg' },
     { name: 'Snow', image: 'Bilder/5.png' },
     { name: 'Snow', image: 'Bilder/6.png' },
+    { name: 'Snow', image: 'Bilder/7.jpeg' },
+    { name: 'Snow', image: 'Bilder/8.jpeg' },
 ];
 
 
@@ -192,6 +194,7 @@ function setupCustomization() {
 
         bgGrid.appendChild(div);
     });
+
 
     // Farben bleiben gleich
     const colorGrid = document.getElementById('color-grid');
