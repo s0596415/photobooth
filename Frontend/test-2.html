@@ -705,7 +705,8 @@
             stream: null,
             countdown: null,
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            colorMode: 'color' // NEU: von V1
+            colorMode: 'color', // NEU: von V1
+            finalUrl: null
         };
 
         // 2. Alle "globalen" Variablen, die sich nie ändern, sind jetzt "const".
@@ -1107,9 +1108,52 @@
             generatePhotostrip(photostripCanvas);
         });
 
-        document.getElementById('customize-next-btn').addEventListener('click', () => {
+        /* document.getElementById('customize-next-btn').addEventListener('click', () => {
             showScreen('download');
             generatePhotostrip(finalCanvas);
+        }); */
+
+        // ERSETZE DEN ALTEN 'customize-next-btn' LISTENER HIERMIT:
+        document.getElementById('customize-next-btn').addEventListener('click', async () => { // <-- Mach ihn 'async'
+            showScreen('download');
+            generatePhotostrip(finalCanvas);
+            
+            // --- START: Neue Upload-Logik ---
+            // Setze den Lade-Status, falls der Upload länger dauert
+            const qrTarget = document.getElementById('qr-code-target');
+            qrTarget.innerHTML = "Bild wird für QR-Code vorbereitet...";
+            
+            // Deine Upload-URL (unverändert)
+            const uploadURL = "http://141.45.39.101:9090/upload"; //<<<<<<<<<<<<<<<<<<<<<<<<<<<< IP (und PORT) hier anpassen
+
+            try {
+                const blob = await new Promise(resolve => finalCanvas.toBlob(resolve, 'image/png'));
+                const formData = new FormData();
+                formData.append('file', blob, 'fiw-photobooth.png');
+
+                const response = await fetch(uploadURL, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`Server-Fehler: ${response.statusText}`);
+
+                const result = await response.json();
+                if (!result.url) throw new Error("Server hat keine gültige URL zurückgegeben.");
+
+                // Speichere die finale URL im State
+                state.finalUrl = result.url; 
+                
+                // Lade-Status entfernen
+                qrTarget.innerHTML = ""; 
+
+            } catch (err) {
+                // Fehlerbehandlung
+                console.error("Upload-Fehler (beim Generieren):", err);
+                qrTarget.innerHTML = `<strong>Fehler:</strong> Bild konnte nicht hochgeladen werden.<br>(${err.message})`;
+                state.finalUrl = null; // Markieren als fehlgeschlagen
+            }
+            // --- ENDE: Neue Upload-Logik ---
         });
 
         document.getElementById('download-btn').addEventListener('click', () => {
@@ -1192,7 +1236,7 @@
     qrContainer.classList.add("active");
 }); */
 
-document.getElementById("qr-btn").addEventListener("click", async () => {
+/* document.getElementById("qr-btn").addEventListener("click", async () => {
     const qrContainer = document.getElementById("qr-container");
     const qrDate = document.getElementById("qr-date");
     const qrTarget = document.getElementById("qr-code-target");
@@ -1202,10 +1246,40 @@ document.getElementById("qr-btn").addEventListener("click", async () => {
 
     // QR-Code-Ziel leeren und Lade-Status anzeigen
     qrTarget.innerHTML = "QR-Code wird erstellt (lade hoch)...";
-    qrContainer.classList.add("active");
+    qrContainer.classList.add("active"); */
 
-    /* // Die Adresse deines Servers (aus deinem Original-Code)
-    const uploadURL = "http://141.45.59.217:8080/foto"; */
+        // ERSETZE DEN ALTEN 'qr-btn' LISTENER HIERMIT:
+        document.getElementById("qr-btn").addEventListener("click", () => { // <-- nicht mehr 'async'
+            const qrContainer = document.getElementById("qr-container");
+            const qrDate = document.getElementById("qr-date");
+            const qrTarget = document.getElementById("qr-code-target");
+
+            // Aktuelles Datum/Uhrzeit anzeigen
+            qrDate.textContent = new Date().toLocaleString("de-DE");
+            
+            // Prüfen, ob der Upload in Schritt 2 fehlgeschlagen ist
+            if (!state.finalUrl) {
+                qrTarget.innerHTML = `<strong>Fehler:</strong> Bild konnte nicht hochgeladen werden.<br>Bitte neu starten.`;
+                qrContainer.classList.add("active");
+                return; // Abbrechen
+            }
+
+            // Ziel leeren und QR-Code mit der gespeicherten URL generieren
+            qrTarget.innerHTML = ""; 
+            const qrCanvas = document.createElement("canvas");
+            new QRious({
+                element: qrCanvas,
+                value: state.finalUrl, // <-- Benutzt die URL aus dem State
+                size: 250,
+                level: "L"
+            });
+            
+            qrTarget.appendChild(qrCanvas);
+            qrContainer.classList.add("active");
+        });
+
+/*  // Die Adresse deines Servers (aus deinem Original-Code)
+    const uploadURL = "http://141.45.59.217:8080/foto";
 
     // Die Adresse deines Servers (aus deinem Original-Code)
     //const uploadURL = "http://141.45.59.217:9090/upload"; VON LAURA // <-------------------IP ADRESSE ANPASSEN
@@ -1217,7 +1291,7 @@ document.getElementById("qr-btn").addEventListener("click", async () => {
 
         // 2. FormData erstellen, um das Bild zu senden
         const formData = new FormData();
-        /* formData.append('photo', blob, 'fiw-photobooth.png'); */ // Der Server muss das Feld 'photo' erwarten
+        formData.append('photo', blob, 'fiw-photobooth.png'); // Der Server muss das Feld 'photo' erwarten
         formData.append('file', blob, 'fiw-photobooth.png'); // KORRIGIERT: '
 
 
@@ -1257,8 +1331,9 @@ document.getElementById("qr-btn").addEventListener("click", async () => {
         // Fehlerbehandlung (z.B. Server nicht erreichbar, Upload fehlgeschlagen)
         console.error("Upload- oder QR-Fehler:", err);
         qrTarget.innerHTML = `<strong>Fehler:</strong> Bild konnte nicht hochgeladen werden.<br>(${err.message})`;
-    }
-});
+    } 
+    */
+
 
         // KORRIGIERTER restart-btn Listener (V2)
         document.getElementById('restart-btn').addEventListener('click', () => {
@@ -1274,7 +1349,8 @@ document.getElementById("qr-btn").addEventListener("click", async () => {
                 stream: null,
                 countdown: null,
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                colorMode: 'color' // Zustand zurücksetzen
+                colorMode: 'color', // Zustand zurücksetzen
+                finalUrl: null // finale URL zurücksetzen
             };
 
             document.querySelectorAll('.layout-card').forEach(card => {
