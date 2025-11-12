@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FIW Winterfest Photobooth (Finale Version)</title>
+    <title>FIW Winterfest Photobooth (Final-1version)</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <link rel="stylesheet" href="styles-final1.css" />
@@ -60,15 +60,7 @@
                     <div class="layout-name">2x2 Grid</div>
                     <div>4 Fotos</div>
                 </div>
-                
-               <!--  <div class="layout-card" data-layout="5">
-                    <div class="layout-preview" style="grid-template-columns: 1fr;">
-                        <div class="layout-box" style="aspect-ratio: 3/4;"></div>
-                    </div>
-                    <div class="layout-name">Instax Hochformat</div>
-                    <div>1 Foto</div>
-                </div>
-            </div> INSTAX HOCHFORMAT--> 
+            </div>
 
             <button class="btn btn-primary btn-full" id="start-btn" style="display: none">
                 Weiter 📷
@@ -81,6 +73,7 @@
                     <button class="btn btn-secondary" id="back-to-start" style="margin-bottom: 1rem; width: 100%;">
                         ← Zurück zur Auswahl
                     </button>
+
                     <div class="video-container">
                         <video id="video" autoplay playsinline></video>
                         <div class="countdown-overlay" id="countdown">3</div>
@@ -90,6 +83,7 @@
                             <div class="spinner-dot"></div>
                         </div>
                     </div>
+
                     <div class="capture-button-container">
                         <div class="color-mode-toggle">
                             <button class="mode-btn active" data-mode="color">
@@ -97,9 +91,12 @@
                             </button>
                             <button class="mode-btn" data-mode="bw">Schwarz-Weiß</button>
                         </div>
+                        
                         <button class="circular-capture-btn" id="capture-btn"></button>
+
                         <div class="photo-counter-display" id="photo-counter">(1/3)</div>
                     </div>
+
                     <div class="button-group" id="camera-actions" style="display: none">
                         <button class="btn btn-secondary" id="retake-btn" style="flex: 1">
                             🔄 Neu aufnehmen
@@ -109,6 +106,7 @@
                         </button>
                     </div>
                 </div>
+
                 <div class="preview-panel">
                     <h3>Vorschau</h3>
                     <div class="preview-grid" id="preview-grid"></div>
@@ -120,12 +118,15 @@
             <button class="btn btn-secondary" id="back-to-camera" style="margin-bottom: 1rem;">
                 ← Zurück zur Kamera
             </button>
-            <h1>Gestalte deinen Fotostreifen</h1>
+
+               <h1>Gestalte deinen Fotostreifen</h1>
             <p class="subtitle">Wähle einen Hintergrund</p>
+
             <div class="customize-layout">
                 <div class="canvas-container">
                     <canvas id="photostrip-canvas"></canvas>
                 </div>
+
                 <div class="customization-panel">
                     <h3>Winter Motive</h3>
                     <div class="background-grid" id="bg-grid"></div>
@@ -135,26 +136,29 @@
                 </div>
             </div>
         </div>
-        
+          
+
         <div id="download-screen" class="screen">
             <button class="btn btn-secondary" id="back-to-customize" style="margin-bottom: 1rem;">
                 ← Zurück zur Gestaltung
             </button>
+
             <h1>Dein Photostrip ist fertig!</h1>
             <p class="subtitle">Herunterladen oder teilen</p>
+
             <div class="canvas-container">
                 <canvas id="final-canvas"></canvas>
             </div>
+
             <div class="download-buttons">
                 <button class="btn btn-primary" id="download-btn">
                     ⬇️ Foto herunterladen
                 </button>
-                <button class="btn btn-primary" id="qr-btn" style="
-                    background: linear-gradient(135deg, #4b5db4 0%, #ecb8c9 100%);
-                ">
-                    QR-Code
+                <button class="btn btn-primary" id="qr-btn" style="background: linear-gradient(135deg, #4b5db4 0%, #ecb8c9 100%);">
+                     📱 QR-Code erstellen
                 </button>
             </div>
+
             <div class="qr-container" id="qr-container">
                 <p style="color: #5a8bc3; margin-bottom: 1rem">
                     Scanne um dein Foto zu speichern!
@@ -164,6 +168,7 @@
                     Winter Photobooth - <span id="qr-date"></span>
                 </p>
             </div>
+
             <button class="btn btn-secondary btn-full" id="restart-btn">
                 🔄 Neu starten
             </button>
