@@ -11,7 +11,7 @@ const PUBLIC_DIR = path.join(__dirname, 'public');
 app.use(cors());
 app.use(express.static(PUBLIC_DIR));
 
-/* // Multer: überschreibt immer foto.jpg
+/*// Multer: überschreibt immer foto.jpg
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, PUBLIC_DIR),
   filename: (req, file, cb) => cb(null, 'foto.jpg')
@@ -47,7 +47,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
 
   // KORREKTUR: Definiere die ipAddress-Variable HIER:
   // (Trage hier deine Server-IP und den Port 9090 ein)
-  const ipAddress = "http://192.168.0.54:9090"; // <-------------- IP (UND PORT) ANPASSEN
+  const ipAddress = "http://141.45.39.101:9090"; // <-------------- IP (UND PORT) ANPASSEN
 
   const fullUrl = `${ipAddress}/${req.newFilename}`; 
   res.json({ url: fullUrl });
