@@ -203,7 +203,7 @@ async function generatePhotostrip(canvas) {
     const padding = 20;
 
     canvas.width = layout.cols * photoWidth + (layout.cols + 1) * padding;
-    canvas.height = layout.rows * photoHeight + (layout.rows + 1) * padding;
+    canvas.height = layout.rows * photoHeight + (layout.rows + 1) * padding + 100;
     const ctx = canvas.getContext('2d');
 
     // --- 1. HINTERGRUND ZEICHNEN ---
@@ -228,7 +228,7 @@ async function generatePhotostrip(canvas) {
     const photoBlockWidth = layout.cols * photoWidth + (layout.cols - 1) * padding;
     const photoBlockHeight = layout.rows * photoHeight + (layout.rows - 1) * padding;
     const startX = (canvas.width - photoBlockWidth) / 2;
-    const startY = (canvas.height - photoBlockHeight) / 2; 
+    const startY = (canvas.height - photoBlockHeight - 100) / 2;
 
     try {
         const loadedImages = await Promise.all(state.photos.map(loadImage));
