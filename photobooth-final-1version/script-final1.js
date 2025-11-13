@@ -187,70 +187,100 @@ function takePhoto() {
 
 // NEU: Helferfunktion, um ein Bild zu laden (gibt ein Promise zurück)
 function loadImage(src) {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        // Wir entfernen crossOrigin, um CORS-Fehler bei lokalen Dateien zu vermeiden.
-        img.onload = () => resolve(img);
-        img.onerror = (err) => reject(new Error(`Bild konnte nicht geladen werden: ${src}`, { cause: err }));
-        img.src = src;
-    });
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        // Keine crossOrigin-Einstellung, um lokale/CORS-Probleme zu vermeiden.
+        img.onload = () => resolve(img);
+        img.onerror = (err) => reject(new Error(`Bild konnte nicht geladen werden: ${src}`, { cause: err }));
+        img.src = src;
+    });
 }
 
-// --- GENERIEREN DES FOTOSTREIFENS (ASYNC) ---
+async function startCamera() {
+    try {
+        const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } });
+        state.stream = mediaStream;
+        video.srcObject = mediaStream;
+
+        // WICHTIG: Füge 'muted' im HTML-Video-Tag hinzu, um Autoplay-Fehler zu vermeiden.
+        // Außerdem hier .play() aufrufen, um sicherzustellen, dass die Wiedergabe startet,
+        // sobald der Stream bereit ist, um den Fehler "The play method is not allowed..." 
+        // zu umgehen, wenn 'muted' gesetzt ist.
+        video.play().catch(e => console.error("Video Playback Startfehler (wegen Autoplay-Regeln):", e));
+
+    } catch (err) {
+        console.error("Kamerafehler:", err);
+        alert('Kamerazugriff verweigert. Bitte erlaube den Kamerazugriff.');
+        showScreen('start');
+    } finally {
+        spinner.classList.remove('active');
+    }
+}
+
+// --- KORRIGIERTE GENERIERUNG DES FOTOSTREIFENS (ASYNC) ---
 async function generatePhotostrip(canvas) {
-    const layout = layouts[state.selectedLayout];
-    const photoWidth = (layout.cols === 2) ? 250 : 400;
-    const photoHeight = (layout.cols === 2) ? 250 : 300;
-    const padding = 20;
+    const layout = layouts[state.selectedLayout];
+    const photoWidth = (layout.cols === 2) ? 250 : 400;
+    const photoHeight = (layout.cols === 2) ? 250 : 300;
+    const padding = 20;
+    const footerHeight = 100; // Platz für QR-Code/Datum/Branding
 
-    canvas.width = layout.cols * photoWidth + (layout.cols + 1) * padding;
-    canvas.height = layout.rows * photoHeight + (layout.rows + 1) * padding + 100; /////FORMAT DER LAYOUTS
-    const ctx = canvas.getContext('2d');
+    // Canvas Breite basiert auf Spalten, Padding
+    canvas.width = layout.cols * photoWidth + (layout.cols + 1) * padding;
+    // Canvas Höhe basiert auf Zeilen, Padding UND Footer/Header
+    canvas.height = layout.rows * photoHeight + (layout.rows + 1) * padding + footerHeight; 
+    
+    const ctx = canvas.getContext('2d');
 
-    // --- 1. HINTERGRUND ZEICHNEN ---
-    try {
-        if (state.backgroundImage) {
-            const bgImg = await loadImage(state.backgroundImage);
-            const scale = Math.max(canvas.width / bgImg.width, canvas.height / bgImg.height);
-            const bw = bgImg.width * scale, bh = bgImg.height * scale;
-            const bx = (canvas.width - bw) / 2, by = (canvas.height - bh) / 2;
-            ctx.drawImage(bgImg, bx, by, bw, bh);
-        } else {
-            ctx.fillStyle = state.background || '#ffffff';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
-    } catch (err) {
-        console.error("Hintergrund konnte nicht geladen werden:", err);
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
+    // --- 1. HINTERGRUND ZEICHNEN ---
+    try {
+        if (state.backgroundImage) {
+            const bgImg = await loadImage(state.backgroundImage);
+            const scale = Math.max(canvas.width / bgImg.width, canvas.height / bgImg.height);
+            const bw = bgImg.width * scale, bh = bgImg.height * scale;
+            const bx = (canvas.width - bw) / 2, by = (canvas.height - bh) / 2;
+            ctx.drawImage(bgImg, bx, by, bw, bh);
+        } else {
+            ctx.fillStyle = state.background || '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+    } catch (err) {
+        console.error("Hintergrund konnte nicht geladen werden:", err);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
 
-    // --- 2. FOTOS ZEICHNEN ---
-    const photoBlockWidth = layout.cols * photoWidth + (layout.cols - 1) * padding;
-    const photoBlockHeight = layout.rows * photoHeight + (layout.rows - 1) * padding;
-    const startX = (canvas.width - photoBlockWidth) / 2;
-    const startY = (canvas.height - photoBlockHeight - 100) / 2; /////FORMAT DER LAYOUTS
+    // --- 2. FOTOS ZEICHNEN ---
+    const photoBlockWidth = layout.cols * photoWidth + (layout.cols - 1) * padding;
+    const photoBlockHeight = layout.rows * photoHeight + (layout.rows - 1) * padding;
+    
+    // KORRIGIERTE Y-STARTPUNKT BERECHNUNG:
+    // Die Fotos werden jetzt nur im oberen Bereich des Canvas zentriert,
+    // um Platz für den Footer (100px) zu lassen.
+    const remainingHeight = canvas.height - footerHeight;
+    const startX = (canvas.width - photoBlockWidth) / 2;
+    const startY = (remainingHeight - photoBlockHeight) / 2; 
 
-    try {
-        const loadedImages = await Promise.all(state.photos.map(loadImage));
-        
-        loadedImages.forEach((img, idx) => {
-            const col = idx % layout.cols;
-            const row = Math.floor(idx / layout.cols);
-            
-            const x = startX + col * (photoWidth + padding);
-            const y = startY + row * (photoHeight + padding);
-            
-            ctx.save();
-            ctx.shadowColor = 'rgba(0,0,0,0.3)';
-            ctx.shadowBlur = 10;
-            ctx.shadowOffsetY = 5;
-            ctx.drawImage(img, x, y, photoWidth, photoHeight);
-            ctx.restore();
-        });
-    } catch (err) {
-        console.error("Fotos konnten nicht geladen werden:", err);
-    }
+    try {
+        const loadedImages = await Promise.all(state.photos.map(loadImage));
+        
+        loadedImages.forEach((img, idx) => {
+            const col = idx % layout.cols;
+            const row = Math.floor(idx / layout.cols);
+            
+            const x = startX + col * (photoWidth + padding);
+            const y = startY + row * (photoHeight + padding);
+            
+            ctx.save();
+            ctx.shadowColor = 'rgba(0,0,0,0.3)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetY = 5;
+            ctx.drawImage(img, x, y, photoWidth, photoHeight);
+            ctx.restore();
+        });
+    } catch (err) {
+        console.error("Fotos konnten nicht geladen werden:", err);
+    }
 }
     
 
