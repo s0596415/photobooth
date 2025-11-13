@@ -7,8 +7,13 @@
     <title>FIW Winterfest Photobooth (Final-1version)</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Georgia:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="styles-final1.css" />
-    <link rel="icon" type="image/png" href="winter.png"/>
+    <link rel="icon" type="image/png" href="winter.png" />
     <script src="script-final1.js" defer></script>
 </head>
 
@@ -41,7 +46,7 @@
                     <div class="layout-name">1×4 Strip</div>
                     <div>4 Fotos</div>
                 </div>
-                
+
                 <div class="layout-card" data-layout="3">
                     <div class="layout-preview" style="grid-template-columns: 2fr 2fr;">
                         <div class="layout-box" style="grid-column: span 2;"></div>
@@ -85,16 +90,20 @@
                     </div>
 
                     <div class="capture-button-container">
-                        <div class="color-mode-toggle">
-                            <button class="mode-btn active" data-mode="color">
-                                Farbig
-                            </button>
-                            <button class="mode-btn" data-mode="bw">Schwarz-Weiß</button>
-                        </div>
-                        
-                        <button class="circular-capture-btn" id="capture-btn"></button>
 
+                        <div class="color-mode-toggle">
+                            <button class="mode-btn active" data-mode="color">Farbig</button>
+                            <button class="mode-btn" data-mode="bw">Schwarz-Weiß</button>
+                            <button class="mode-btn" data-mode="sepia">Nostalgie</button>
+                            <button class="mode-btn" data-mode="vintage">Retro</button>
+                        </div>
+
+                        <p class="filter-hint" id="filter-hint-text">Der Filter wird auf das aufgenommene Foto
+                            angewendet.</p>
+
+                        <button class="circular-capture-btn" id="capture-btn"></button>
                         <div class="photo-counter-display" id="photo-counter">(1/3)</div>
+
                     </div>
 
                     <div class="button-group" id="camera-actions" style="display: none">
@@ -119,7 +128,7 @@
                 ← Zurück zur Kamera
             </button>
 
-               <h1>Gestalte deinen Fotostreifen</h1>
+            <h1>Gestalte deinen Fotostreifen</h1>
             <p class="subtitle">Wähle einen Hintergrund</p>
 
             <div class="customize-layout">
@@ -132,11 +141,14 @@
                     <div class="background-grid" id="bg-grid"></div>
                     <h3>Farbiger Hintergrund</h3>
                     <div class="color-grid" id="color-grid"></div>
-                    <button class="btn btn-primary" id="customize-next-btn" style="width: 100%; margin-top: 1rem;">Fertig </button>
+
+                    <button class="btn btn-primary" id="customize-next-btn"
+                        style="width: 100%; margin-top: 1rem;">Fertig
+                    </button>
                 </div>
             </div>
         </div>
-          
+
 
         <div id="download-screen" class="screen">
             <button class="btn btn-secondary" id="back-to-customize" style="margin-bottom: 1rem;">
@@ -154,8 +166,9 @@
                 <button class="btn btn-primary" id="download-btn">
                     ⬇️ Foto herunterladen
                 </button>
-                <button class="btn btn-primary" id="qr-btn" style="background: linear-gradient(135deg, #4b5db4 0%, #ecb8c9 100%);">
-                     📱 QR-Code erstellen
+                <button class="btn btn-primary" id="qr-btn"
+                    style="background: linear-gradient(135deg, #4b5db4 0%, #ecb8c9 100%);">
+                    📱 QR-Code erstellen
                 </button>
             </div>
 

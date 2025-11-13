@@ -1,4 +1,4 @@
-// 1. Das "state"-Objekt ist "let", da es beim Neustart komplett überschrieben wird.
+// 1. Das "state"-Objekt ist "let"
 let state = {
     screen: 'start',
     selectedLayout: null,
@@ -6,32 +6,32 @@ let state = {
     stream: null,
     countdown: null,
     background: '#ffffff', // Standard-Hintergrund
-    backgroundImage: null, // NEU: Für Bild-Hintergründe
+    backgroundImage: null, // Für Bild-Hintergründe
     colorMode: 'color',
-    finalUrl: null // Für Server-Upload (falls benötigt)
+    finalUrl: null // Für Server-Upload
 };
-
+    
 // 2. Alle "globalen" Variablen, die sich nie ändern, sind jetzt "const".
 const layouts = {
     1: { cols: 1, rows: 3, count: 3 },
     2: { cols: 1, rows: 4, count: 4 },
-    3: { cols: 1, rows: 1, count: 1 }, // V2 "Instax"
-    4: { cols: 2, rows: 2, count: 4 }  // NEU: V1 "2x2 Grid"
+    3: { cols: 1, rows: 1, count: 1 },
+    4: { cols: 2, rows: 2, count: 4 }
 };
 
 // Link mit bildern als Hintergrund
 const backgrounds = [
-    { name: 'Snowflakes', image: 'Bilder/1.png' },
-    { name: 'Christmas Tree', image: 'Bilder/2.png'},
-    { name: 'Snow', image: 'Bilder/3.png' },
-    { name: 'Snow', image: 'Bilder/4.jpeg' },
-    { name: 'Snow', image: 'Bilder/5.png' },
-    { name: 'Snow', image: 'Bilder/6.png' },
-    { name: 'Snow', image: 'Bilder/7.jpeg' },
-    { name: 'Snow', image: 'Bilder/8.jpeg' },
+    { name: 'Schleifen', image: 'bilder/1.png' },
+    { name: 'Tannenbaum', image: 'bilder/2.png' },
+    { name: 'Christmas Tree', image: 'bilder/3.png' },
+    { name: 'Schnee', image: 'bilder/4.jpeg' },
+    { name: 'Schlittschuhe', image: 'bilder/5.png' },
+    { name: 'Tannenbaum', image: 'bilder/6.png' },
+    { name: 'Schneeflocken Rand', image: 'bilder/7.jpeg' },
+    { name: 'Schneeflocken', image: 'bilder/8.jpeg' },
 ];
 
-const colors = ['#ffffff', '#e3f2fd', '#f3e5f5', '#e8f5e9', '#fff3e0', '#fce4ec'];
+const colors = ['#ffffff', '#bcdbf1ff', '#e4c5e9ff', '#c9f5cdff', '#fae9cdff', '#e49cb4ff'];
 
 // 3. Alle DOM-Element-Referenzen sind ebenfalls "const".
 const screens = {
@@ -52,7 +52,7 @@ const spinner = document.getElementById('spinner');
 
 function createSnowflakes() {
     const container = document.getElementById('snowflakes');
-    if (!container) return; // Sicherheitshalber
+    if (!container) return;
     for (let i = 0; i < 20; i++) {
         const snowflake = document.createElement('div');
         snowflake.className = 'snowflake';
@@ -84,15 +84,15 @@ async function startCamera() {
     } catch (err) {
         console.error("Kamerafehler:", err);
         alert('Kamerazugriff verweigert. Bitte erlaube den Kamerazugriff.');
-        showScreen('start'); // Bei Fehler zurück zum Startbildschirm
+        showScreen('start');
     } finally {
-        spinner.classList.remove('active'); // Spinner verstecken
+        spinner.classList.remove('active');
     }
 }
 
 function updatePreviewGrid() {
     const layout = layouts[state.selectedLayout];
-    if (!layout) return; // Abbruch, wenn kein Layout gewählt
+    if (!layout) return;
     
     previewGrid.style.gridTemplateColumns = `repeat(${layout.cols}, 1fr)`;
     previewGrid.style.gridTemplateRows = `repeat(${layout.rows}, 1fr)`;
@@ -125,18 +125,37 @@ function updatePhotoCounter(initial = false) {
 }
 
 function applyColorMode(ctx, canvas) {
-    if (state.colorMode === "bw") {
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageData.data;
-        for (let i = 0; i < data.length; i += 4) {
-            const gray =
-                data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-            data[i] = gray;
-            data[i + 1] = gray;
-            data[i + 2] = gray;
-        }
-        ctx.putImageData(imageData, 0, 0);
+    if (state.colorMode === "color") {
+        return; // Nichts tun
     }
+
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+
+    switch (state.colorMode) {
+        case "bw":
+            for (let i = 0; i < data.length; i += 4) {
+                const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+                data[i] = gray; data[i + 1] = gray; data[i + 2] = gray;
+            }
+            break;
+        case "sepia":
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i], g = data[i + 1], b = data[i + 2];
+                data[i] = Math.min(255, (r * 0.393) + (g * 0.769) + (b * 0.189));
+                data[i + 1] = Math.min(255, (r * 0.349) + (g * 0.686) + (b * 0.168));
+                data[i + 2] = Math.min(255, (r * 0.272) + (g * 0.534) + (b * 0.131));
+            }
+            break;
+        case "vintage":
+            for (let i = 0; i < data.length; i += 4) {
+                data[i] = Math.min(255, data[i] * 1.1 + 10);
+                data[i + 1] = Math.min(255, data[i + 1] * 1.05 + 5);
+                data[i + 2] = Math.max(0, data[i + 2] * 0.9 - 10);
+            }
+            break;
+    }
+    ctx.putImageData(imageData, 0, 0);
 }
 
 function takePhoto() {
@@ -148,7 +167,7 @@ function takePhoto() {
     ctx.scale(-1, 1); // Spiegelung
     ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
     
-    applyColorMode(ctx, canvas); // S/W-Filter
+    applyColorMode(ctx, canvas); // Filter anwenden
 
     const photoData = canvas.toDataURL('image/png');
     state.photos.push(photoData);
@@ -166,70 +185,76 @@ function takePhoto() {
     }
 }
 
-// --- GENERIEREN DES FOTOSTREIFENS ---
-// (Diese Funktion ist die korrekte aus test-2.html und script-final1.js)
-function generatePhotostrip(canvas) {
+function loadImage(src) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous"; 
+        img.onload = () => resolve(img);
+        img.onerror = (err) => reject(new Error(`Bild konnte nicht geladen werden: ${src}`, { cause: err }));
+        img.src = src;
+    });
+}
+
+// --- GENERIEREN DES FOTOSTREIFENS (ASYNC) ---
+async function generatePhotostrip(canvas) {
     const layout = layouts[state.selectedLayout];
     const photoWidth = (layout.cols === 2) ? 250 : 400;
     const photoHeight = (layout.cols === 2) ? 250 : 300;
     const padding = 20;
 
     canvas.width = layout.cols * photoWidth + (layout.cols + 1) * padding;
-    canvas.height = layout.rows * photoHeight + (layout.rows + 1) * padding + 100;
+    canvas.height = layout.rows * photoHeight + (layout.rows + 1) * padding;
     const ctx = canvas.getContext('2d');
 
-    function drawPhotos() {
-        const photoBlockWidth = layout.cols * photoWidth + (layout.cols - 1) * padding;
-        const photoBlockHeight = layout.rows * photoHeight + (layout.rows - 1) * padding;
-        const startX = (canvas.width - photoBlockWidth) / 2;
-        const startY = (canvas.height - photoBlockHeight - 100) / 2;
+    // --- 1. HINTERGRUND ZEICHNEN ---
+    try {
+        if (state.backgroundImage) {
+            const bgImg = await loadImage(state.backgroundImage);
+            const scale = Math.max(canvas.width / bgImg.width, canvas.height / bgImg.height);
+            const bw = bgImg.width * scale, bh = bgImg.height * scale;
+            const bx = (canvas.width - bw) / 2, by = (canvas.height - bh) / 2;
+            ctx.drawImage(bgImg, bx, by, bw, bh);
+        } else {
+            ctx.fillStyle = state.background || '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+    } catch (err) {
+        console.error("Hintergrund konnte nicht geladen werden:", err);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
 
-        state.photos.forEach((photo, idx) => {
-            const img = new Image();
-            img.src = photo;
+    // --- 2. FOTOS ZEICHNEN ---
+    const photoBlockWidth = layout.cols * photoWidth + (layout.cols - 1) * padding;
+    const photoBlockHeight = layout.rows * photoHeight + (layout.rows - 1) * padding;
+    const startX = (canvas.width - photoBlockWidth) / 2;
+    const startY = (canvas.height - photoBlockHeight) / 2; 
+
+    try {
+        const loadedImages = await Promise.all(state.photos.map(loadImage));
+        
+        loadedImages.forEach((img, idx) => {
             const col = idx % layout.cols;
             const row = Math.floor(idx / layout.cols);
-
-            img.onload = () => {
-                const x = startX + col * (photoWidth + padding);
-                const y = startY + row * (photoHeight + padding);
-                
-                ctx.save();
-                ctx.shadowColor = 'rgba(0,0,0,0.3)';
-                ctx.shadowBlur = 10;
-                ctx.shadowOffsetY = 5;
-                ctx.restore(); // Schatten wieder entfernen, damit er nicht auf das Bild gezeichnet wird
-                
-                ctx.drawImage(img, x, y, photoWidth, photoHeight);
-            };
+            
+            const x = startX + col * (photoWidth + padding);
+            const y = startY + row * (photoHeight + padding);
+            
+            ctx.save();
+            ctx.shadowColor = 'rgba(0,0,0,0.3)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetY = 5;
+            ctx.drawImage(img, x, y, photoWidth, photoHeight);
+            ctx.restore();
         });
-    }
-
-    // --- HINTERGRUND HANDHABEN ---
-    if (state.backgroundImage) {
-        // Wenn ein Hintergrundbild gewählt wurde
-        const bgImg = new Image();
-        bgImg.src = state.backgroundImage;
-        bgImg.onload = () => {
-            const scale = Math.max(canvas.width / bgImg.width, canvas.height / bgImg.height);
-            const bw = bgImg.width * scale;
-            const bh = bgImg.height * scale;
-            const bx = (canvas.width - bw) / 2;
-            const by = (canvas.height - bh) / 2;
-            ctx.drawImage(bgImg, bx, by, bw, bh);
-            drawPhotos(); // Fotos erst nach Laden des Hintergrunds
-        };
-    } else {
-        // Wenn Farbe als Hintergrund
-        ctx.fillStyle = state.background || '#ffffff'; // Farbe auswählen oder weiß
-        ctx.fillRect(0, 0, canvas.width, canvas.height); // Hintergrund füllen
-        drawPhotos(); // Fotos zeichnen
+    } catch (err) {
+        console.error("Fotos konnten nicht geladen werden:", err);
     }
 }
+    
 
 
 // --- CUSTOMIZATION (HINTERGRUND + FARBEN) ---
-// (Dies ist die KORRIGIERTE, NICHT-DOPPELTE Version der Funktion)
 function setupCustomization() {
     const bgGrid = document.getElementById('bg-grid');
     bgGrid.innerHTML = '';
@@ -239,21 +264,20 @@ function setupCustomization() {
     // --- HINTERGRUNDBILDER ---
     backgrounds.forEach((bg, index) => {
         const div = document.createElement('div');
-        // Setze 'selected' auf das erste Element, wenn kein Hintergrundbild ausgewählt ist
         const isSelected = (!state.backgroundImage && index === 0) || (state.backgroundImage === bg.image);
         div.className = 'bg-option' + (isSelected ? ' selected' : '');
         div.style.backgroundImage = `url(${bg.image})`;
         div.style.backgroundSize = 'cover';
-        div.style.backgroundPosition = 'center';
+        div.style.backgroundPosition = 'center'; 
         div.title = bg.name;
 
-        div.addEventListener('click', () => {
+        div.addEventListener('click', async () => { 
             document.querySelectorAll('.bg-option, .color-option').forEach(el => el.classList.remove('selected'));
             div.classList.add('selected');
 
-            state.backgroundImage = bg.image;   // Bild wählen
-            state.background = null;             // Farbe deaktivieren
-            generatePhotostrip(photostripCanvas);
+            state.backgroundImage = bg.image;
+            state.background = null;
+            await generatePhotostrip(photostripCanvas);
         });
         bgGrid.appendChild(div);
     });
@@ -261,29 +285,26 @@ function setupCustomization() {
     // --- FARBOPTIONEN ---
     colors.forEach(color => {
         const div = document.createElement('div');
-        // Setze 'selected', wenn diese Farbe aktiv ist (und kein Bild)
         const isSelected = !state.backgroundImage && state.background === color;
         div.className = 'color-option' + (isSelected ? ' selected' : '');
         div.style.backgroundColor = color;
         div.dataset.color = color;
 
-        div.addEventListener('click', () => {
+        div.addEventListener('click', async () => { 
             document.querySelectorAll('.bg-option, .color-option').forEach(el => el.classList.remove('selected'));
             div.classList.add('selected');
 
-            state.background = color;          // Farbe wählen
-            state.backgroundImage = null;       // Bild deaktivieren
-            generatePhotostrip(photostripCanvas);
+            state.background = color;
+            state.backgroundImage = null;
+            await generatePhotostrip(photostripCanvas);
         });
         colorGrid.appendChild(div);
     });
 
-    // Wähle Weiß (erste Farbe), wenn beim Start nichts ausgewählt ist
     if (!state.backgroundImage && !state.background) {
         colorGrid.firstChild.classList.add('selected');
         state.background = colors[0];
     } else if (state.backgroundImage) {
-        // Stelle sicher, dass keine Farbe ausgewählt ist, wenn ein Bild aktiv ist
         document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
     }
 }
@@ -292,7 +313,7 @@ function setupCustomization() {
 // --- EVENT LISTENERS ---
 
 document.querySelectorAll('.layout-card').forEach(card => {
-    card.addEventListener('click', function() { 
+    card.addEventListener('click', function () {
         document.querySelectorAll('.layout-card').forEach(otherCard => {
             otherCard.classList.remove('selected');
         });
@@ -317,48 +338,49 @@ document.querySelectorAll(".mode-btn").forEach((btn) => {
             .forEach((b) => b.classList.remove("active"));
         this.classList.add("active");
         state.colorMode = this.dataset.mode;
+        document.getElementById('filter-hint-text').classList.add('active');
     });
 });
 
 document.getElementById('capture-btn').addEventListener('click', async () => {
     const layout = layouts[state.selectedLayout];
     const captureBtn = document.getElementById('capture-btn');
-    
-    captureBtn.disabled = true; 
-    
+
+    captureBtn.disabled = true;
+
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
     const isMultiPhotoLayout = (layout.count > 1);
 
     for (let i = 0; i < layout.count; i++) {
-        const isLastPhoto = (i === layout.count - 1); 
-        
+        const isLastPhoto = (i === layout.count - 1);
+
         updatePhotoCounter();
-        
+
         let count = 3;
         countdownOverlay.textContent = count;
-        countdownOverlay.classList.remove('is-hint'); 
+        countdownOverlay.classList.remove('is-hint');
         countdownOverlay.classList.add('active');
-        
+
         while (count > 0) {
-            await sleep(1000); 
+            await sleep(1000);
             count--;
             if (count > 0) {
                 countdownOverlay.textContent = count;
             }
         }
-        
+
         countdownOverlay.textContent = '📷';
-        countdownOverlay.classList.remove('is-hint'); 
-        await sleep(500); 
+        countdownOverlay.classList.remove('is-hint');
+        await sleep(500);
 
         countdownOverlay.classList.remove('active');
-        takePhoto(); 
-        
-        if (isMultiPhotoLayout && !isLastPhoto) { 
+        takePhoto();
+
+        if (isMultiPhotoLayout && !isLastPhoto) {
             countdownOverlay.textContent = 'Super! Mach dich bereit für das nächste Foto...';
             countdownOverlay.classList.add('is-hint'); 
-            countdownOverlay.classList.add('active'); 
-            await sleep(2500); 
+             countdownOverlay.classList.add('active');
+            await sleep(2500);
             countdownOverlay.classList.remove('active');
             countdownOverlay.classList.remove('is-hint');
         } else if (isLastPhoto) {
@@ -376,7 +398,7 @@ document.getElementById('retake-btn').addEventListener('click', () => {
 
     const captureBtn = document.getElementById('capture-btn');
     captureBtn.style.display = 'block';
-    captureBtn.disabled = false; 
+    captureBtn.disabled = false;
 
     document.getElementById('camera-actions').style.display = 'none';
 
@@ -384,31 +406,43 @@ document.getElementById('retake-btn').addEventListener('click', () => {
     countdownOverlay.classList.remove('is-hint');
 });
 
-document.getElementById('next-btn').addEventListener('click', () => {
+document.getElementById('next-btn').addEventListener('click', async () => {
     if (state.stream) {
         state.stream.getTracks().forEach(track => track.stop());
     }
     showScreen('customize');
     setupCustomization();
-    generatePhotostrip(photostripCanvas);
+    await generatePhotostrip(photostripCanvas);
 });
 
+// KORRIGIERTER 'customize-next-btn' LISTENER
 document.getElementById('customize-next-btn').addEventListener('click', async () => {
     showScreen('download');
-    generatePhotostrip(finalCanvas);
-    
-    // --- START: NEUE UPLOAD-LOGIK ---
+
     const qrTarget = document.getElementById('qr-code-target');
-    qrTarget.innerHTML = "Bild wird für QR-Code vorbereitet...";
-    
-    // Diese URL MUSS mit der IP in server.js übereinstimmen
-    const uploadURL = "http://192.168.0.54:9090/upload"; 
+    const downloadBtn = document.getElementById('download-btn');
+    const qrBtn = document.getElementById('qr-btn');
+
+    // Buttons verstecken, bis alles fertig ist
+    downloadBtn.style.display = 'none';
+    qrBtn.style.display = 'none';
+    qrTarget.innerHTML = "Bild wird generiert und hochgeladen...";
+
+    // Warten, bis generatePhotostrip() FERTIG ist
+    await generatePhotostrip(finalCanvas);
+    // Ab hier ist der finalCanvas garantiert voll gezeichnet!
+
+    // Buttons jetzt anzeigen
+    downloadBtn.style.display = 'block';
+    qrBtn.style.display = 'block';
+
+    // --- START: Upload-Logik ---
+    // WICHTIG: Stelle sicher, dass diese IP korrekt ist!
+    const uploadURL = "http://141.45.39.101:9090/upload"; 
 
     try {
-        // Bild-Daten vom Canvas als "Blob" holen
         const blob = await new Promise(resolve => finalCanvas.toBlob(resolve, 'image/png'));
         const formData = new FormData();
-        // WICHTIG: 'file' muss dem Namen in upload.single('file') entsprechen
         formData.append('file', blob, 'fiw-photobooth.png');
 
         const response = await fetch(uploadURL, {
@@ -421,16 +455,15 @@ document.getElementById('customize-next-btn').addEventListener('click', async ()
         const result = await response.json();
         if (!result.url) throw new Error("Server hat keine gültige URL zurückgegeben.");
 
-        // Speichere die finale URL im State
-        state.finalUrl = result.url; 
-        qrTarget.innerHTML = ""; // Lade-Status entfernen
+        state.finalUrl = result.url;
+        qrTarget.innerHTML = ""; // Lade-Text entfernen
 
     } catch (err) {
-        console.error("Upload-Fehler:", err);
+        console.error("Upload-Fehler (beim Generieren):", err);
         qrTarget.innerHTML = `<strong>Fehler:</strong> Bild konnte nicht hochgeladen werden.<br>(${err.message})`;
         state.finalUrl = null;
     }
-    // --- ENDE: NEUE UPLOAD-LOGIK ---
+    // --- ENDE: Upload-Logik ---
 });
 
 document.getElementById('download-btn').addEventListener('click', () => {
@@ -447,70 +480,76 @@ document.getElementById("qr-btn").addEventListener("click", () => {
     const qrTarget = document.getElementById("qr-code-target");
 
     qrDate.textContent = new Date().toLocaleString("de-DE");
-    
-    // Prüfen, ob der Upload in Schritt 1 fehlgeschlagen ist
+
     if (!state.finalUrl) {
-        // Zeige den Lade- oder Fehlertext an, der von Schritt B gesetzt wurde
         if (qrTarget.innerHTML === "") {
             qrTarget.innerHTML = `<strong>Fehler:</strong> Bild-URL nicht gefunden. Upload fehlgeschlagen?`;
         }
         qrContainer.classList.add("active");
-        return; // Abbrechen
+        return;
     }
 
-    // Ziel leeren und QR-Code mit der URL aus dem State generieren
-    qrTarget.innerHTML = ""; 
+    qrTarget.innerHTML = "";
     const qrCanvas = document.createElement("canvas");
     new QRious({
         element: qrCanvas,
-        value: state.finalUrl, // <-- BENUTZT DIE SERVER-URL
+        value: state.finalUrl, // BENUTZT DIE SERVER-URL
         size: 250,
         level: "L"
     });
-    
+
     qrTarget.appendChild(qrCanvas);
     qrContainer.classList.add("active");
 });
 
 
+// KORRIGIERTE 'restart-btn' FUNKTION
 document.getElementById('restart-btn').addEventListener('click', () => {
     if (state.stream) {
         state.stream.getTracks().forEach(track => track.stop());
     }
 
-    // Setze den State komplett zurück
+    // --- KORREKTER STATE-RESET ---
     state = {
         screen: 'start',
         selectedLayout: null,
         photos: [],
         stream: null,
         countdown: null,
-        background: '#ffffff', // Zurück zu weiß
-        backgroundImage: null, // Bild zurücksetzen
+        background: '#ffffff',
+        backgroundImage: null,
         colorMode: 'color',
-        finalUrl: null
+        finalUrl: null,
+        addDate: false // Datum-State auch zurücksetzen
     };
+    // --- ENDE STATE-RESET ---
     
     document.querySelectorAll('.layout-card').forEach(card => {
         card.classList.remove('selected');
     });
 
-    // S/W-Schalter zurücksetzen
+    // Filter-Schalter zurücksetzen
     document.querySelectorAll(".mode-btn").forEach((btn) => {
         btn.classList.toggle("active", btn.dataset.mode === "color");
     });
 
+    // Datum-Schalter zurücksetzen
+    const dateToggle = document.getElementById('date-toggle');
+    if (dateToggle) dateToggle.checked = false;
+
     document.getElementById('start-btn').style.display = 'none';
-    
+
     const captureBtn = document.getElementById('capture-btn');
     captureBtn.style.display = 'block';
-    captureBtn.disabled = false; 
+    captureBtn.disabled = false;
 
     document.getElementById('camera-actions').style.display = 'none';
     document.getElementById('qr-container').classList.remove('active');
 
     countdownOverlay.classList.remove('active');
-    countdownOverlay.classList.remove('is-hint');
+    countdownOverlay.classList.remove('is-hint');
+
+    document.getElementById('filter-hint-text').classList.remove('active');
 
     showScreen('start');
 });
@@ -519,15 +558,17 @@ document.getElementById('restart-btn').addEventListener('click', () => {
 document.getElementById('back-to-start').addEventListener('click', () => {
     if (state.stream) {
         state.stream.getTracks().forEach(track => track.stop());
-        state.stream = null; 
+        state.stream = null;
     }
     state.photos = [];
-    updatePreviewGrid(); 
-    
+    updatePreviewGrid();
+
     const captureBtn = document.getElementById('capture-btn');
     captureBtn.style.display = 'block';
     captureBtn.disabled = false;
     document.getElementById('camera-actions').style.display = 'none';
+
+    document.getElementById('filter-hint-text').classList.remove('active'); 
 
     showScreen('start');
 });
@@ -535,14 +576,14 @@ document.getElementById('back-to-start').addEventListener('click', () => {
 document.getElementById('back-to-camera').addEventListener('click', () => {
     showScreen('camera');
     spinner.classList.add('active');
-    startCamera(); 
+    startCamera();
     updatePhotoCounter(true);
 });
 
-document.getElementById('back-to-customize').addEventListener('click', () => {
+// KORRIGIERT: "await" hinzugefügt
+document.getElementById('back-to-customize').addEventListener('click', async () => {
     showScreen('customize');
-    // Stelle sicher, dass der Canvas neu gezeichnet wird, falls sich was geändert hat
-    generatePhotostrip(photostripCanvas); 
+    await generatePhotostrip(photostripCanvas);
 });
 
 // --- INIT ---
