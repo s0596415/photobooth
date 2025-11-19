@@ -48,11 +48,11 @@ app.post('/upload', upload.single('file'), (req, res) => {
   // KORREKTUR: Verwende die IP UND den PORT für die Basis-URL
   // Stellen Sie sicher, dass dies die öffentlich erreichbare Adresse ist!
   const PUBLIC_HOST = "141.45.191.175"; // NUR die IP (oder Hostname)
-  const ipAddress = `http://${PUBLIC_HOST}:${PORT}`; // Z.B. http://141.45.32.235:9090
+  const baseHostUrl = `http://${PUBLIC_HOST}:${PORT}`;
 
 
   // Der finale Pfad ist BASE_URL / DATEINAME
-  const fullUrl = `${ipAddress}/${req.newFilename}`; 
+  const fullUrl = `${baseHostUrl}/${req.newFilename}`;
   res.json({ url: fullUrl });
 });
 
