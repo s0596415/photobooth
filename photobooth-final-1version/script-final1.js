@@ -19,14 +19,14 @@ const layouts = {
     4: { cols: 2, rows: 2, count: 4 }
 };
 
-// Link mit bildern als Hintergrund
+// Link mit Bildern als Hintergrund
 const backgrounds = [
     { name: 'Schleifen', image: 'bilder/1.png' },
     { name: 'Tannenbaum', image: 'bilder/2.png' },
     { name: 'Christmas Tree', image: 'bilder/3.png' },
     { name: 'Schnee', image: 'bilder/4.jpeg' },
     { name: 'Schlittschuhe', image: 'bilder/5.png' },
-    { name: 'Tannenbaum', image: 'bilder/6.png' },
+    //{ name: 'Tannenbaum', image: 'bilder/6.png' },
     { name: 'Schneeflocken Rand', image: 'bilder/7.jpeg' },
     { name: 'Schneeflocken', image: 'bilder/8.jpeg' },
 ];
