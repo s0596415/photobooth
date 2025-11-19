@@ -50,6 +50,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
   const PUBLIC_HOST = "141.45.32.235"; // NUR die IP (oder Hostname)
   const ipAddress = `http://${PUBLIC_HOST}:${PORT}`; // Z.B. http://141.45.32.235:9090
 
+
   // Der finale Pfad ist BASE_URL / DATEINAME
   const fullUrl = `${ipAddress}/${req.newFilename}`; 
   res.json({ url: fullUrl });

@@ -619,7 +619,7 @@
                     <div class="capture-button-container">
                         <div class="color-mode-toggle">
                             <button class="mode-btn active" data-mode="color">Farbig</button>
-                            <button class="mode-btn" data-mode="bw">Schwarz weiß</button>
+                            <button class="mode-btn" data-mode="bw">Schwarz-Weiß</button>
                         </div>
 
 
@@ -1124,7 +1124,7 @@
             qrTarget.innerHTML = "Bild wird für QR-Code vorbereitet...";
             
             // Deine Upload-URL (unverändert)
-            const uploadURL = "http://141.45.39.101:9090/upload"; //<<<<<<<<<<<<<<<<<<<<<<<<<<<< IP (und PORT) hier anpassen
+            const uploadURL = "http://192.168.178.72:9090/upload"; //<<<<<<<<<<<<<<<<<<<<<<<<<<<< IP (und PORT) hier anpassen
 
             try {
                 const blob = await new Promise(resolve => finalCanvas.toBlob(resolve, 'image/png'));
