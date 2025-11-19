@@ -457,7 +457,6 @@ document.getElementById('customize-next-btn').addEventListener('click', async ()
     // Buttons verstecken, bis alles fertig ist
     downloadBtn.style.display = 'none';
     qrBtn.style.display = 'none';
-    qrTarget.innerHTML = "Bild wird generiert und hochgeladen...";
 
     // Warten, bis generatePhotostrip() FERTIG ist
     await generatePhotostrip(finalCanvas);
@@ -469,7 +468,7 @@ document.getElementById('customize-next-btn').addEventListener('click', async ()
 
     // --- START: Upload-Logik ---
     // WICHTIG: Stelle sicher, dass diese IP korrekt ist!
-    const uploadURL = "http://141.45.39.101:9090/upload"; 
+    const uploadURL = "http://141.45.191.175:9090/upload";
 
     try {
         const blob = await new Promise(resolve => finalCanvas.toBlob(resolve, 'image/png'));
