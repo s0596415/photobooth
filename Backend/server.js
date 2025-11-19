@@ -45,10 +45,12 @@ const upload = multer({ storage });
 app.post('/upload', upload.single('file'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'Keine Datei empfangen' });
 
-  // KORREKTUR: Definiere die ipAddress-Variable HIER:
-  // (Trage hier deine Server-IP und den Port 9090 ein)
-  const ipAddress = "http://192.168.0.54:9090/index-final1.html"; // <-------------- IP (UND PORT) ANPASSEN
+  // KORREKTUR: Verwende die IP UND den PORT für die Basis-URL
+  // Stellen Sie sicher, dass dies die öffentlich erreichbare Adresse ist!
+  const PUBLIC_HOST = "141.45.32.235"; // NUR die IP (oder Hostname)
+  const ipAddress = `http://${PUBLIC_HOST}:${PORT}`; // Z.B. http://141.45.32.235:9090
 
+  // Der finale Pfad ist BASE_URL / DATEINAME
   const fullUrl = `${ipAddress}/${req.newFilename}`; 
   res.json({ url: fullUrl });
 });
