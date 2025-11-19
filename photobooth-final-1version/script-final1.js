@@ -1,3 +1,5 @@
+const API_BASE_URL = 'http://141.45.191.175';
+
 // 1. Das "state"-Objekt ist "let"
 let state = {
     screen: 'start',
@@ -468,7 +470,7 @@ document.getElementById('customize-next-btn').addEventListener('click', async ()
 
     // --- START: Upload-Logik ---
     // WICHTIG: Stelle sicher, dass diese IP korrekt ist!
-    const uploadURL = "http://141.45.191.175:9090/upload";
+    const uploadURL = "http://141.45.191.175/upload";
 
     try {
         const blob = await new Promise(resolve => finalCanvas.toBlob(resolve, 'image/png'));
