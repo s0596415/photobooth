@@ -1,43 +1,44 @@
-// 1. Das "state"-Objekt ist "let", da es beim Neustart komplett überschrieben wird.
+// 1. Das "state"-Objekt ist "let"
 let state = {
-    screen: 'start',
-    selectedLayout: null,
-    photos: [],
-    stream: null,
-    countdown: null,
-    background: '#ffffff', // Lila Hintergrund wurde durch weiß ersetzt
-    colorMode: 'color' // NEU: von V1
+    screen: 'start',
+    selectedLayout: null,
+    photos: [],
+    stream: null,
+    countdown: null,
+    background: '#ffffff', // Standard-Hintergrund
+    backgroundImage: null, // Für Bild-Hintergründe
+    colorMode: 'color',
+    finalUrl: null // Für Server-Upload
 };
-
+    
 // 2. Alle "globalen" Variablen, die sich nie ändern, sind jetzt "const".
 const layouts = {
-    1: { cols: 1, rows: 3, count: 3 },
-    2: { cols: 1, rows: 4, count: 4 },
-    3: { cols: 1, rows: 1, count: 1 }, // V2 "Instax"
-    4: { cols: 2, rows: 2, count: 4 }  // NEU: V1 "2x2 Grid"
+    1: { cols: 1, rows: 3, count: 3 },
+    2: { cols: 1, rows: 4, count: 4 },
+    3: { cols: 1, rows: 1, count: 1 },
+    4: { cols: 2, rows: 2, count: 4 }
 };
 
 // Link mit bildern als Hintergrund
 const backgrounds = [
-    { name: 'Snowflakes', image: 'Bilder/1.png' },
-    { name: 'Christmas Tree', image: 'Bilder/2.png'},
-    { name: 'Snow', image: 'Bilder/3.png' },
-    { name: 'Snow', image: 'Bilder/4.jpeg' },
-    { name: 'Snow', image: 'Bilder/5.png' },
-    { name: 'Snow', image: 'Bilder/6.png' },
-    { name: 'Snow', image: 'Bilder/7.jpeg' },
-    { name: 'Snow', image: 'Bilder/8.jpeg' },
+    { name: 'Schleifen', image: 'bilder/1.png' },
+    { name: 'Tannenbaum', image: 'bilder/2.png' },
+    { name: 'Christmas Tree', image: 'bilder/3.png' },
+    { name: 'Schnee', image: 'bilder/4.jpeg' },
+    { name: 'Schlittschuhe', image: 'bilder/5.png' },
+    { name: 'Tannenbaum', image: 'bilder/6.png' },
+    { name: 'Schneeflocken Rand', image: 'bilder/7.jpeg' },
+    { name: 'Schneeflocken', image: 'bilder/8.jpeg' },
 ];
 
-
-const colors = ['#ffffff', '#e3f2fd', '#f3e5f5', '#e8f5e9', '#fff3e0', '#fce4ec'];
+const colors = ['#ffffff', '#bcdbf1ff', '#e4c5e9ff', '#c9f5cdff', '#fae9cdff', '#e49cb4ff'];
 
 // 3. Alle DOM-Element-Referenzen sind ebenfalls "const".
 const screens = {
-    start: document.getElementById('start-screen'),
-    camera: document.getElementById('camera-screen'),
-    customize: document.getElementById('customize-screen'),
-    download: document.getElementById('download-screen')
+    start: document.getElementById('start-screen'),
+    camera: document.getElementById('camera-screen'),
+    customize: document.getElementById('customize-screen'),
+    download: document.getElementById('download-screen')
 };
 
 const video = document.getElementById('video');
@@ -50,29 +51,149 @@ const spinner = document.getElementById('spinner');
 // --- FUNCTIONS ---
 
 function createSnowflakes() {
-    const container = document.getElementById('snowflakes');
-    if (!container) return; // Sicherheitshalber
-    for (let i = 0; i < 20; i++) {
-        const snowflake = document.createElement('div');
-        snowflake.className = 'snowflake';
-        snowflake.textContent = '❄';
-        snowflake.style.left = Math.random() * 100 + '%';
-        snowflake.style.top = Math.random() * 100 + '%';
-        snowflake.style.fontSize = (Math.random() * 20 + 10) + 'px';
-        container.appendChild(snowflake);
-    }
+    const container = document.getElementById('snowflakes');
+    if (!container) return;
+    for (let i = 0; i < 20; i++) {
+        const snowflake = document.createElement('div');
+        snowflake.className = 'snowflake';
+        snowflake.textContent = '❄';
+        snowflake.style.left = Math.random() * 100 + '%';
+        snowflake.style.top = Math.random() * 100 + '%';
+        snowflake.style.fontSize = (Math.random() * 20 + 10) + 'px';
+        container.appendChild(snowflake);
+    }
 }
 
 function showScreen(screenName) {
-    for (const key in screens) {
-        if (screens[key]) {
-             screens[key].classList.remove('active');
-        }
-    }
-    if (screens[screenName]) {
-        screens[screenName].classList.add('active');
-    }
-    state.screen = screenName;
+    for (const key in screens) {
+        if (screens[key]) {
+             screens[key].classList.remove('active');
+        }
+    }
+    if (screens[screenName]) {
+        screens[screenName].classList.add('active');
+    }
+    state.screen = screenName;
+}
+
+async function startCamera() {
+    try {
+        const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } });
+        state.stream = mediaStream;
+        video.srcObject = mediaStream;
+    } catch (err) {
+        console.error("Kamerafehler:", err);
+        alert('Kamerazugriff verweigert. Bitte erlaube den Kamerazugriff.');
+        showScreen('start');
+    } finally {
+        spinner.classList.remove('active');
+    }
+}
+
+function updatePreviewGrid() {
+    const layout = layouts[state.selectedLayout];
+    if (!layout) return;
+    
+    previewGrid.style.gridTemplateColumns = `repeat(${layout.cols}, 1fr)`;
+    previewGrid.style.gridTemplateRows = `repeat(${layout.rows}, 1fr)`;
+    previewGrid.innerHTML = '';
+    
+    for (let i = 0; i < layout.count; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'preview-slot';
+        if (state.photos[i]) {
+            const img = document.createElement('img');
+            img.src = state.photos[i];
+            slot.appendChild(img);
+        }
+        previewGrid.appendChild(slot);
+    }
+}
+
+function updatePhotoCounter(initial = false) {
+    const layout = layouts[state.selectedLayout];
+    if (!layout) return;
+    
+    const counter = document.getElementById('photo-counter');
+    
+    if (initial) {
+        counter.textContent = `(${layout.count} Foto${layout.count > 1 ? 's' : ''})`;
+    } else {
+        const current = state.photos.length < layout.count ? state.photos.length + 1 : layout.count;
+        counter.textContent = `(${current}/${layout.count})`;
+    }
+}
+
+function applyColorMode(ctx, canvas) {
+    if (state.colorMode === "color") {
+        return; // Nichts tun
+    }
+
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+
+    switch (state.colorMode) {
+        case "bw":
+            for (let i = 0; i < data.length; i += 4) {
+                const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+                data[i] = gray; data[i + 1] = gray; data[i + 2] = gray;
+            }
+            break;
+        case "sepia":
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i], g = data[i + 1], b = data[i + 2];
+                data[i] = Math.min(255, (r * 0.393) + (g * 0.769) + (b * 0.189));
+                data[i + 1] = Math.min(255, (r * 0.349) + (g * 0.686) + (b * 0.168));
+                data[i + 2] = Math.min(255, (r * 0.272) + (g * 0.534) + (b * 0.131));
+            }
+            break;
+        case "vintage":
+            for (let i = 0; i < data.length; i += 4) {
+                data[i] = Math.min(255, data[i] * 1.1 + 10);
+                data[i + 1] = Math.min(255, data[i + 1] * 1.05 + 5);
+                data[i + 2] = Math.max(0, data[i + 2] * 0.9 - 10);
+            }
+            break;
+    }
+    ctx.putImageData(imageData, 0, 0);
+}
+
+function takePhoto() {
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    
+    ctx.scale(-1, 1); // Spiegelung
+    ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+    
+    applyColorMode(ctx, canvas); // Filter anwenden
+
+    const photoData = canvas.toDataURL('image/png');
+    state.photos.push(photoData);
+    
+    updatePreviewGrid();
+
+    if (state.photos.length !== layouts[state.selectedLayout].count) {
+        updatePhotoCounter();
+    }
+
+    const layout = layouts[state.selectedLayout];
+    if (state.photos.length === layout.count) {
+        document.getElementById('capture-btn').style.display = 'none';
+        document.getElementById('camera-actions').style.display = 'flex';
+    }
+}
+
+// NEU: Helferfunktion, um ein Bild zu laden (gibt ein Promise zurück)
+function loadImage(src) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        // Keine crossOrigin-Einstellung, um lokale/CORS-Probleme zu vermeiden.
+        img.onload = () => resolve(img);
+        img.onerror = (err) => reject(new Error(`Bild konnte nicht geladen werden: ${src}`, { cause: err }));
+        img.src = src;
+    });
 }
 
 async function startCamera() {
@@ -80,497 +201,420 @@ async function startCamera() {
         const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } });
         state.stream = mediaStream;
         video.srcObject = mediaStream;
+
+        // WICHTIG: Füge 'muted' im HTML-Video-Tag hinzu, um Autoplay-Fehler zu vermeiden.
+        // Außerdem hier .play() aufrufen, um sicherzustellen, dass die Wiedergabe startet,
+        // sobald der Stream bereit ist, um den Fehler "The play method is not allowed..." 
+        // zu umgehen, wenn 'muted' gesetzt ist.
+        video.play().catch(e => console.error("Video Playback Startfehler (wegen Autoplay-Regeln):", e));
+
     } catch (err) {
         console.error("Kamerafehler:", err);
         alert('Kamerazugriff verweigert. Bitte erlaube den Kamerazugriff.');
-        showScreen('start'); // Bei Fehler zurück zum Startbildschirm
+        showScreen('start');
     } finally {
-        spinner.classList.remove('active'); // Spinner verstecken
+        spinner.classList.remove('active');
     }
 }
 
-function updatePreviewGrid() {
+// --- KORRIGIERTE GENERIERUNG DES FOTOSTREIFENS (ASYNC) ---
+async function generatePhotostrip(canvas) {
     const layout = layouts[state.selectedLayout];
-    if (!layout) return; // Abbruch, wenn kein Layout gewählt
-    
-    previewGrid.style.gridTemplateColumns = `repeat(${layout.cols}, 1fr)`;
-    previewGrid.style.gridTemplateRows = `repeat(${layout.rows}, 1fr)`;
-    previewGrid.innerHTML = '';
-    
-    for (let i = 0; i < layout.count; i++) {
-        const slot = document.createElement('div');
-        slot.className = 'preview-slot';
-        if (state.photos[i]) {
-            const img = document.createElement('img');
-            img.src = state.photos[i];
-            slot.appendChild(img);
-        }
-        previewGrid.appendChild(slot);
-    }
-}
+    const photoWidth = (layout.cols === 2) ? 250 : 400;
+    const photoHeight = (layout.cols === 2) ? 250 : 300;
+    const padding = 20;
+    const footerHeight = 100; // Platz für QR-Code/Datum/Branding
 
-// ANGEPASST: updatePhotoCounter (V2) - Funktioniert jetzt mit dem <div> von V1
-function updatePhotoCounter(initial = false) {
-    const layout = layouts[state.selectedLayout];
-    if (!layout) return;
-    
-    const counter = document.getElementById('photo-counter');
-    const captureBtn = document.getElementById('capture-btn');
-    
-    if (initial) {
-        counter.textContent = `(${layout.count} Foto${layout.count > 1 ? 's' : ''})`;
-    } else {
-        const current = state.photos.length < layout.count ? state.photos.length + 1 : layout.count;
-        counter.textContent = `(${current}/${layout.count})`;
-    }
-}
-
-// NEU: S/W-Filterfunktion von V1
-function applyColorMode(ctx, canvas) {
-    if (state.colorMode === "bw") {
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageData.data;
-        for (let i = 0; i < data.length; i += 4) {
-            const gray =
-                data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-            data[i] = gray;
-            data[i + 1] = gray;
-            data[i + 2] = gray;
-        }
-        ctx.putImageData(imageData, 0, 0);
-    }
-}
-
-// GEMERGT: takePhoto (V2-Logik + V1-Spiegelung & S/W-Filter)
-function takePhoto() {
-    const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext('2d');
-    
-    // NEU: Spiegelung von V1
-    ctx.scale(-1, 1);
-    ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
-    
-    // NEU: S/W-Filterung von V1
-    applyColorMode(ctx, canvas);
-
-    const photoData = canvas.toDataURL('image/png');
-    state.photos.push(photoData);
-    
-    updatePreviewGrid();
-
-    // V2-Logik beibehalten
-    if (state.photos.length !== layouts[state.selectedLayout].count) {
-        updatePhotoCounter();
-    }
-
-    const layout = layouts[state.selectedLayout];
-    if (state.photos.length === layout.count) {
-        document.getElementById('capture-btn').style.display = 'none';
-        document.getElementById('camera-actions').style.display = 'flex';
-    }
-}
-//Laura: Funktion angepasst
-function setupCustomization() {
-    const bgGrid = document.getElementById('bg-grid');
-    bgGrid.innerHTML = '';
-
-    backgrounds.forEach((bg, index) => {
-        const div = document.createElement('div');
-        div.className = 'bg-option' + (index === 0 ? ' selected' : '');
-        div.style.backgroundImage = `url(${bg.image})`; // Bild im Kreis
-        div.style.backgroundSize = 'cover';
-        div.style.backgroundPosition = 'center';
-        div.title = bg.name;
-        div.dataset.background = bg.image; // <- hier auf Bild setzen
-
-        div.addEventListener('click', () => {
-            document.querySelectorAll('.bg-option').forEach(el => el.classList.remove('selected'));
-            div.classList.add('selected');
-            state.background = div.dataset.background; // <- Bild wird nun als Hintergrund genutzt
-            generatePhotostrip(photostripCanvas);
-        });
-
-        bgGrid.appendChild(div);
-    });
-
-
-    // Farben bleiben gleich
-    const colorGrid = document.getElementById('color-grid');
-    colorGrid.innerHTML = '';
-    colors.forEach(color => {
-        const div = document.createElement('div');
-        div.className = 'color-option';
-        div.style.backgroundColor = color;
-        div.dataset.color = color;
-
-        div.addEventListener('click', () => {
-            document.querySelectorAll('.bg-option').forEach(el => el.classList.remove('selected'));
-            document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
-            div.classList.add('selected');
-            state.background = div.dataset.color;
-            generatePhotostrip(photostripCanvas);
-        });
-        colorGrid.appendChild(div);
-    });
-}
-// --- GENERIEREN DES FOTOSTREIFENS ---
-function generatePhotostrip(canvas) {
-    const layout = layouts[state.selectedLayout]; // aktuelles Layout laden
-    const photoWidth = (layout.cols === 2) ? 250 : 400;  // Breite der Fotos (kleiner bei 2x2)
-    const photoHeight = (layout.cols === 2) ? 250 : 300; // Höhe der Fotos
-    const padding = 20; // Abstand zwischen den Fotos
-
-    // Canvas-Größe berechnen (inkl. Padding + extra Platz unten für Instax-Stil)
+    // Canvas Breite basiert auf Spalten, Padding
     canvas.width = layout.cols * photoWidth + (layout.cols + 1) * padding;
-    canvas.height = layout.rows * photoHeight + (layout.rows + 1) * padding + 100;
+    // Canvas Höhe basiert auf Zeilen, Padding UND Footer/Header
+    canvas.height = layout.rows * photoHeight + (layout.rows + 1) * padding + footerHeight; 
+    
     const ctx = canvas.getContext('2d');
 
-    // --- FUNKTION ZUM ZEICHNEN DER FOTOS ---
-    function drawPhotos() {
-        // Gesamtgröße des Fotoblocks
-        const photoBlockWidth = layout.cols * photoWidth + (layout.cols - 1) * padding;
-        const photoBlockHeight = layout.rows * photoHeight + (layout.rows - 1) * padding;
-
-        // Startposition für zentrierten Block auf dem Canvas
-        const startX = (canvas.width - photoBlockWidth) / 2;
-        const startY = (canvas.height - photoBlockHeight - 100) / 2; // extra unten für Instax
-
-        state.photos.forEach((photo, idx) => {
-            const img = new Image();
-            img.src = photo;
-            const col = idx % layout.cols;             // Spalte des Fotos
-            const row = Math.floor(idx / layout.cols); // Reihe des Fotos
-
-            img.onload = () => {
-                const x = startX + col * (photoWidth + padding); // X-Position
-                const y = startY + row * (photoHeight + padding); // Y-Position
-
-                // Schatten für Fotostreifen
-                ctx.save();
-                ctx.shadowColor = 'rgba(0,0,0,0.3)';
-                ctx.shadowBlur = 10;
-                ctx.shadowOffsetY = 5;
-                ctx.restore();
-
-                ctx.drawImage(img, x, y, photoWidth, photoHeight); // Foto zeichnen
-            };
-        });
+    // --- 1. HINTERGRUND ZEICHNEN ---
+    try {
+        if (state.backgroundImage) {
+            const bgImg = await loadImage(state.backgroundImage);
+            const scale = Math.max(canvas.width / bgImg.width, canvas.height / bgImg.height);
+            const bw = bgImg.width * scale, bh = bgImg.height * scale;
+            const bx = (canvas.width - bw) / 2, by = (canvas.height - bh) / 2;
+            ctx.drawImage(bgImg, bx, by, bw, bh);
+        } else {
+            ctx.fillStyle = state.background || '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+    } catch (err) {
+        console.error("Hintergrund konnte nicht geladen werden:", err);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
-    // --- HINTERGRUND HANDHABEN ---
-    if (state.backgroundImage) {
-        // Wenn ein Hintergrundbild gewählt wurde
-        const bgImg = new Image();
-        bgImg.src = state.backgroundImage;
-        bgImg.onload = () => {
-            // Bild proportional skalieren, sodass es das Canvas ausfüllt
-            const scale = Math.max(canvas.width / bgImg.width, canvas.height / bgImg.height);
-            const bw = bgImg.width * scale;
-            const bh = bgImg.height * scale;
-            const bx = (canvas.width - bw) / 2; // zentrieren horizontal
-            const by = (canvas.height - bh) / 2; // zentrieren vertikal
-            ctx.drawImage(bgImg, bx, by, bw, bh);
+    // --- 2. FOTOS ZEICHNEN ---
+    const photoBlockWidth = layout.cols * photoWidth + (layout.cols - 1) * padding;
+    const photoBlockHeight = layout.rows * photoHeight + (layout.rows - 1) * padding;
+    
+    // KORRIGIERTE Y-STARTPUNKT BERECHNUNG:
+    // Die Fotos werden jetzt nur im oberen Bereich des Canvas zentriert,
+    // um Platz für den Footer (100px) zu lassen.
+    const remainingHeight = canvas.height - footerHeight;
+    const startX = (canvas.width - photoBlockWidth) / 2;
+    const startY = (remainingHeight - photoBlockHeight) / 2; 
 
-            drawPhotos(); // Fotos erst nach Laden des Hintergrunds
-        };
-    } else {
-        // Wenn Farbe oder Gradient als Hintergrund
-        if (state.background?.startsWith('linear-gradient')) {
-            const colorMatches = state.background.match(/#[a-f0-9]{6}/gi);
-            if (colorMatches && colorMatches.length >= 2) {
-                const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-                grad.addColorStop(0, colorMatches[0]);
-                grad.addColorStop(1, colorMatches[colorMatches.length - 1]);
-                ctx.fillStyle = grad;
-            } else {
-                ctx.fillStyle = state.background; // fallback
-            }
-        } else {
-            ctx.fillStyle = state.background || '#f8f8f8ff'; // Farbe auswählen oder weiß
-        }
-        ctx.fillRect(0, 0, canvas.width, canvas.height); // Hintergrund füllen
-        drawPhotos(); // Fotos zeichnen
+    try {
+        const loadedImages = await Promise.all(state.photos.map(loadImage));
+        
+        loadedImages.forEach((img, idx) => {
+            const col = idx % layout.cols;
+            const row = Math.floor(idx / layout.cols);
+            
+            const x = startX + col * (photoWidth + padding);
+            const y = startY + row * (photoHeight + padding);
+            
+            ctx.save();
+            ctx.shadowColor = 'rgba(0,0,0,0.3)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetY = 5;
+            ctx.drawImage(img, x, y, photoWidth, photoHeight);
+            ctx.restore();
+        });
+    } catch (err) {
+        console.error("Fotos konnten nicht geladen werden:", err);
     }
 }
+    
+
 
 // --- CUSTOMIZATION (HINTERGRUND + FARBEN) ---
 function setupCustomization() {
-    const bgGrid = document.getElementById('bg-grid'); // Container für Hintergrundbilder
-    bgGrid.innerHTML = ''; // alte Optionen löschen
-    const colorGrid = document.getElementById('color-grid'); // Container für Farben
-    colorGrid.innerHTML = ''; // alte Optionen löschen
+    const bgGrid = document.getElementById('bg-grid');
+    bgGrid.innerHTML = '';
+    const colorGrid = document.getElementById('color-grid');
+    colorGrid.innerHTML = '';
 
-    // --- HINTERGRUNDBILDER ---
-    backgrounds.forEach((bg, index) => {
-        const div = document.createElement('div');
-        div.className = 'bg-option' + (index === 0 ? ' selected' : ''); // erste ausgewählt
-        div.style.backgroundImage = `url(${bg.image})`;
-        div.style.backgroundSize = 'cover';   // Bild skalieren
-        div.style.backgroundPosition = 'center'; // zentrieren
-        div.title = bg.name;
+    // --- HINTERGRUNDBILDER ---
+    backgrounds.forEach((bg, index) => {
+        const div = document.createElement('div');
+        const isSelected = (!state.backgroundImage && index === 0) || (state.backgroundImage === bg.image);
+        div.className = 'bg-option' + (isSelected ? ' selected' : '');
+        div.style.backgroundImage = `url(${bg.image})`;
+        div.style.backgroundSize = 'cover';
+        div.style.backgroundPosition = 'center'; 
+        div.title = bg.name;
 
-        div.addEventListener('click', () => {
-            document.querySelectorAll('.bg-option').forEach(el => el.classList.remove('selected'));
-            document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
-            div.classList.add('selected');
+        div.addEventListener('click', async () => { 
+            document.querySelectorAll('.bg-option, .color-option').forEach(el => el.classList.remove('selected'));
+            div.classList.add('selected');
 
-            state.backgroundImage = bg.image;   // Bild wählen
-            state.background = null;             // Farbe deaktivieren
-            generatePhotostrip(photostripCanvas);
-        });
+            state.backgroundImage = bg.image;
+            state.background = null;
+            await generatePhotostrip(photostripCanvas);
+        });
+        bgGrid.appendChild(div);
+    });
 
-        bgGrid.appendChild(div);
-    });
+    // --- FARBOPTIONEN ---
+    colors.forEach(color => {
+        const div = document.createElement('div');
+        const isSelected = !state.backgroundImage && state.background === color;
+        div.className = 'color-option' + (isSelected ? ' selected' : '');
+        div.style.backgroundColor = color;
+        div.dataset.color = color;
 
-    // --- FARBOPTIONEN ---
-    colors.forEach(color => {
-        const div = document.createElement('div');
-        div.className = 'color-option';
-        div.style.backgroundColor = color;
-        div.dataset.color = color;
+        div.addEventListener('click', async () => { 
+            document.querySelectorAll('.bg-option, .color-option').forEach(el => el.classList.remove('selected'));
+            div.classList.add('selected');
 
-        div.addEventListener('click', () => {
-            document.querySelectorAll('.bg-option').forEach(el => el.classList.remove('selected'));
-            document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
-            div.classList.add('selected');
+            state.background = color;
+            state.backgroundImage = null;
+            await generatePhotostrip(photostripCanvas);
+        });
+        colorGrid.appendChild(div);
+    });
 
-            state.background = color;          // Farbe wählen
-            state.backgroundImage = null;       // Bild deaktivieren
-            generatePhotostrip(photostripCanvas);
-        });
-
-        colorGrid.appendChild(div);
-    });
+    if (!state.backgroundImage && !state.background) {
+        colorGrid.firstChild.classList.add('selected');
+        state.background = colors[0];
+    } else if (state.backgroundImage) {
+        document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
+    }
 }
+
 
 // --- EVENT LISTENERS ---
 
 document.querySelectorAll('.layout-card').forEach(card => {
-    card.addEventListener('click', function() { 
-        document.querySelectorAll('.layout-card').forEach(otherCard => {
-            otherCard.classList.remove('selected');
-        });
-        this.classList.add('selected');
-        state.selectedLayout = parseInt(this.dataset.layout);
-        document.getElementById('start-btn').style.display = 'flex';
-    });
+    card.addEventListener('click', function () {
+        document.querySelectorAll('.layout-card').forEach(otherCard => {
+            otherCard.classList.remove('selected');
+        });
+        this.classList.add('selected');
+        state.selectedLayout = parseInt(this.dataset.layout);
+        document.getElementById('start-btn').style.display = 'flex';
+    });
 });
 
 document.getElementById('start-btn').addEventListener('click', () => {
-    showScreen('camera');
-    spinner.classList.add('active');
-    startCamera();
-    updatePreviewGrid();
-    updatePhotoCounter(true); // Ruft den "Hinweis"-Text auf
+    showScreen('camera');
+    spinner.classList.add('active');
+    startCamera();
+    updatePreviewGrid();
+    updatePhotoCounter(true);
 });
 
-// NEU: Event-Listener für S/W-Schalter (von V1)
 document.querySelectorAll(".mode-btn").forEach((btn) => {
-    btn.addEventListener("click", function () {
-        document
-            .querySelectorAll(".mode-btn")
-            .forEach((b) => b.classList.remove("active"));
-        this.classList.add("active");
-        state.colorMode = this.dataset.mode;
-    });
+    btn.addEventListener("click", function () {
+        document
+            .querySelectorAll(".mode-btn")
+            .forEach((b) => b.classList.remove("active"));
+        this.classList.add("active");
+        state.colorMode = this.dataset.mode;
+        document.getElementById('filter-hint-text').classList.add('active');
+    });
 });
 
-
-// GEMERGT: capture-btn Listener (V2-Logik, aber ohne Text-Updates für den Button)
 document.getElementById('capture-btn').addEventListener('click', async () => {
-    const layout = layouts[state.selectedLayout];
-    const captureBtn = document.getElementById('capture-btn');
-    
-    captureBtn.disabled = true; 
-    
-    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-    const isMultiPhotoLayout = (layout.count > 1);
+    const layout = layouts[state.selectedLayout];
+    const captureBtn = document.getElementById('capture-btn');
 
-    for (let i = 0; i < layout.count; i++) {
-        const isLastPhoto = (i === layout.count - 1); 
-        
-        // V2-Text-Update-Logik (captureBtn.firstChild.textContent) entfernt,
-        // da der runde Button keinen Text hat.
-        
-        updatePhotoCounter(); // Zähler aktualisieren
-        
-        let count = 3;
-        countdownOverlay.textContent = count;
-        countdownOverlay.classList.remove('is-hint'); 
-        countdownOverlay.classList.add('active');
-        
-        while (count > 0) {
-            await sleep(1000); 
-            count--;
-            if (count > 0) {
-                countdownOverlay.textContent = count;
-            }
-        }
-        
-        countdownOverlay.textContent = '📷';
-        countdownOverlay.classList.remove('is-hint'); 
-        await sleep(500); 
+    captureBtn.disabled = true;
 
-        countdownOverlay.classList.remove('active');
-        takePhoto(); 
-        
-        if (isMultiPhotoLayout && !isLastPhoto) { 
-            countdownOverlay.textContent = 'Super! Mach dich bereit für das nächste Foto...';
-            countdownOverlay.classList.add('is-hint'); 
-            countdownOverlay.classList.add('active'); 
-            await sleep(2500); 
-            countdownOverlay.classList.remove('active');
-            countdownOverlay.classList.remove('is-hint');
-        } else if (isLastPhoto) { // Zeigt "Fertig" bei Multi-Foto und Einzelfoto
-            countdownOverlay.textContent = 'Fertig! Sieh dir deine Fotos an.';
-            countdownOverlay.classList.add('is-hint');
-            countdownOverlay.classList.add('active');
-        }
-    }
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    const isMultiPhotoLayout = (layout.count > 1);
+
+    for (let i = 0; i < layout.count; i++) {
+        const isLastPhoto = (i === layout.count - 1);
+
+        updatePhotoCounter();
+
+        let count = 3;
+        countdownOverlay.textContent = count;
+        countdownOverlay.classList.remove('is-hint');
+        countdownOverlay.classList.add('active');
+
+        while (count > 0) {
+            await sleep(1000);
+            count--;
+            if (count > 0) {
+                countdownOverlay.textContent = count;
+            }
+        }
+
+        countdownOverlay.textContent = '📷';
+        countdownOverlay.classList.remove('is-hint');
+        await sleep(500);
+
+        countdownOverlay.classList.remove('active');
+        takePhoto();
+
+        if (isMultiPhotoLayout && !isLastPhoto) {
+            countdownOverlay.textContent = 'Super! Mach dich bereit für das nächste Foto...';
+            countdownOverlay.classList.add('is-hint'); 
+             countdownOverlay.classList.add('active');
+            await sleep(2500);
+            countdownOverlay.classList.remove('active');
+            countdownOverlay.classList.remove('is-hint');
+        } else if (isLastPhoto) {
+            countdownOverlay.textContent = 'Fertig! Sieh dir deine Fotos an.';
+            countdownOverlay.classList.add('is-hint');
+            countdownOverlay.classList.add('active');
+        }
+    }
 });
 
-// V2-Listener (korrigiert)
 document.getElementById('retake-btn').addEventListener('click', () => {
-    state.photos = [];
-    updatePreviewGrid();
-    updatePhotoCounter(true); // Setzt den "Hinweis"-Text zurück
+    state.photos = [];
+    updatePreviewGrid();
+    updatePhotoCounter(true);
 
-    const captureBtn = document.getElementById('capture-btn');
-    captureBtn.style.display = 'block';
-    captureBtn.disabled = false; 
+    const captureBtn = document.getElementById('capture-btn');
+    captureBtn.style.display = 'block';
+    captureBtn.disabled = false;
 
-    document.getElementById('camera-actions').style.display = 'none';
+    document.getElementById('camera-actions').style.display = 'none';
 
-    countdownOverlay.classList.remove('active');
-    countdownOverlay.classList.remove('is-hint');
+    countdownOverlay.classList.remove('active');
+    countdownOverlay.classList.remove('is-hint');
 });
 
-document.getElementById('next-btn').addEventListener('click', () => {
-    if (state.stream) {
-        state.stream.getTracks().forEach(track => track.stop());
-    }
-    showScreen('customize');
-    setupCustomization();
-    generatePhotostrip(photostripCanvas);
+document.getElementById('next-btn').addEventListener('click', async () => {
+    if (state.stream) {
+        state.stream.getTracks().forEach(track => track.stop());
+    }
+    showScreen('customize');
+    setupCustomization();
+    await generatePhotostrip(photostripCanvas);
 });
 
-document.getElementById('customize-next-btn').addEventListener('click', () => {
-    showScreen('download');
-    generatePhotostrip(finalCanvas);
+// KORRIGIERTER 'customize-next-btn' LISTENER
+document.getElementById('customize-next-btn').addEventListener('click', async () => {
+    showScreen('download');
+
+    const qrTarget = document.getElementById('qr-code-target');
+    const downloadBtn = document.getElementById('download-btn');
+    const qrBtn = document.getElementById('qr-btn');
+
+    // Buttons verstecken, bis alles fertig ist
+    downloadBtn.style.display = 'none';
+    qrBtn.style.display = 'none';
+    qrTarget.innerHTML = "Bild wird generiert und hochgeladen...";
+
+    // Warten, bis generatePhotostrip() FERTIG ist
+    await generatePhotostrip(finalCanvas);
+    // Ab hier ist der finalCanvas garantiert voll gezeichnet!
+
+    // Buttons jetzt anzeigen
+    downloadBtn.style.display = 'block';
+    qrBtn.style.display = 'block';
+
+    // --- START: Upload-Logik ---
+    // WICHTIG: Stelle sicher, dass diese IP korrekt ist!
+    const uploadURL = "http://141.45.39.101:9090/upload"; 
+
+    try {
+        const blob = await new Promise(resolve => finalCanvas.toBlob(resolve, 'image/png'));
+        const formData = new FormData();
+        formData.append('file', blob, 'fiw-photobooth.png');
+
+        const response = await fetch(uploadURL, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) throw new Error(`Server-Fehler: ${response.statusText}`);
+
+        const result = await response.json();
+        if (!result.url) throw new Error("Server hat keine gültige URL zurückgegeben.");
+
+        state.finalUrl = result.url;
+        qrTarget.innerHTML = ""; // Lade-Text entfernen
+
+    } catch (err) {
+        console.error("Upload-Fehler (beim Generieren):", err);
+        qrTarget.innerHTML = `<strong>Fehler:</strong> Bild konnte nicht hochgeladen werden.<br>(${err.message})`;
+        state.finalUrl = null;
+    }
+    // --- ENDE: Upload-Logik ---
 });
 
 document.getElementById('download-btn').addEventListener('click', () => {
-    const dataUrl = finalCanvas.toDataURL('image/png');
-    const link = document.createElement('a');
-    link.download = 'fiw-winter-photobooth.png';
-    link.href = dataUrl;
-    link.click();
+    const dataUrl = finalCanvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.download = 'fiw-winter-photobooth.png';
+    link.href = dataUrl;
+    link.click();
 });
 
-// KORRIGIERTER QR-Code-Listener (von V1-Reparatur)
 document.getElementById("qr-btn").addEventListener("click", () => {
-    const qrContainer = document.getElementById("qr-container");
-    const qrDate = document.getElementById("qr-date");
-    const qrTarget = document.getElementById("qr-code-target");
+    const qrContainer = document.getElementById("qr-container");
+    const qrDate = document.getElementById("qr-date");
+    const qrTarget = document.getElementById("qr-code-target");
 
-    qrDate.textContent = new Date().toLocaleString("de-DE");
-    qrTarget.innerHTML = "";
+    qrDate.textContent = new Date().toLocaleString("de-DE");
 
-    // JPEG für kleinere Dateigröße bei QR-Codes
-    const dataUrl = finalCanvas.toDataURL("image/jpeg", 0.7);
+    if (!state.finalUrl) {
+        if (qrTarget.innerHTML === "") {
+            qrTarget.innerHTML = `<strong>Fehler:</strong> Bild-URL nicht gefunden. Upload fehlgeschlagen?`;
+        }
+        qrContainer.classList.add("active");
+        return;
+    }
 
-    try {
-        const qrCanvas = document.createElement("canvas");
-        new QRious({
-            element: qrCanvas,
-            value: dataUrl,
-            size: 250,
-            level: "L", // 'L' (Low) für maximale Datenkapazität
-        });
-        qrTarget.appendChild(qrCanvas);
-    } catch (e) {
-        console.error("QR-Code-Fehler:", e);
-        qrTarget.innerHTML =
-            '<p style="color: red; font-size: 0.9rem;">Fehler: Das Bild ist zu groß für einen QR-Code. Versuche einen einfacheren Hintergrund.</p>';
-    }
+    qrTarget.innerHTML = "";
+    const qrCanvas = document.createElement("canvas");
+    new QRious({
+        element: qrCanvas,
+        value: state.finalUrl, // BENUTZT DIE SERVER-URL
+        size: 250,
+        level: "L"
+    });
 
-    qrContainer.classList.add("active");
+    qrTarget.appendChild(qrCanvas);
+    qrContainer.classList.add("active");
 });
 
 
-// KORRIGIERTER restart-btn Listener (V2)
+// KORRIGIERTE 'restart-btn' FUNKTION
 document.getElementById('restart-btn').addEventListener('click', () => {
-    // Stoppt Stream, falls Benutzer von Kamera direkt neu startet (obwohl nicht sichtbar)
-    if (state.stream) {
-        state.stream.getTracks().forEach(track => track.stop());
-    }
+    if (state.stream) {
+        state.stream.getTracks().forEach(track => track.stop());
+    }
 
-    state = {
-        screen: 'start',
-        selectedLayout: null,
-        photos: [],
-        stream: null,
-        countdown: null,
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        colorMode: 'color' // Zustand zurücksetzen
-    };
-    
-    document.querySelectorAll('.layout-card').forEach(card => {
-        card.classList.remove('selected');
-    });
+    // --- KORREKTER STATE-RESET ---
+    state = {
+        screen: 'start',
+        selectedLayout: null,
+        photos: [],
+        stream: null,
+        countdown: null,
+        background: '#ffffff',
+        backgroundImage: null,
+        colorMode: 'color',
+        finalUrl: null,
+        addDate: false // Datum-State auch zurücksetzen
+    };
+    // --- ENDE STATE-RESET ---
+    
+    document.querySelectorAll('.layout-card').forEach(card => {
+        card.classList.remove('selected');
+    });
 
-    // S/W-Schalter zurücksetzen
-    document.querySelectorAll(".mode-btn").forEach((btn) => {
-        if (btn.dataset.mode === "color") {
-            btn.classList.add("active");
-        } else {
-            btn.classList.remove("active");
-        }
-    });
+    // Filter-Schalter zurücksetzen
+    document.querySelectorAll(".mode-btn").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.mode === "color");
+    });
 
-    document.getElementById('start-btn').style.display = 'none';
-    
-    const captureBtn = document.getElementById('capture-btn');
-    captureBtn.style.display = 'block';
-    captureBtn.disabled = false; 
+    // Datum-Schalter zurücksetzen
+    const dateToggle = document.getElementById('date-toggle');
+    if (dateToggle) dateToggle.checked = false;
 
-    document.getElementById('camera-actions').style.display = 'none';
-    document.getElementById('qr-container').classList.remove('active');
+    document.getElementById('start-btn').style.display = 'none';
 
-    countdownOverlay.classList.remove('active');
-    countdownOverlay.classList.remove('is-hint');
+    const captureBtn = document.getElementById('capture-btn');
+    captureBtn.style.display = 'block';
+    captureBtn.disabled = false;
 
-    showScreen('start');
+    document.getElementById('camera-actions').style.display = 'none';
+    document.getElementById('qr-container').classList.remove('active');
+
+    countdownOverlay.classList.remove('active');
+    countdownOverlay.classList.remove('is-hint');
+
+    document.getElementById('filter-hint-text').classList.remove('active');
+
+    showScreen('start');
 });
 
-// "Zurück"-Button Event Listeners (V2)
+// "Zurück"-Button Event Listeners
 document.getElementById('back-to-start').addEventListener('click', () => {
-    if (state.stream) {
-        state.stream.getTracks().forEach(track => track.stop());
-        state.stream = null; 
-    }
-    state.photos = [];
-    updatePreviewGrid(); 
-    
-    const captureBtn = document.getElementById('capture-btn');
-    captureBtn.style.display = 'block';
-    captureBtn.disabled = false; // Wichtig
-    document.getElementById('camera-actions').style.display = 'none';
+    if (state.stream) {
+        state.stream.getTracks().forEach(track => track.stop());
+        state.stream = null;
+    }
+    state.photos = [];
+    updatePreviewGrid();
 
-    showScreen('start');
+    const captureBtn = document.getElementById('capture-btn');
+    captureBtn.style.display = 'block';
+    captureBtn.disabled = false;
+    document.getElementById('camera-actions').style.display = 'none';
+
+    document.getElementById('filter-hint-text').classList.remove('active'); 
+
+    showScreen('start');
 });
 
 document.getElementById('back-to-camera').addEventListener('click', () => {
-    showScreen('camera');
-    spinner.classList.add('active');
-    startCamera(); 
-    updatePhotoCounter(true); // "Hinweis"-Text wiederherstellen
+    showScreen('camera');
+    spinner.classList.add('active');
+    startCamera();
+    updatePhotoCounter(true);
 });
 
-document.getElementById('back-to-customize').addEventListener('click', () => {
-    showScreen('customize');
+// KORRIGIERT: "await" hinzugefügt
+document.getElementById('back-to-customize').addEventListener('click', async () => {
+    showScreen('customize');
+    await generatePhotostrip(photostripCanvas);
 });
 
 // --- INIT ---
