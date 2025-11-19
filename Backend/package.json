@@ -1,6 +1,6 @@
 
 {
-  "name": "photobooth",
+  "name": "photobooth-backend",
   "version": "1.0.0",
   "description": "Einfacher Photobooth mit QR-Code",
   "main": "server.js",
