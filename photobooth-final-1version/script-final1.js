@@ -469,9 +469,10 @@ document.getElementById('customize-next-btn').addEventListener('click', async ()
     qrBtn.style.display = 'block';
 
     // --- START: Upload-Logik ---
-    // WICHTIG: Stelle sicher, dass diese IP korrekt ist!
-    const uploadURL = "${API_BASE_URL}/upload";
-
+// KORREKTUR: Verwenden Sie Backticks (`) statt Anführungszeichen (')
+const uploadURL = `${API_BASE_URL}/upload`; 
+//                               ^        ^
+   
 
     try {
         const blob = await new Promise(resolve => finalCanvas.toBlob(resolve, 'image/png'));
