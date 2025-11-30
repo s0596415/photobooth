@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://141.45.191.175';
+const API_BASE_URL = 'https://photobooth-4r1k.onrender.com';
 
 // 1. Das "state"-Objekt ist "let"
 let state = {
@@ -470,7 +470,8 @@ document.getElementById('customize-next-btn').addEventListener('click', async ()
 
     // --- START: Upload-Logik ---
     // WICHTIG: Stelle sicher, dass diese IP korrekt ist!
-    const uploadURL = "http://141.45.191.175/upload";
+    const uploadURL = "${API_BASE_URL}/upload";
+
 
     try {
         const blob = await new Promise(resolve => finalCanvas.toBlob(resolve, 'image/png'));
