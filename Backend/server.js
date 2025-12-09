@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 9090;
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
 // [ÄNDERUNG: CORS ist spezifischer konfiguriert, um das Frontend zuzulassen]
-const ALLOWED_ORIGIN = 'https://photobooth-mu-nine.vercel.app'; // ERSETZEN!
+const ALLOWED_ORIGIN = 'https://photobooth-fiw.vercel.app'; // ERSETZEN!
 
 app.use(cors({
     origin: ALLOWED_ORIGIN,
