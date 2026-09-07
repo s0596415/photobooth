@@ -17,10 +17,14 @@
     <script src="script-final1.js" defer></script>
 </head>
 
-<body>
-    <header class="top-bar">
+<header class="top-bar">
         <div class="title-box"> Photobooth </div>
-        <button class="login-button">Login</button>
+        
+        <div class="header-controls">
+            <span id="user-status-badge" class="status-badge" style="display: none;"></span>
+            <!-- HIER IST DIE WICHTIGE ID "auth-btn" -->
+            <button class="login-button" id="auth-btn">Login</button>
+        </div>
     </header>
 
     <video id="videoElement" autoplay playsinline **muted**></video>
@@ -212,7 +216,6 @@
                     <input type="password" id="password" name="password" required>
                 </div>
                 
-                <!-- Wir nutzen deine bestehende Button-Klasse für einheitliches Design -->
                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Einloggen</button>
             </form>
         </div>
