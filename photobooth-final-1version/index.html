@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FIW Winterfest Photobooth </title>
+    <title>Photobooth</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     
@@ -18,12 +18,17 @@
 </head>
 
 <body>
+    <header class="top-bar">
+        <div class="title-box"> Photobooth </div>
+        <button class="login-button">Login</button>
+    </header>
+
     <video id="videoElement" autoplay playsinline **muted**></video>
     <div class="snowflakes" id="snowflakes"></div>
 
     <div class="container">
         <div id="start-screen" class="screen active">
-            <h1>❄️ FIW Winterfest Photobooth ❄️</h1>
+            <h1>❄️ FIW Winterfest ❄️</h1>
             <p class="subtitle">Wähle dein Foto-Layout</p>
 
             <div class="layout-grid">
@@ -187,6 +192,32 @@
             </button>
         </div>
     </div>
+
+    <!-- Das Login-Modal (Pop-up) -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <!-- Das Schließen-Kreuz -->
+            <span class="close-btn">&times;</span>
+            
+            <h2>Login</h2>
+            
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="username">Benutzername</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="password">Passwort</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <!-- Wir nutzen deine bestehende Button-Klasse für einheitliches Design -->
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Einloggen</button>
+            </form>
+        </div>
+    </div>
+    
 </body>
 
 </html>
