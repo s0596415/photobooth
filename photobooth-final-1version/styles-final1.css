@@ -75,8 +75,6 @@ body {
 }
 
 .login-button {
-    position: absolute;
-    right: 100px; /* abstand zum rand vom button */
     background-color: #f4f6f9;
     color: #001f5c;
     padding: 10px 25px;
@@ -129,6 +127,28 @@ body {
 
 .login-btn:hover {
     background-color: #bdc3c7;
+}
+
+.header-controls {
+    position: absolute;
+    right: 50px; 
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Abstand zwischen Abzeichen und Button */
+}
+
+/* Das Design des Abzeichens */
+.status-badge {
+    background-color: #f4f6f9;
+    color: #001f5c; 
+    padding: 8px 15px;
+    border-radius: 20px; /* Abgerundete Ecken (Pillenform) */
+    font-size: 14px;
+    font-weight: bold;
+    font-family: 'Georgia', serif;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    white-space: nowrap; /* Verhindert Zeilenumbruch */
+    flex-shrink: 0; /* Verhindert, dass das Abzeichen schrumpft */
 }
 
 /* Container und Screen-Management (V2) */
