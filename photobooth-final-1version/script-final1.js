@@ -620,5 +620,68 @@ document.getElementById('back-to-customize').addEventListener('click', async () 
     await generatePhotostrip(photostripCanvas);
 });
 
+// --- LOGIN MODAL LOGIK ---
+
+// Elemente aus dem HTML holen
+const loginBtn = document.querySelector('.login-button');
+const loginModal = document.getElementById('login-modal');
+const closeBtn = document.querySelector('.close-btn');
+
+// Fenster öffnen, wenn auf den Login-Button im Balken geklickt wird
+if (loginBtn) {
+    loginBtn.addEventListener('click', () => {
+        // 'display: flex' wird genutzt, damit das Fenster durch das CSS zentriert bleibt
+        loginModal.style.display = 'flex'; 
+    });
+}
+
+// Fenster schließen, wenn auf das "X" geklickt wird
+if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+        loginModal.style.display = 'none';
+    });
+}
+
+// Optional: Fenster schließen, wenn man außerhalb der weißen Box auf den dunklen Hintergrund klickt
+window.addEventListener('click', (event) => {
+    if (event.target === loginModal) {
+        loginModal.style.display = 'none';
+    }
+});
+
+// Login-Formular
+const loginForm = document.getElementById('login-form');
+
+if (loginForm) {
+    loginForm.addEventListener('submit', (event) => {
+        
+        event.preventDefault(); 
+        
+        const user = document.getElementById('username').value;
+        const pass = document.getElementById('password').value;
+        
+        // ADMIN
+        if (user === 'admin' && pass === 'geheim') {
+            alert('Erfolgreich als Admin eingeloggt! 🛠️');
+            loginModal.style.display = 'none'; // Fenster schließen
+            
+        } 
+        // USER
+        else if (user === 'gast' && pass === 'winter') {
+            alert('Erfolgreich als Gast eingeloggt! ❄️');
+            loginModal.style.display = 'none'; // Fenster schließen
+            
+        }
+         
+        // 3. Wenn die Daten falsch sind
+        else {
+            alert('Falscher Benutzername oder Passwort! Bitte versuche es erneut.');
+        }
+        
+        // Formular-Felder wieder leeren
+        loginForm.reset();
+    });
+}
+
 // --- INIT ---
 createSnowflakes();
