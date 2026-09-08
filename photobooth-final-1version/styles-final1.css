@@ -765,3 +765,8 @@ h1 {
     outline: none;
     border-color: #001f5c; /* Blauer Rahmen beim Reinklicken */
 }
+
+/* Versteckt deaktivierte Layout-Karten */
+.layout-hidden {
+    display: none !important;
+}
