@@ -628,7 +628,7 @@ const closeBtn = document.querySelector('.close-btn');
 const statusBadge = document.getElementById('user-status-badge');
 const loginForm = document.getElementById('login-form');
 
-// 1. Klick auf den Button oben rechts (Öffnen oder Logout)
+// 1. Klick auf den Button oben rechts (Öffnen oder Logout) LOGOUT!!!!!!
 if (authBtn) {
     authBtn.addEventListener('click', () => {
         if (authBtn.innerText === 'Login') {
@@ -638,6 +638,7 @@ if (authBtn) {
             authBtn.innerText = 'Login';
             statusBadge.style.display = 'none';
             statusBadge.innerText = '';
+            document.getElementById('admin-settings-btn').style.display = 'none';
             alert('Erfolgreich ausgeloggt!');
         }
     });
@@ -655,10 +656,6 @@ window.addEventListener('click', (event) => {
     }
 });
 
-
-// Login-Formular 
-// const loginForm = document.getElementById('login-form');
-
 // Unsere Hashes
 const ADMIN_HASH = '$2b$10$r/GjfuJv4Vk/NSH9LYXIJ.T0anlWDaQ8vYvzF2NO1l7nfaDPtNPPO';
 const GAST_HASH = '$2b$10$0bPjzvfJBNDedUkdrb/.auj4yNLEXdlXgrN23aYFXT8xgiYzlcP3W';
@@ -675,6 +672,8 @@ if (loginForm) {
 
         // ADMIN LOGIN
         if (user === 'admin' && bcrypt.compareSync(pass, ADMIN_HASH)) {
+            currentUser = 'admin';
+            document.getElementById('admin-settings-btn').style.display = 'inline-block';
             loginModal.style.display = 'none'; 
             statusBadge.innerText = ' 🛠️ Admin';
             statusBadge.style.display = 'block';
@@ -683,6 +682,8 @@ if (loginForm) {
         } 
         // GAST LOGIN
         else if (user === 'gast' && bcrypt.compareSync(pass, GAST_HASH)) {
+            currentUser = 'gast';
+            document.getElementById('admin-settings-btn').style.display = 'none';
             loginModal.style.display = 'none'; 
             statusBadge.innerText = '👤 Gast';
             statusBadge.style.display = 'block';
@@ -697,6 +698,83 @@ if (loginForm) {
         loginForm.reset();
     });
 }
+
+/* ========================================================
+   ADMIN FEATURE: Layout Toggles (LocalStorage)
+   ======================================================== */
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Standard-Einstellungen (Alle Layouts an)
+    const defaultLayoutSettings = {
+        layout1: true, layout2: true, layout3: true, layout4: true
+    };
+
+    // 1. Einstellungen aus dem LocalStorage laden
+    function getLayoutSettings() {
+        const saved = localStorage.getItem('photobooth_layouts');
+        return saved ? JSON.parse(saved) : defaultLayoutSettings;
+    }
+
+    // 2. Ansicht für Gäste aktualisieren (Karten ein/ausblenden)
+    function updateGuestLayouts() {
+        const settings = getLayoutSettings();
+        
+        // Durchläuft die Layouts 1 bis 4
+        for (let i = 1; i <= 4; i++) {
+            const card = document.querySelector(`.layout-card[data-layout="${i}"]`);
+            const isActive = settings[`layout${i}`];
+            
+            if (card) {
+                // Wenn aktiv, entferne 'layout-hidden', sonst füge es hinzu
+                if (isActive) {
+                    card.classList.remove('layout-hidden');
+                } else {
+                    card.classList.add('layout-hidden');
+                }
+            }
+            
+            // Setze auch die Häkchen im Admin-Bereich passend
+            const checkbox = document.querySelector(`.layout-toggle-cb[data-layout="${i}"]`);
+            if (checkbox) checkbox.checked = isActive;
+        }
+    }
+
+    // 3. Event-Listener für die Admin-Checkoxen
+    const checkboxes = document.querySelectorAll('.layout-toggle-cb');
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', function() {
+            const layoutId = this.getAttribute('data-layout');
+            const settings = getLayoutSettings();
+            
+            // Wert im Objekt aktualisieren
+            settings[`layout${layoutId}`] = this.checked;
+            
+            // Im Browser speichern
+            localStorage.setItem('photobooth_layouts', JSON.stringify(settings));
+            
+            // Startbildschirm live aktualisieren
+            updateGuestLayouts();
+        });
+    });
+
+    // 4. Admin Modal öffnen / schließen (UI Logik)
+    const adminSettingsBtn = document.getElementById('admin-settings-btn');
+    const adminModal = document.getElementById('admin-modal');
+    const closeAdminBtn = document.getElementById('close-admin-btn');
+
+    if (adminSettingsBtn && adminModal && closeAdminBtn) {
+        adminSettingsBtn.addEventListener('click', () => {
+            adminModal.style.display = 'flex'; // Öffnet das Modal
+        });
+
+        closeAdminBtn.addEventListener('click', () => {
+            adminModal.style.display = 'none'; // Schließt das Modal
+        });
+    }
+
+    // Beim Start einmal ausführen, damit abgewählte Layouts direkt weg sind
+    updateGuestLayouts();
+});
 
 // --- INIT ---
 createSnowflakes();
