@@ -657,7 +657,7 @@ window.addEventListener('click', (event) => {
 
 
 // Login-Formular 
-//const loginForm = document.getElementById('login-form');
+// const loginForm = document.getElementById('login-form');
 
 // Unsere Hashes
 const ADMIN_HASH = '$2b$10$r/GjfuJv4Vk/NSH9LYXIJ.T0anlWDaQ8vYvzF2NO1l7nfaDPtNPPO';
@@ -670,38 +670,26 @@ if (loginForm) {
         const user = document.getElementById('username').value;
         const pass = document.getElementById('password').value;
         
+        // Zugriff auf das CDN-bcrypt Objekt
+        const bcrypt = dcodeIO.bcrypt;
+
         // ADMIN LOGIN
-        if (user === 'admin' && pass === 'geheim') {
+        if (user === 'admin' && bcrypt.compareSync(pass, ADMIN_HASH)) {
             loginModal.style.display = 'none'; 
             statusBadge.innerText = ' 🛠️ Admin';
             statusBadge.style.display = 'block';
             authBtn.innerText = 'Logout';
             alert('Erfolgreich als Admin eingeloggt! 🛠️');
         } 
-        
         // GAST LOGIN
-        else if (user === 'gast' && pass === 'winter') {
+        else if (user === 'gast' && bcrypt.compareSync(pass, GAST_HASH)) {
             loginModal.style.display = 'none'; 
             statusBadge.innerText = '👤 Gast';
             statusBadge.style.display = 'block';
             authBtn.innerText = 'Logout';
-            alert('Erfolgreich als Gast eingeloggt! 👤');
+            alert('Erfolgreich als Gast eingeloggt! ❄️');
         } 
         // FEHLER
-        // Zugriff auf das CDN-bcrypt Objekt
-        const bcrypt = dcodeIO.bcrypt;
-
-        // ADMIN
-        if (user === 'admin' && bcrypt.compareSync(pass, ADMIN_HASH)) {
-            alert('Erfolgreich als Admin eingeloggt! 🛠️');
-            loginModal.style.display = 'none'; // Fenster schließen
-        } 
-        // USER / GAST
-        else if (user === 'gast' && bcrypt.compareSync(pass, GAST_HASH)) {
-            alert('Erfolgreich als Gast eingeloggt! ❄️');
-            loginModal.style.display = 'none'; // Fenster schließen
-        }
-        // 3. Wenn die Daten falsch sind
         else {
             alert('Falscher Benutzername oder Passwort!');
         }
