@@ -9,6 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
     
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Georgia:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -160,6 +161,57 @@
                 </div>
             </div>
         </div>
+
+
+<!-- ⬇️⬇️⬇️ New ⬇️⬇️⬇️ -->
+
+        <div id="drawing-screen" class="screen">
+    <button class="btn btn-secondary" id="back-to-customize" style="margin-bottom: 1rem;">
+        ← Zurück zum Hintergrund
+    </button>
+
+    <h1>Schreibe etwas aufs Foto ✍️</h1>
+    <p class="subtitle">Verziere das Foto mit deiner Nachricht</p>
+
+    <div class="customize-layout">
+        <div class="canvas-container">
+            <canvas id="drawing-canvas"></canvas>
+        </div>
+
+        <div class="customization-panel">
+            <!-- WIRD ANGEZEIGT, WENN MAN NICHT ALS GAST EINGELOGGT IST -->
+            <div id="guest-login-notice" style="text-align: center; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 15px;">
+                <p style="margin-bottom: 10px; font-weight: bold;">🔒 Bitte als Gast anmelden, um zu unterschreiben!</p>
+                <button class="btn btn-primary" onclick="document.getElementById('login-modal').style.display='block'">
+                    🔑 Jetzt anmelden
+                </button>
+            </div>
+
+            <!-- WIRD NUR ANGEZEIGT, WENN MAN ALS GAST EINGELOGGT IST -->
+            <div id="pen-controls" style="display: none;">
+                <h3>Stiftfarbe</h3>
+                <div class="pen-selector-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button class="pen-btn active" data-color="gold" style="background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728); color: #000; font-weight: bold; padding: 15px; border-radius: 8px; border: none; cursor: pointer;">
+                        ✨ Gold
+                    </button>
+                    <button class="pen-btn" data-color="ice-blue" style="background: #00f0ff; color: #000; font-weight: bold; padding: 15px; border-radius: 8px; border: none; cursor: pointer;">
+                        ❄️ Blau
+                    </button>
+                </div>
+
+                <button class="btn btn-secondary" id="undo-draw-btn" style="width: 100%; margin-top: 1.5rem;">
+                    ↩️ Rückgängig
+                </button>
+            </div>
+
+            <button class="btn btn-primary" id="drawing-next-btn" style="width: 100%; margin-top: 1rem;">
+                Fertig stellen ✨
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ⬇️⬇️⬇️ Ende ⬇️⬇️⬇️ -->
 
 
         <div id="download-screen" class="screen">

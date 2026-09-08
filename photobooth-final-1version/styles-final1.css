@@ -770,3 +770,26 @@ h1 {
 .layout-hidden {
     display: none !important;
 }
+
+/*NEW */
+#drawing-screen {
+    display: none;
+}
+
+#drawing-screen.active {
+    display: block;
+}
+
+/* Stylt den Canvas-Bereich zum Zeichnen */
+#drawing-canvas {
+    touch-action: none; /* Verhindert ungewolltes Scrollen auf iPads/Tablets */
+    cursor: crosshair;
+    border-radius: 8px;
+    max-width: 100%;
+}
+
+/* Stift-Buttons visuell hervorheben, wenn sie aktiv sind */
+.pen-btn.active {
+    outline: 3px solid #ffffff;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
