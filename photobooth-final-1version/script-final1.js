@@ -663,6 +663,8 @@ window.addEventListener('click', (event) => {
 const ADMIN_HASH = '$2b$10$r/GjfuJv4Vk/NSH9LYXIJ.T0anlWDaQ8vYvzF2NO1l7nfaDPtNPPO';
 const GAST_HASH = '$2b$10$0bPjzvfJBNDedUkdrb/.auj4yNLEXdlXgrN23aYFXT8xgiYzlcP3W';
 
+let isGast = false; //new
+
 if (loginForm) {
     loginForm.addEventListener('submit', (event) => {
         event.preventDefault(); 
@@ -675,6 +677,7 @@ if (loginForm) {
 
         // ADMIN LOGIN
         if (user === 'admin' && bcrypt.compareSync(pass, ADMIN_HASH)) {
+            isGast = false;
             loginModal.style.display = 'none'; 
             statusBadge.innerText = ' 🛠️ Admin';
             statusBadge.style.display = 'block';
@@ -683,10 +686,18 @@ if (loginForm) {
         } 
         // GAST LOGIN
         else if (user === 'gast' && bcrypt.compareSync(pass, GAST_HASH)) {
+            isGast = true;
             loginModal.style.display = 'none'; 
             statusBadge.innerText = '👤 Gast';
             statusBadge.style.display = 'block';
             authBtn.innerText = 'Logout';
+
+            // ⚡ HIER IST DIE KORREKTUR: Bildschirm direkt freischalten! ⚡
+            const guestNotice = document.getElementById('guest-login-notice');
+            const penControls = document.getElementById('pen-controls');
+            if (guestNotice) guestNotice.style.display = 'none';
+            if (penControls) penControls.style.display = 'block';
+            
             alert('Erfolgreich als Gast eingeloggt! ❄️');
         } 
         // FEHLER
@@ -697,6 +708,132 @@ if (loginForm) {
         loginForm.reset();
     });
 }
+
+
+
+
+// ----------------------------------------------------
+// ZEICHEN-LOGIK & BILD-ÜBERTRAGUNG
+// ----------------------------------------------------
+const drawingScreen = document.getElementById('drawing-screen');
+const drawingCanvas = document.getElementById('drawing-canvas');
+const ctxDraw = drawingCanvas ? drawingCanvas.getContext('2d') : null;
+
+let currentPenColor = '#bf953f'; // Standard: Gold
+let isDrawing = false;
+let drawHistory = [];
+
+// Beim Klick auf "Weiter zum Unterschreiben" im Customize-Screen
+const customizeNextBtn = document.getElementById('customize-next-btn');
+if (customizeNextBtn) {
+    customizeNextBtn.addEventListener('click', () => {
+        document.getElementById('customize-screen').classList.remove('active');
+        drawingScreen.classList.add('active');
+
+        const photoCanvas = document.getElementById('photostrip-canvas');
+        drawingCanvas.width = photoCanvas.width;
+        drawingCanvas.height = photoCanvas.height;
+
+        // Hinweis-Box & Stift-Auswahl finden
+        const guestNotice = document.getElementById('guest-login-notice');
+        const penControls = document.getElementById('pen-controls');
+
+        // Prüfen ob Gast angemeldet ist
+        if (isGast) {
+            if (guestNotice) guestNotice.style.display = 'none';
+            if (penControls) penControls.style.display = 'block';
+        } else {
+            if (guestNotice) guestNotice.style.display = 'block';
+            if (penControls) penControls.style.display = 'none';
+        }
+
+        // Bild von Customize auf das Zeichnen-Canvas kopieren
+        ctxDraw.drawImage(photoCanvas, 0, 0);
+        drawHistory = [ctxDraw.getImageData(0, 0, drawingCanvas.width, drawingCanvas.height)];
+    });
+}
+
+// Stiftfarben-Wechsel (Nur Gold & Blau)
+document.querySelectorAll('.pen-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.pen-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        
+        const colorType = e.target.getAttribute('data-color');
+        currentPenColor = (colorType === 'gold') ? '#bf953f' : '#00f0ff';
+    });
+});
+
+// Malen-Funktionalität
+if (drawingCanvas) {
+    function startDrawing(e) {
+        if (!isGast) return; // Wenn kein Gast -> Zeichnen sperren
+        isDrawing = true;
+        draw(e);
+    }
+
+    function stopDrawing() {
+        if (isDrawing) {
+            isDrawing = false;
+            ctxDraw.beginPath();
+            drawHistory.push(ctxDraw.getImageData(0, 0, drawingCanvas.width, drawingCanvas.height));
+        }
+    }
+
+    function draw(e) {
+        if (!isDrawing || !isGast) return;
+        
+        const rect = drawingCanvas.getBoundingClientRect();
+        const scaleX = drawingCanvas.width / rect.width;
+        const scaleY = drawingCanvas.height / rect.height;
+        
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        
+        const x = (clientX - rect.left) * scaleX;
+        const y = (clientY - rect.top) * scaleY;
+
+        ctxDraw.lineWidth = 6;
+        ctxDraw.lineCap = 'round';
+        ctxDraw.strokeStyle = currentPenColor;
+
+        ctxDraw.lineTo(x, y);
+        ctxDraw.stroke();
+        ctxDraw.beginPath();
+        ctxDraw.moveTo(x, y);
+    }
+
+    drawingCanvas.addEventListener('mousedown', startDrawing);
+    drawingCanvas.addEventListener('mouseup', stopDrawing);
+    drawingCanvas.addEventListener('mousemove', draw);
+
+    drawingCanvas.addEventListener('touchstart', startDrawing);
+    drawingCanvas.addEventListener('touchend', stopDrawing);
+    drawingCanvas.addEventListener('touchmove', draw);
+}
+
+// Buttons für Navigation
+document.getElementById('back-to-customize')?.addEventListener('click', () => {
+    drawingScreen.classList.remove('active');
+    document.getElementById('customize-screen').classList.add('active');
+});
+
+document.getElementById('drawing-next-btn')?.addEventListener('click', () => {
+    const finalCanvas = document.getElementById('final-canvas');
+    finalCanvas.width = drawingCanvas.width;
+    finalCanvas.height = drawingCanvas.height;
+    finalCanvas.getContext('2d').drawImage(drawingCanvas, 0, 0);
+
+    drawingScreen.classList.remove('active');
+    document.getElementById('download-screen').classList.add('active');
+});
+
+document.getElementById('undo-draw-btn')?.addEventListener('click', () => {
+    if (drawHistory.length > 1) {
+        drawHistory.pop();
+        ctxDraw.putImageData(drawHistory[drawHistory.length - 1], 0, 0);
+    }
+});
 
 // --- INIT ---
 createSnowflakes();
