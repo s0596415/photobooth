@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/s0596415/photobooth#readme",
   "dependencies": {
-    "bcryptjs": "^3.0.3"
+    "bcryptjs": "^3.0.3",
+    "mongodb": "^7.6.0"
   }
 }
