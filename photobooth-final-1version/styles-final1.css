@@ -793,3 +793,22 @@ h1 {
     outline: 3px solid #ffffff;
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
 }
+
+#guest-login-notice {
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#guest-login-notice button {
+    display: block;
+    margin: 0 auto;
+}
+
+#guest-login-notice p {
+    margin: 0 0 10px;
+}
