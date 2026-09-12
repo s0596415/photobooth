@@ -3,6 +3,7 @@ const path = require('path');
 const multer = require('multer');
 const cors = require('cors');
 const fs = require('fs');
+const postRoutes = require('./routes/post.routes'); // [ÄNDERUNG: Import der Post-Routen hinzugefügt]
 // const os = require('os'); // [ÄNDERUNG: Entfernt]
 
 const app = express();
@@ -15,10 +16,11 @@ const ALLOWED_ORIGIN = 'https://photobooth-fiw.vercel.app'; // ERSETZEN!
 
 app.use(cors({
     origin: ALLOWED_ORIGIN,
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], //[ÄNDERUNG: Methoden PUT und DELETE hinzugefügt]
 }));
 
 app.use(express.static(PUBLIC_DIR));
+app.use('/posts', postRoutes); //neu hinzugefügt für die Post-Routen
 
 // Multer: Speichert jede Datei mit einem einzigartigen Zeitstempel
 const storage = multer.diskStorage({
