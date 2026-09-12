@@ -14,6 +14,7 @@ const PUBLIC_DIR = path.join(__dirname, 'public');
 // [ÄNDERUNG: CORS ist spezifischer konfiguriert, um das Frontend zuzulassen]
 const ALLOWED_ORIGIN = 'https://photobooth-fiw.vercel.app'; // ERSETZEN!
 
+app.use(express.json()); // Super wichtig, um JSON-Daten im Request-Body zu parsen
 app.use(cors({
     origin: ALLOWED_ORIGIN,
     methods: ['GET', 'POST', 'PUT', 'DELETE'], //[ÄNDERUNG: Methoden PUT und DELETE hinzugefügt]
@@ -21,6 +22,7 @@ app.use(cors({
 
 app.use(express.static(PUBLIC_DIR));
 app.use('/posts', postRoutes); //neu hinzugefügt für die Post-Routen
+
 
 // Multer: Speichert jede Datei mit einem einzigartigen Zeitstempel
 const storage = multer.diskStorage({
