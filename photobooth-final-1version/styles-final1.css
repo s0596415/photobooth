@@ -812,3 +812,96 @@ h1 {
 #guest-login-notice p {
     margin: 0 0 10px;
 }
+
+/* --- GALERIE MODAL (Das abgedunkelte Overlay) --- */
+#gallery-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.85); /* Dunkler, halbtransparenter Hintergrund */
+    z-index: 9999; /* Legt die Galerie über alle anderen Elemente */
+    display: none; /* Wird vom JS auf "flex" gesetzt */
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+/* --- GALERIE BEREICH (Die Box mit den Bildern) --- */
+#gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Macht ein responsives Raster */
+    gap: 20px;
+    padding: 25px;
+    width: 90%;
+    max-width: 1000px;
+    max-height: 80vh; /* Maximale Höhe, damit es nicht aus dem Bildschirm ragt */
+    overflow-y: auto; /* Aktiviert das Scrollen, wenn es viele Bilder sind */
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* --- DIE BILDER SELBST --- */
+#gallery-grid img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transition: transform 0.2s ease-in-out;
+}
+
+/* Kleiner Hover-Effekt für die Bilder */
+#gallery-grid img:hover {
+    transform: scale(1.02);
+}
+
+/* --- SCHLIESSEN BUTTON IN DER GALERIE --- */
+#close-gallery-btn {
+    margin-bottom: 15px;
+    padding: 10px 20px;
+    background: #e49cb4ff; /* Passend zu deiner Farbpalette */
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+}
+#close-gallery-btn:hover {
+    background: #c28298;
+}
+
+/* --- CONTAINER FÜR BILD UND BUTTON --- */
+.gallery-item {
+    position: relative; /* Wichtig, damit der Button absolut IM Bild positioniert werden kann */
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- DER LÖSCH-BUTTON --- */
+.delete-photo-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #ff4d4d; /* Rote Signalfarbe */
+    color: white;
+    border: none;
+    border-radius: 50%; /* Macht den Button rund */
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4); /* Leichter Schatten */
+    transition: background 0.2s, transform 0.2s;
+    z-index: 10;
+}
+
+.delete-photo-btn:hover {
+    background: #cc0000; /* Dunkleres Rot beim drüberfahren */
+    transform: scale(1.1); /* Button wird beim Hover leicht größer */
+}
