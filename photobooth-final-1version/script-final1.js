@@ -448,56 +448,55 @@ document.getElementById('next-btn').addEventListener('click', async () => {
     await generatePhotostrip(photostripCanvas);
 });
 
-// KORRIGIERTER 'customize-next-btn' LISTENER
-document.getElementById('customize-next-btn').addEventListener('click', async () => {
-    showScreen('download');
+document.getElementById('drawing-next-btn')?.addEventListener('click', async () => {
+    // 1. Canvas übertragen
+    const finalCanvas = document.getElementById('final-canvas');
+    finalCanvas.width = drawingCanvas.width;
+    finalCanvas.height = drawingCanvas.height;
+    finalCanvas.getContext('2d').drawImage(drawingCanvas, 0, 0);
 
-    const qrTarget = document.getElementById('qr-code-target');
-    const downloadBtn = document.getElementById('download-btn');
-    const qrBtn = document.getElementById('qr-btn');
+    // 2. Ansicht wechseln
+    drawingScreen.classList.remove('active');
+    const downloadScreen = document.getElementById('download-screen');
+    downloadScreen.classList.add('active');
 
-    // Buttons verstecken, bis alles fertig ist
-    downloadBtn.style.display = 'none';
-    qrBtn.style.display = 'none';
+    // 3. Bild in der Galerie speichern (NEUE FUNKTION)
+    savePhotoToGallery(finalCanvas);
 
-    // Warten, bis generatePhotostrip() FERTIG ist
-    await generatePhotostrip(finalCanvas);
-    // Ab hier ist der finalCanvas garantiert voll gezeichnet!
+    // 4. Buttons verstecken bis Upload fertig ist
+    const qrTarget = document.getElementById('qr-code-target');
+    const downloadBtn = document.getElementById('download-btn');
+    const qrBtn = document.getElementById('qr-btn');
+    
+    downloadBtn.style.display = 'none';
+    qrBtn.style.display = 'none';
+    qrTarget.innerHTML = "Lädt hoch... ⏳";
 
-    // Buttons jetzt anzeigen
-    downloadBtn.style.display = 'block';
-    qrBtn.style.display = 'block';
+    // 5. Upload-Logik (Verschoben von customize-next-btn)
+    const uploadURL = `${API_BASE_URL}/upload`; 
+    try {
+        const blob = await new Promise(resolve => finalCanvas.toBlob(resolve, 'image/png'));
+        const formData = new FormData();
+        formData.append('file', blob, 'fiw-photobooth.png');
 
-    // --- START: Upload-Logik ---
-// KORREKTUR: Verwenden Sie Backticks (`) statt Anführungszeichen (')
-const uploadURL = `${API_BASE_URL}/upload`; 
-//                               ^        ^
-   
+        const response = await fetch(uploadURL, { method: 'POST', body: formData });
+        if (!response.ok) throw new Error(`Server-Fehler: ${response.statusText}`);
 
-    try {
-        const blob = await new Promise(resolve => finalCanvas.toBlob(resolve, 'image/png'));
-        const formData = new FormData();
-        formData.append('file', blob, 'fiw-photobooth.png');
+        const result = await response.json();
+        if (!result.url) throw new Error("Server hat keine gültige URL zurückgegeben.");
 
-        const response = await fetch(uploadURL, {
-            method: 'POST',
-            body: formData
-        });
+        state.finalUrl = result.url;
+        qrTarget.innerHTML = ""; // Lade-Text entfernen
 
-        if (!response.ok) throw new Error(`Server-Fehler: ${response.statusText}`);
-
-        const result = await response.json();
-        if (!result.url) throw new Error("Server hat keine gültige URL zurückgegeben.");
-
-        state.finalUrl = result.url;
-        qrTarget.innerHTML = ""; // Lade-Text entfernen
-
-    } catch (err) {
-        console.error("Upload-Fehler (beim Generieren):", err);
-        qrTarget.innerHTML = `<strong>Fehler:</strong> Bild konnte nicht hochgeladen werden.<br>(${err.message})`;
-        state.finalUrl = null;
-    }
-    // --- ENDE: Upload-Logik ---
+        // Buttons jetzt anzeigen
+        downloadBtn.style.display = 'block';
+        qrBtn.style.display = 'block';
+    } catch (err) {
+        console.error("Upload-Fehler:", err);
+        qrTarget.innerHTML = `<strong>Fehler:</strong> Bild konnte nicht hochgeladen werden.<br>(${err.message})`;
+        state.finalUrl = null;
+        downloadBtn.style.display = 'block'; // Zumindest lokaler Download soll gehen
+    }
 });
 
 document.getElementById('download-btn').addEventListener('click', () => {
@@ -639,6 +638,7 @@ if (authBtn) {
             statusBadge.style.display = 'none';
             statusBadge.innerText = '';
             document.getElementById('admin-settings-btn').style.display = 'none';
+            document.getElementById('guest-gallery-btn').style.display = 'none';
             alert('Erfolgreich ausgeloggt!');
         }
     });
@@ -676,6 +676,7 @@ if (loginForm) {
         if (user === 'admin' && bcrypt.compareSync(pass, ADMIN_HASH)) {
             currentUser = 'admin';
             document.getElementById('admin-settings-btn').style.display = 'inline-block';
+            document.getElementById('guest-gallery-btn').style.display = 'none'; // ⬅️ NEU
             isGast = false;
             loginModal.style.display = 'none'; 
             statusBadge.innerText = ' 🛠️ Admin';
@@ -687,20 +688,22 @@ if (loginForm) {
         else if (user === 'gast' && bcrypt.compareSync(pass, GAST_HASH)) {
             currentUser = 'gast';
             document.getElementById('admin-settings-btn').style.display = 'none';
+            document.getElementById('guest-gallery-btn').style.display = 'inline-block'; // ⬅️ NEU: Galerie anzeigen
             isGast = true;
             loginModal.style.display = 'none'; 
             statusBadge.innerText = '👤 Gast';
             statusBadge.style.display = 'block';
             authBtn.innerText = 'Logout';
 
-            // ⚡ HIER IST DIE KORREKTUR: Bildschirm direkt freischalten! ⚡
+            // Bildschirm direkt freischalten!
             const guestNotice = document.getElementById('guest-login-notice');
             const penControls = document.getElementById('pen-controls');
             if (guestNotice) guestNotice.style.display = 'none';
             if (penControls) penControls.style.display = 'block';
             
             alert('Erfolgreich als Gast eingeloggt! ❄️');
-        } 
+        }
+        
         // FEHLER
         else {
             alert('Falscher Benutzername oder Passwort!');
@@ -910,6 +913,77 @@ document.getElementById('undo-draw-btn')?.addEventListener('click', () => {
         ctxDraw.putImageData(drawHistory[drawHistory.length - 1], 0, 0);
     }
 });
+
+/* ========================================================
+   GAST FEATURE: Galerie (LocalStorage)
+   ======================================================== */
+
+const galleryBtn = document.getElementById('guest-gallery-btn');
+const galleryModal = document.getElementById('gallery-modal');
+const closeGalleryBtn = document.getElementById('close-gallery-btn');
+const galleryGrid = document.getElementById('gallery-grid');
+
+if (galleryBtn && galleryModal && closeGalleryBtn) {
+    // Galerie öffnen
+    galleryBtn.addEventListener('click', () => {
+        loadGallery();
+        galleryModal.style.display = 'flex'; 
+    });
+
+    // Galerie schließen
+    closeGalleryBtn.addEventListener('click', () => {
+        galleryModal.style.display = 'none';
+    });
+}
+
+// Erweitert den globalen Window-Klick, um auch das Galerie-Modal zu schließen
+window.addEventListener('click', (event) => {
+    if (event.target === loginModal) loginModal.style.display = 'none';
+    if (event.target === galleryModal) galleryModal.style.display = 'none';
+});
+
+// Lädt die Bilder aus dem Speicher und erstellt die Galerie
+function loadGallery() {
+    const savedPhotos = JSON.parse(localStorage.getItem('photobooth_gallery')) || [];
+    
+    if (galleryGrid) {
+        galleryGrid.innerHTML = ''; // Grid leeren
+
+        if (savedPhotos.length === 0) {
+            galleryGrid.innerHTML = '<p id="empty-gallery-msg" style="grid-column: 1 / -1; text-align: center; color: #666;">Noch keine Bilder vorhanden.</p>';
+        } else {
+            // Bilder rückwärts anzeigen (die neuesten ganz oben)
+            savedPhotos.reverse().forEach(photoData => {
+                const img = document.createElement('img');
+                img.src = photoData;
+                img.style.width = '100%';
+                img.style.borderRadius = '8px';
+                img.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+                galleryGrid.appendChild(img);
+            });
+        }
+    }
+}
+
+// Speichert ein fertig gezeichnetes Bild im Browser
+function savePhotoToGallery(canvas) {
+    try {
+        // Wir speichern als JPEG (Qualität 70%), um den LocalStorage nicht sofort zu überfüllen
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+        let savedPhotos = JSON.parse(localStorage.getItem('photobooth_gallery')) || [];
+        
+        // Wir behalten maximal die letzten 20 Fotos, da der Browser-Speicher begrenzt ist (ca. 5MB)
+        if (savedPhotos.length >= 20) {
+            savedPhotos.shift(); // Das älteste Foto löschen
+        }
+        
+        savedPhotos.push(dataUrl);
+        localStorage.setItem('photobooth_gallery', JSON.stringify(savedPhotos));
+    } catch(e) {
+        console.error("Bild konnte nicht in der Galerie gespeichert werden (Speicher voll?)", e);
+    }
+}
+
 
 // --- INIT ---
 createSnowflakes(); 
