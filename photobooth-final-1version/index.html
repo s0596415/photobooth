@@ -24,7 +24,8 @@
         
         <div class="header-controls">
             <span id="user-status-badge" class="status-badge" style="display: none;"></span>
-            <button class="login-button" id="admin-settings-btn" style="display: none; margin-right: 10px;">Settings</button>
+            <button class="login-button" id="guest-gallery-btn" style="display: none; margin-right: 10px;">Galerie</button>
+            <button class="login-button" id="admin-settings-btn" style="display: none; margin-right: 10px;">Einstellungen</button>
             <button class="login-button" id="auth-btn">Login</button>
         </div>
     </header>
@@ -163,7 +164,7 @@
         </div>
 
 
-<!-- ⬇️⬇️⬇️ New ⬇️⬇️⬇️ -->
+<!-- Funktion: auf gemachten Bildern zeichnen -->
 
         <div id="drawing-screen" class="screen">
     <button class="btn btn-secondary" id="back-to-customize" style="margin-bottom: 1rem;">
@@ -208,9 +209,6 @@
         </div>
     </div>
 </div>
-
-<!-- ⬇️⬇️⬇️ Ende ⬇️⬇️⬇️ -->
-
 
         <div id="download-screen" class="screen">
             <button class="btn btn-secondary" id="back-to-customize" style="margin-bottom: 1rem;">
@@ -294,6 +292,20 @@
             </label>
         </div>
     </div>
+
+    <!-- Das Galerie-Modal für Gäste -->
+<div id="gallery-modal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 800px;"> <!-- Etwas breiter für Bilder -->
+        <span class="close-btn" id="close-gallery-btn">&times;</span>
+        <h2>Meine Fotogalerie 📸</h2>
+        <p style="margin-bottom: 20px; font-size: 0.9em; color: #666;">Hier findest du alle deine gemachten Fotos.</p>
+        
+        <!-- Hier werden die Bilder später per JavaScript eingefügt -->
+        <div id="gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px;">
+            <p id="empty-gallery-msg" style="grid-column: 1 / -1; text-align: center; color: #666;">Noch keine Bilder vorhanden.</p>
+        </div>
+    </div>
+</div>
     
 </body>
 
