@@ -21,7 +21,7 @@ module.exports.collection = collection;
 async function connectDB() {
   if (db) return db;
   await client.connect();
-  db = client.db('photobooth');
+  db = client.db(process.env.DB_NAME); // [KORRIGIERT] nutzt jetzt dieselbe DB wie der Rest der App, statt fest 'photobooth'
 
   await db.collection('photos').createIndex(
     { createdAt: 1 },
