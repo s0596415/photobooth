@@ -12,12 +12,15 @@ const PORT = process.env.PORT || 9090;
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
 // [ÄNDERUNG: CORS ist spezifischer konfiguriert, um das Frontend zuzulassen]
-const ALLOWED_ORIGIN = 'https://photobooth-fiw.vercel.app'; // ERSETZEN!
+const ALLOWED_ORIGIN = ['https://photobooth-fiw.vercel.app' ,
+    'http://127.0.0.1:3000',
+  'http://localhost:3000',]; // ERSETZEN!
 
 app.use(express.json()); // Super wichtig, um JSON-Daten im Request-Body zu parsen
 app.use(cors({
     origin: ALLOWED_ORIGIN,
     methods: ['GET', 'POST', 'PUT', 'DELETE'], //[ÄNDERUNG: Methoden PUT und DELETE hinzugefügt]
+     allowedHeaders: ['Content-Type', 'x-gallery-token'], // [NEU]
 }));
 
 app.use(express.static(PUBLIC_DIR));
@@ -67,3 +70,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
 // [ÄNDERUNG: Lokale IP-Ausgabe entfernt, da sie in der Cloud nicht relevant ist]
 // const localIp = getLocalIpAddress(); // Entfernt
 app.listen(PORT, () => console.log(`📸 Photobooth Backend lauscht auf Port ${PORT}`));
+
+const photoRoutes = require('./routes/photo.routes'); // [NEU] Verschlüsselte Foto-Routen
+// ...
+app.use('/photos', photoRoutes); // [NEU]
