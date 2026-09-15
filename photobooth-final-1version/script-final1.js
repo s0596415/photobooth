@@ -658,6 +658,56 @@ window.addEventListener('click', (event) => {
     }
 });
 
+
+/* ========================================================
+   ACCESS LOGS (LocalStorage)
+   ======================================================== */
+   function logAccess(username, status, details = '') {
+    const logs = JSON.parse(localStorage.getItem('photobooth_access_logs') || '[]');
+    
+    const newEntry = {
+        timestamp: new Date().toLocaleString('de-DE'),
+        user: username || 'Unbekannt',
+        status: status, // 'Erfolgreich' oder 'Fehlgeschlagen'
+        details: details // z.B. 'Main Login' oder 'Galerie Unlock'
+    };
+    
+    logs.push(newEntry);
+    localStorage.setItem('photobooth_access_logs', JSON.stringify(logs));
+}
+
+// In der Browser-Konsole (F12) anzeigen
+function showLogsInConsole() {
+    const logs = JSON.parse(localStorage.getItem('photobooth_access_logs') || '[]');
+    console.table(logs);
+}
+
+// Als CSV-Datei herunterladen
+function downloadLogsCSV() {
+    const logs = JSON.parse(localStorage.getItem('photobooth_access_logs') || '[]');
+    if (logs.length === 0) {
+        alert('Keine Access Logs vorhanden!');
+        return;
+    }
+
+    let csvContent = "data:text/csv;charset=utf-8,Datum & Uhrzeit;Benutzer / Bereich;Status;Details\n";
+    logs.forEach(row => {
+        csvContent += `"${row.timestamp}";"${row.user}";"${row.status}";"${row.details}"\n`;
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `photobooth_access_logs_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}/* ========================================================
+   ACCESS LOGS (LocalStorage) Ende
+   ======================================================== */
+
+
+
 // Unsere Hashes
 const ADMIN_HASH = '$2b$10$r/GjfuJv4Vk/NSH9LYXIJ.T0anlWDaQ8vYvzF2NO1l7nfaDPtNPPO';
 const GAST_HASH = '$2b$10$0bPjzvfJBNDedUkdrb/.auj4yNLEXdlXgrN23aYFXT8xgiYzlcP3W';
@@ -678,6 +728,7 @@ if (loginForm) {
 
         // ADMIN LOGIN
         if (user === 'admin' && bcrypt.compareSync(pass, ADMIN_HASH)) {
+            logAccess('admin', 'Erfolgreich', 'Main Login'); // NEU Access Log
             currentUser = 'admin';
             document.getElementById('admin-settings-btn').style.display = 'inline-block';
             isGast = false;
@@ -689,6 +740,7 @@ if (loginForm) {
         } 
         // GAST LOGIN
         else if (user === 'gast' && bcrypt.compareSync(pass, GAST_HASH)) {
+            logAccess('gast', 'Erfolgreich', 'Main Login'); // Neu Access Log
             currentUser = 'gast';
             document.getElementById('admin-settings-btn').style.display = 'none';
             isGast = true;
@@ -707,6 +759,8 @@ if (loginForm) {
         } 
         // FEHLER
         else {
+            const attemptedUser = user.trim() !== '' ? user : 'Unbekannt'; //Neu Access Log
+            logAccess(attemptedUser, 'Fehlgeschlagen', 'Main Login');     //Neu Access Log
             alert('Falscher Benutzername oder Passwort!');
         }
         
@@ -974,12 +1028,14 @@ document.getElementById('gallery-password-form')?.addEventListener('submit', asy
     });
 
     if (!res.ok) {
+      logAccess('Galerie-Gast', 'Fehlgeschlagen', 'Galerie Unlock');  //Neu Access Log
       errorEl.style.display = 'block';
       return;
     }
 
     const data = await res.json();
     galleryToken = data.token;
+    logAccess('Galerie-Gast', 'Erfolgreich', 'Galerie Unlock'); //Neu Access Log
     errorEl.style.display = 'none';
     document.getElementById('gallery-password-input').value = '';
 
@@ -991,6 +1047,7 @@ document.getElementById('gallery-password-form')?.addEventListener('submit', asy
     startGalleryAutoRefresh();
   } catch (err) {
     console.error('Entsperren fehlgeschlagen:', err);
+    logAccess('Galerie-Gast', 'Fehler (Server)', 'Galerie Unlock'); //Neu Access Log
     errorEl.style.display = 'block';
   }
 });
