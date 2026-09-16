@@ -95,18 +95,18 @@ body {
 }
 
 
-.header-bar {
+/* .header-bar {
     display: flex;
-    justify-content: space-between; /* Schiebt die Elemente an den linken und rechten Rand */
-    align-items: center; /* Zentriert die Elemente vertikal */
-    background-color: #2c3e50; /* Farbe des Balkens (hier ein dunkles Blau/Grau) */
+    justify-content: space-between; /* Schiebt die Elemente an den linken und rechten Rand 
+    align-items: center; /* Zentriert die Elemente vertikal 
+    background-color: #2c3e50; /* Farbe des Balkens (hier ein dunkles Blau/Grau) 
     color: #cf3a3a;
-    height: 100px; /* Höhe des Balkens */
+    height: 100px; /* Höhe des Balkens 
     width: 100%;
 }
 
 .header-title {
-    margin-left: 30px; /* Etwas Abstand zum linken Rand */
+    margin-left: 30px; /* Etwas Abstand zum linken Rand 
     font-size: 1.5rem;
     font-weight: bold;
 }
@@ -123,7 +123,7 @@ body {
     font-weight: bold;
     cursor: pointer;
     transition: background-color 0.3s ease;
-}
+} */
 
 .login-btn:hover {
     background-color: #bdc3c7;
@@ -811,4 +811,116 @@ h1 {
 
 #guest-login-notice p {
     margin: 0 0 10px;
+}
+
+/* =========================================
+   GALERIE MODAL & BILDER STYLING
+   ========================================= */
+
+/* Das Modal selbst etwas anpassen, damit man gut scrollen kann */
+#gallery-modal .modal-content {
+    width: 90%;
+    max-width: 850px;
+    max-height: 85vh; /* Verhindert, dass das Fenster aus dem Bildschirm rutscht */
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 20px;
+}
+
+/* Der Grid-Container für die Bilder */
+#gallery-grid {
+    /* Wir überschreiben deine Inline-Styles aus dem HTML mit !important, 
+       besser wäre es aber, die styles="..." im HTML ganz zu löschen */
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+    gap: 20px !important;
+    overflow-y: auto; /* Wichtig: Scrollbar aktivieren, wenn es viele Bilder werden */
+    padding: 10px; /* Platz für den Schatten der Bilder */
+    margin-top: 10px;
+}
+
+/* Ein schöner, zum Winter-Theme passender Scrollbar für die Galerie (Webkit) */
+#gallery-grid::-webkit-scrollbar {
+    width: 8px;
+}
+#gallery-grid::-webkit-scrollbar-track {
+    background: #e8ebf0;
+    border-radius: 10px;
+}
+#gallery-grid::-webkit-scrollbar-thumb {
+    background: #a8c9f5;
+    border-radius: 10px;
+}
+#gallery-grid::-webkit-scrollbar-thumb:hover {
+    background: #6b8ddd;
+}
+
+/* So sehen die generierten Bilder in der Galerie aus (Polaroid-Vibe) */
+#gallery-grid img {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    background-color: white;
+    padding: 8px 8px 25px 8px; /* Weißer Rahmen (unten dicker wie beim Polaroid) */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    object-fit: contain; /* Sorgt dafür, dass die Bilder nicht verzerrt werden */
+}
+
+/* Cooler Hover-Effekt: Bild kommt leicht auf dich zu */
+#gallery-grid img:hover {
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 0 12px 25px rgba(33, 150, 243, 0.3);
+    z-index: 2;
+}
+
+/* Nachricht, wenn noch keine Bilder da sind */
+#empty-gallery-msg {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #1565c0;
+    font-size: 1.1rem;
+    font-weight: bold;
+    padding: 40px 0;
+    background: #f4f6f9;
+    border-radius: 10px;
+    border: 2px dashed #a8c9f5;
+}
+
+/* =========================================
+   GALERIE PASSWORT MODAL STYLING
+   ========================================= */
+
+#gallery-password-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+#gallery-password-input {
+    padding: 12px;
+    border: 2px solid #a8c9f5;
+    border-radius: 8px;
+    font-size: 16px;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    font-family: 'Georgia', serif;
+}
+
+#gallery-password-input:focus {
+    border-color: #2196f3;
+    box-shadow: 0 0 8px rgba(33, 150, 243, 0.3);
+}
+
+#gallery-password-error {
+    margin-top: 10px;
+    font-weight: bold;
+    background: #ffebee;
+    color: #c62828;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.9rem;
 }
