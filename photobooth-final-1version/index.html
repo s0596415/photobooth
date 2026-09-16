@@ -188,7 +188,8 @@
                         <p style="margin-bottom: 10px; font-weight: bold;">🔒 Bitte als Gast anmelden, um zu
                             unterschreiben!</p>
                         <button class="btn btn-primary"
-                            onclick="document.getElementById('login-modal').style.display='flex'"> Jetzt als Gast anmelden </button>
+                            onclick="document.getElementById('login-modal').style.display='flex'"> Jetzt als Gast
+                            anmelden </button>
                     </div>
 
                     <!-- WIRD NUR ANGEZEIGT, WENN MAN ALS GAST EINGELOGGT IST -->
@@ -272,7 +273,10 @@
 
                 <div class="input-group">
                     <label for="password">Passwort</label>
-                    <input type="password" id="password" name="password" required>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" name="password" required>
+                        <span class="toggle-password" onclick="togglePassword('password', this)">🔒</span>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Einloggen</button>
@@ -330,7 +334,10 @@
             <h2>Galerie geschützt</h2>
             <p>Bitte gib das Galerie-Passwort ein:</p>
             <form id="gallery-password-form">
-                <input type="password" id="gallery-password-input" placeholder="Passwort" required />
+                <div class="password-wrapper">
+                    <input type="password" id="gallery-password-input" placeholder="Passwort" required />
+                    <span class="toggle-password" onclick="togglePassword('gallery-password-input', this)">🔒</span>
+                </div>
                 <button type="submit" class="btn btn-primary">Entsperren</button>
             </form>
             <p id="gallery-password-error" style="color:red; display:none;">Falsches Passwort</p>

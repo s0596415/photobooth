@@ -924,3 +924,35 @@ h1 {
     border-radius: 8px;
     font-size: 0.9rem;
 }
+
+/* =========================================
+   PASSWORT AUGE (SHOW/HIDE)
+   ========================================= */
+
+.password-wrapper {
+    position: relative; /* Wichtig, damit das Auge sich relativ zum Feld platziert */
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+/* Wichtig: Wir überschreiben das Input-Feld leicht, damit der Text nicht hinter das Auge rutscht */
+.password-wrapper input {
+    width: 100%;
+    padding-right: 40px !important; /* Macht rechts Platz für das Auge */
+}
+
+/* Das Auge-Icon */
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    user-select: none; /* Verhindert, dass das Icon als Text markiert wird */
+    opacity: 0.7;
+    transition: opacity 0.3s;
+}
+
+.toggle-password:hover {
+    opacity: 1; /* Wird deutlicher, wenn man mit der Maus drüber geht */
+}
