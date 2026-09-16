@@ -11,10 +11,10 @@ const app = express();
 const PORT = process.env.PORT || 9090; 
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
-// [ÄNDERUNG: CORS ist spezifischer konfiguriert, um das Frontend zuzulassen]
-const ALLOWED_ORIGIN = ['https://photobooth-fiw.vercel.app' ,
-    'http://127.0.0.1:3000',
-  'http://localhost:3000',]; // ERSETZEN!
+/// [GEÄNDERT] Eine Konstante statt zwei – passt sich automatisch an
+const BACKEND_URL = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost')
+  ? 'http://localhost:9090'
+  : 'https://photobooth-4r1k.onrender.com';
 
 app.use(express.json()); // Super wichtig, um JSON-Daten im Request-Body zu parsen
 app.use(cors({
