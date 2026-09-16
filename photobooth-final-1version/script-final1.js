@@ -1,3 +1,5 @@
+// [NEU] Backend-URL – zeigt auf euren Render-Server
+const BACKEND_URL = 'http://localhost:9090';
 const API_BASE_URL = 'https://photobooth-4r1k.onrender.com';
 
 // 1. Das "state"-Objekt ist "let"
@@ -656,6 +658,56 @@ window.addEventListener('click', (event) => {
     }
 });
 
+
+/* ========================================================
+   ACCESS LOGS (LocalStorage)
+   ======================================================== */
+   function logAccess(username, status, details = '') {
+    const logs = JSON.parse(localStorage.getItem('photobooth_access_logs') || '[]');
+    
+    const newEntry = {
+        timestamp: new Date().toLocaleString('de-DE'),
+        user: username || 'Unbekannt',
+        status: status, // 'Erfolgreich' oder 'Fehlgeschlagen'
+        details: details // z.B. 'Main Login' oder 'Galerie Unlock'
+    };
+    
+    logs.push(newEntry);
+    localStorage.setItem('photobooth_access_logs', JSON.stringify(logs));
+}
+
+// In der Browser-Konsole (F12) anzeigen
+function showLogsInConsole() {
+    const logs = JSON.parse(localStorage.getItem('photobooth_access_logs') || '[]');
+    console.table(logs);
+}
+
+// Als CSV-Datei herunterladen
+function downloadLogsCSV() {
+    const logs = JSON.parse(localStorage.getItem('photobooth_access_logs') || '[]');
+    if (logs.length === 0) {
+        alert('Keine Access Logs vorhanden!');
+        return;
+    }
+
+    let csvContent = "data:text/csv;charset=utf-8,Datum & Uhrzeit;Benutzer / Bereich;Status;Details\n";
+    logs.forEach(row => {
+        csvContent += `"${row.timestamp}";"${row.user}";"${row.status}";"${row.details}"\n`;
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `photobooth_access_logs_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}/* ========================================================
+   ACCESS LOGS (LocalStorage) Ende
+   ======================================================== */
+
+
+
 // Unsere Hashes
 const ADMIN_HASH = '$2b$10$r/GjfuJv4Vk/NSH9LYXIJ.T0anlWDaQ8vYvzF2NO1l7nfaDPtNPPO';
 const GAST_HASH = '$2b$10$0bPjzvfJBNDedUkdrb/.auj4yNLEXdlXgrN23aYFXT8xgiYzlcP3W';
@@ -669,11 +721,14 @@ if (loginForm) {
         const user = document.getElementById('username').value;
         const pass = document.getElementById('password').value;
         
+        document.getElementById('guest-gallery-btn').style.display = 'inline-block';
+
         // Zugriff auf das CDN-bcrypt Objekt
         const bcrypt = dcodeIO.bcrypt;
 
         // ADMIN LOGIN
         if (user === 'admin' && bcrypt.compareSync(pass, ADMIN_HASH)) {
+            logAccess('admin', 'Erfolgreich', 'Main Login'); // NEU Access Log
             currentUser = 'admin';
             document.getElementById('admin-settings-btn').style.display = 'inline-block';
             isGast = false;
@@ -685,6 +740,7 @@ if (loginForm) {
         } 
         // GAST LOGIN
         else if (user === 'gast' && bcrypt.compareSync(pass, GAST_HASH)) {
+            logAccess('gast', 'Erfolgreich', 'Main Login'); // Neu Access Log
             currentUser = 'gast';
             document.getElementById('admin-settings-btn').style.display = 'none';
             isGast = true;
@@ -703,6 +759,8 @@ if (loginForm) {
         } 
         // FEHLER
         else {
+            const attemptedUser = user.trim() !== '' ? user : 'Unbekannt'; //Neu Access Log
+            logAccess(attemptedUser, 'Fehlgeschlagen', 'Main Login');     //Neu Access Log
             alert('Falscher Benutzername oder Passwort!');
         }
         
@@ -902,6 +960,8 @@ document.getElementById('drawing-next-btn')?.addEventListener('click', () => {
 
     drawingScreen.classList.remove('active');
     document.getElementById('download-screen').classList.add('active');
+
+     uploadToGallery();
 });
 
 document.getElementById('undo-draw-btn')?.addEventListener('click', () => {
@@ -911,5 +971,149 @@ document.getElementById('undo-draw-btn')?.addEventListener('click', () => {
     }
 });
 
+
+
+
+// [NEU] Fertigen Photostrip verschlüsselt in die Galerie hochladen
+async function uploadToGallery() {
+  const finalCanvas = document.getElementById('final-canvas');
+  const blob = await new Promise(resolve => finalCanvas.toBlob(resolve, 'image/png'));
+
+  const formData = new FormData();
+  formData.append('file', blob, 'photostrip.png');
+
+  try {
+    const res = await fetch(`${BACKEND_URL}/photos/upload-encrypted`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!res.ok) {
+      console.error('Upload in Galerie fehlgeschlagen:', await res.text());
+      return;
+    }
+
+    console.log('Foto erfolgreich verschlüsselt gespeichert ✅');
+  } catch (err) {
+    console.error('Upload-Fehler:', err);
+  }
+}
+
+
+
+let galleryToken = null;
+let galleryRefreshInterval = null;
+
+// Klick auf "Galerie"-Button im Header
+document.getElementById('guest-gallery-btn')?.addEventListener('click', () => {
+  document.getElementById('gallery-password-modal').style.display = 'flex';
+});
+
+// Passwort-Modal schließen (X-Button)
+document.getElementById('close-gallery-modal')?.addEventListener('click', () => {
+  document.getElementById('gallery-password-modal').style.display = 'none';
+});
+
+// Passwort-Formular absenden
+document.getElementById('gallery-password-form')?.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const password = document.getElementById('gallery-password-input').value;
+  const errorEl = document.getElementById('gallery-password-error');
+
+  try {
+    const res = await fetch(`${BACKEND_URL}/photos/gallery/unlock`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password }),
+    });
+
+    if (!res.ok) {
+      logAccess('Galerie-Gast', 'Fehlgeschlagen', 'Galerie Unlock');  //Neu Access Log
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    const data = await res.json();
+    galleryToken = data.token;
+    logAccess('Galerie-Gast', 'Erfolgreich', 'Galerie Unlock'); //Neu Access Log
+    errorEl.style.display = 'none';
+    document.getElementById('gallery-password-input').value = '';
+
+    // [KORRIGIERT] Passwort-Modal zu, GALERIE-MODAL auf (kein showScreen!)
+    document.getElementById('gallery-password-modal').style.display = 'none';
+    document.getElementById('gallery-modal').style.display = 'flex';
+
+    await loadGallery();
+    startGalleryAutoRefresh();
+  } catch (err) {
+    console.error('Entsperren fehlgeschlagen:', err);
+    logAccess('Galerie-Gast', 'Fehler (Server)', 'Galerie Unlock'); //Neu Access Log
+    errorEl.style.display = 'block';
+  }
+});
+
+// [NEU] Galerie-Modal schließen -> auch Auto-Refresh stoppen
+document.getElementById('close-gallery-btn')?.addEventListener('click', () => {
+  document.getElementById('gallery-modal').style.display = 'none';
+  stopGalleryAutoRefresh();
+});
+
+async function loadGallery() {
+  const galleryGrid = document.getElementById('gallery-grid');
+  if (!galleryToken) return;
+
+  try {
+    const listRes = await fetch(`${BACKEND_URL}/photos/gallery`, {
+      headers: { 'x-gallery-token': galleryToken },
+    });
+
+    if (listRes.status === 401) {
+      galleryToken = null;
+      stopGalleryAutoRefresh();
+      document.getElementById('gallery-modal').style.display = 'none';
+      document.getElementById('gallery-password-modal').style.display = 'flex';
+      return;
+    }
+
+    const photos = await listRes.json();
+
+    // [WICHTIG] dein bestehendes Grid hat schon einen <p id="empty-gallery-msg">
+    // als Kind-Element - das muss beim Neu-Befüllen jedes Mal ersetzt werden
+    galleryGrid.innerHTML = '';
+
+    if (photos.length === 0) {
+      galleryGrid.innerHTML = '<p id="empty-gallery-msg" style="grid-column: 1 / -1; text-align: center; color: #666;">Noch keine Bilder vorhanden.</p>';
+      return;
+    }
+
+    for (const photo of photos) {
+      const imgRes = await fetch(`${BACKEND_URL}/photos/gallery/${photo.id}`, {
+        headers: { 'x-gallery-token': galleryToken },
+      });
+      if (!imgRes.ok) continue;
+
+      const blob = await imgRes.blob();
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(blob);
+      img.style.width = '100%';
+      img.style.borderRadius = '8px';
+      galleryGrid.appendChild(img);
+    }
+  } catch (err) {
+    console.error('Galerie konnte nicht geladen werden:', err);
+  }
+}
+
+function startGalleryAutoRefresh() {
+  stopGalleryAutoRefresh();
+  galleryRefreshInterval = setInterval(loadGallery, 30000);
+}
+
+function stopGalleryAutoRefresh() {
+  if (galleryRefreshInterval) {
+    clearInterval(galleryRefreshInterval);
+    galleryRefreshInterval = null;
+  }
+}
 // --- INIT ---
 createSnowflakes(); 
