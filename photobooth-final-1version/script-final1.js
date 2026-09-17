@@ -1117,5 +1117,20 @@ function stopGalleryAutoRefresh() {
     galleryRefreshInterval = null;
   }
 }
+
+// Funktion zum Ein- und Ausblenden von Passwörtern
+function togglePassword(inputId, iconElement) {
+    // Finde das entsprechende Input-Feld (Login oder Galerie)
+    const passwordInput = document.getElementById(inputId);
+    
+    // Prüfe, ob es gerade ein Passwort ist (versteckt)
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text'; // Mache es sichtbar
+        iconElement.textContent = '🔓'; // Ändere das Emoji
+    } else {
+        passwordInput.type = 'password'; // Mache es wieder unsichtbar
+        iconElement.textContent = '🔒'; // Ändere das Emoji zurück
+    }
+}
 // --- INIT ---
 createSnowflakes(); 

@@ -8,11 +8,12 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
-    
-    
+
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Georgia:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Georgia:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+        rel="stylesheet">
 
     <link rel="stylesheet" href="styles-final1.css" />
     <link rel="icon" type="image/png" href="winter.png" />
@@ -20,18 +21,19 @@
 </head>
 
 <header class="top-bar">
-        <div class="title-box"> Photobooth </div>
-        
-        <div class="header-controls">
-            <span id="user-status-badge" class="status-badge" style="display: none;"></span>
-            <button class="login-button" id="guest-gallery-btn" style="display: none; margin-right: 10px;">Galerie</button>
-            <button class="login-button" id="admin-settings-btn" style="display: none; margin-right: 10px;">Einstellungen</button>
-            <button class="login-button" id="auth-btn">Login</button>
-        </div>
-    </header>
+    <div class="title-box"> Photobooth </div>
 
-    <video id="videoElement" autoplay playsinline **muted**></video>
-    <div class="snowflakes" id="snowflakes"></div>
+    <div class="header-controls">
+        <span id="user-status-badge" class="status-badge" style="display: none;"></span>
+        <button class="login-button" id="guest-gallery-btn" style="display: none; margin-right: 10px;">Galerie</button>
+        <button class="login-button" id="admin-settings-btn"
+            style="display: none; margin-right: 10px;">Einstellungen</button>
+        <button class="login-button" id="auth-btn">Login</button>
+    </div>
+</header>
+
+<video id="videoElement" autoplay playsinline muted></video>
+<div class="snowflakes" id="snowflakes"></div>
 
 <body>
     <div class="container">
@@ -164,51 +166,58 @@
         </div>
 
 
-<!-- Funktion: auf gemachten Bildern zeichnen -->
+        <!-- Funktion: auf gemachten Bildern zeichnen -->
 
         <div id="drawing-screen" class="screen">
-    <button class="btn btn-secondary" id="back-to-customize" style="margin-bottom: 1rem;">
-        ← Zurück zum Hintergrund
-    </button>
+            <button class="btn btn-secondary" id="back-to-customize" style="margin-bottom: 1rem;">
+                ← Zurück zum Hintergrund
+            </button>
 
-    <h1>Schreibe etwas auf dein erstelltes Foto ✍️</h1>
-    <p class="subtitle">Verziere das Foto mit deiner Nachricht</p>
+            <h1>Schreibe etwas auf dein erstelltes Foto ✍️</h1>
+            <p class="subtitle">Verziere das Foto mit deiner Nachricht</p>
 
-    <div class="customize-layout">
-        <div class="canvas-container">
-            <canvas id="drawing-canvas"></canvas>
-        </div>
-
-        <div class="customization-panel">
-            <!-- WIRD ANGEZEIGT, WENN MAN NICHT ALS GAST EINGELOGGT IST -->
-            <div id="guest-login-notice" style="text-align: center; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 15px;">
-                <p style="margin-bottom: 10px; font-weight: bold;">🔒 Bitte als Gast anmelden, um zu unterschreiben!</p>
-                <button class="btn btn-primary" onclick="document.getElementById('login-modal').style.display='block'"> Jetzt als Gast anmelden </button>
-            </div>
-
-            <!-- WIRD NUR ANGEZEIGT, WENN MAN ALS GAST EINGELOGGT IST -->
-            <div id="pen-controls" style="display: none;">
-                <h3>Stiftfarbe</h3>
-                <div class="pen-selector-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <button class="pen-btn active" data-color="gold" style="background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728); color: #000; font-weight: bold; padding: 15px; border-radius: 8px; border: none; cursor: pointer;">
-                        ✨ Gold
-                    </button>
-                    <button class="pen-btn" data-color="ice-blue" style="background: #00f0ff; color: #000; font-weight: bold; padding: 15px; border-radius: 8px; border: none; cursor: pointer;">
-                        ❄️ Blau
-                    </button>
+            <div class="customize-layout">
+                <div class="canvas-container">
+                    <canvas id="drawing-canvas"></canvas>
                 </div>
 
-                <button class="btn btn-secondary" id="undo-draw-btn" style="width: 100%; margin-top: 1.5rem;">
-                    ↩️ Rückgängig
-                </button>
-            </div>
+                <div class="customization-panel">
+                    <!-- WIRD ANGEZEIGT, WENN MAN NICHT ALS GAST EINGELOGGT IST -->
+                    <div id="guest-login-notice"
+                        style="text-align: center; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 15px;">
+                        <p style="margin-bottom: 10px; font-weight: bold;">🔒 Bitte als Gast anmelden, um zu
+                            unterschreiben!</p>
+                        <button class="btn btn-primary"
+                            onclick="document.getElementById('login-modal').style.display='flex'"> Jetzt als Gast
+                            anmelden </button>
+                    </div>
 
-            <button class="btn btn-primary" id="drawing-next-btn" style="width: 100%; margin-top: 1rem;">
-                Fertig stellen ✨
-            </button>
+                    <!-- WIRD NUR ANGEZEIGT, WENN MAN ALS GAST EINGELOGGT IST -->
+                    <div id="pen-controls" style="display: none;">
+                        <h3>Stiftfarbe</h3>
+                        <div class="pen-selector-grid"
+                            style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <button class="pen-btn active" data-color="gold"
+                                style="background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728); color: #000; font-weight: bold; padding: 15px; border-radius: 8px; border: none; cursor: pointer;">
+                                ✨ Gold
+                            </button>
+                            <button class="pen-btn" data-color="ice-blue"
+                                style="background: #00f0ff; color: #000; font-weight: bold; padding: 15px; border-radius: 8px; border: none; cursor: pointer;">
+                                ❄️ Blau
+                            </button>
+                        </div>
+
+                        <button class="btn btn-secondary" id="undo-draw-btn" style="width: 100%; margin-top: 1.5rem;">
+                            ↩️ Rückgängig
+                        </button>
+                    </div>
+
+                    <button class="btn btn-primary" id="drawing-next-btn" style="width: 100%; margin-top: 1rem;">
+                        Fertig stellen ✨
+                    </button>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
         <div id="download-screen" class="screen">
             <button class="btn btn-secondary" id="back-to-customize" style="margin-bottom: 1rem;">
@@ -226,7 +235,8 @@
                 <button class="btn btn-primary" id="download-btn">
                     ⬇️ Foto herunterladen
                 </button>
-                <button class="btn btn-primary" id="qr-btn" style="background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);">
+                <button class="btn btn-primary" id="qr-btn"
+                    style="background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);">
                     📱 QR-Code erstellen
                 </button>
             </div>
@@ -252,75 +262,88 @@
         <div class="modal-content">
             <!-- Das Schließen-Kreuz -->
             <span class="close-btn">&times;</span>
-            
+
             <h2>Login</h2>
-            
+
             <form id="login-form">
                 <div class="input-group">
                     <label for="username">Benutzername</label>
                     <input type="text" id="username" name="username" required>
                 </div>
-                
+
                 <div class="input-group">
                     <label for="password">Passwort</label>
-                    <input type="password" id="password" name="password" required>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" name="password" required>
+                        <span class="toggle-password" onclick="togglePassword('password', this)">🔒</span>
+                    </div>
                 </div>
-                
+
                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Einloggen</button>
             </form>
         </div>
     </div>
-    
+
     <!-- Das Admin-Settings-Modal -->
     <div id="admin-modal" class="modal" style="display: none;">
         <div class="modal-content">
             <span class="close-btn" id="close-admin-btn">&times;</span>
             <h2> Layouts verwalten</h2>
-            <p style="margin-bottom: 20px; font-size: 0.9em; color: #666;">Aktiviere oder deaktiviere Layouts für Gäste.</p>
-            
+            <p style="margin-bottom: 20px; font-size: 0.9em; color: #666;">Aktiviere oder deaktiviere Layouts für Gäste.
+            </p>
+
             <label class="admin-toggle" style="display: block; margin-bottom: 15px; cursor: pointer;">
-                <input type="checkbox" class="layout-toggle-cb" data-layout="1" checked style="margin-right: 10px; transform: scale(1.5);"> 1×3 Classic
+                <input type="checkbox" class="layout-toggle-cb" data-layout="1" checked
+                    style="margin-right: 10px; transform: scale(1.5);"> 1×3 Classic
             </label>
             <label class="admin-toggle" style="display: block; margin-bottom: 15px; cursor: pointer;">
-                <input type="checkbox" class="layout-toggle-cb" data-layout="2" checked style="margin-right: 10px; transform: scale(1.5);"> 1×4 Strip
+                <input type="checkbox" class="layout-toggle-cb" data-layout="2" checked
+                    style="margin-right: 10px; transform: scale(1.5);"> 1×4 Strip
             </label>
             <label class="admin-toggle" style="display: block; margin-bottom: 15px; cursor: pointer;">
-                <input type="checkbox" class="layout-toggle-cb" data-layout="3" checked style="margin-right: 10px; transform: scale(1.5);"> Instax Quadrat
+                <input type="checkbox" class="layout-toggle-cb" data-layout="3" checked
+                    style="margin-right: 10px; transform: scale(1.5);"> Instax Quadrat
             </label>
             <label class="admin-toggle" style="display: block; margin-bottom: 15px; cursor: pointer;">
-                <input type="checkbox" class="layout-toggle-cb" data-layout="4" checked style="margin-right: 10px; transform: scale(1.5);"> 2x2 Grid
+                <input type="checkbox" class="layout-toggle-cb" data-layout="4" checked
+                    style="margin-right: 10px; transform: scale(1.5);"> 2x2 Grid
             </label>
         </div>
     </div>
 
     <!-- Das Galerie-Modal für Gäste -->
-<div id="gallery-modal" class="modal" style="display: none;">
-    <div class="modal-content" style="max-width: 800px;"> <!-- Etwas breiter für Bilder -->
-        <span class="close-btn" id="close-gallery-btn">&times;</span>
-        <h2>Meine Fotogalerie 📸</h2>
-        <p style="margin-bottom: 20px; font-size: 0.9em; color: #666;">Hier findest du alle deine gemachten Fotos.</p>
-        
-        <!-- Hier werden die Bilder später per JavaScript eingefügt -->
-        <div id="gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px;">
-            <p id="empty-gallery-msg" style="grid-column: 1 / -1; text-align: center; color: #666;">Noch keine Bilder vorhanden.</p>
+    <div id="gallery-modal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 800px;"> <!-- Etwas breiter für Bilder -->
+            <span class="close-btn" id="close-gallery-btn">&times;</span>
+            <h2>Meine Fotogalerie 📸</h2>
+            <p style="margin-bottom: 20px; font-size: 0.9em; color: #666;">Hier findest du alle deine gemachten Fotos.
+            </p>
+
+            <!-- Hier werden die Bilder später per JavaScript eingefügt -->
+            <div id="gallery-grid"
+                style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px;">
+                <p id="empty-gallery-msg" style="grid-column: 1 / -1; text-align: center; color: #666;">Noch keine
+                    Bilder vorhanden.</p>
+            </div>
         </div>
     </div>
-</div>
-    
-<div id="gallery-password-modal" class="modal">
-  <div class="modal-content">
-    <span class="close-btn" id="close-gallery-modal">&times;</span>
-    <h2>Galerie geschützt</h2>
-    <p>Bitte gib das Galerie-Passwort ein:</p>
-    <form id="gallery-password-form">
-      <input type="password" id="gallery-password-input" placeholder="Passwort" required />
-      <button type="submit" class="btn btn-primary">Entsperren</button>
-    </form>
-    <p id="gallery-password-error" style="color:red; display:none;">Falsches Passwort</p>
-  </div>
-</div>
+
+    <div id="gallery-password-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-gallery-modal">&times;</span>
+            <h2>Galerie geschützt</h2>
+            <p>Bitte gib das Galerie-Passwort ein:</p>
+            <form id="gallery-password-form">
+                <div class="password-wrapper">
+                    <input type="password" id="gallery-password-input" placeholder="Passwort" required />
+                    <span class="toggle-password" onclick="togglePassword('gallery-password-input', this)">🔒</span>
+                </div>
+                <button type="submit" class="btn btn-primary">Entsperren</button>
+            </form>
+            <p id="gallery-password-error" style="color:red; display:none;">Falsches Passwort</p>
+        </div>
+    </div>
 
 </body>
 
 </html>
->
