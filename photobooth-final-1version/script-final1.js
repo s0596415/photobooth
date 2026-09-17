@@ -1,5 +1,7 @@
 // [NEU] Backend-URL – zeigt auf euren Render-Server
-const BACKEND_URL = 'http://localhost:9090';
+const BACKEND_URL =(window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost')
+  ? 'http://localhost:9090'
+  : 'https://photobooth-4r1k.onrender.com';
 const API_BASE_URL = 'https://photobooth-4r1k.onrender.com';
 
 // 1. Das "state"-Objekt ist "let"
@@ -472,7 +474,7 @@ document.getElementById('customize-next-btn').addEventListener('click', async ()
 
     // --- START: Upload-Logik ---
 // KORREKTUR: Verwenden Sie Backticks (`) statt Anführungszeichen (')
-const uploadURL = `${API_BASE_URL}/upload`; 
+const uploadURL = `${BACKEND_URL}/upload`; 
 //                               ^        ^
    
 
