@@ -15,11 +15,12 @@ const ALLOWED_ORIGIN = ['https://photobooth-fiw.vercel.app',
     'http://127.0.0.1:3000',
     'http://localhost:3000',
 ];
-
+// Wichtig: Erlaubt dem Server, JSON-Daten im Request-Body zu lesen
+app.use(express.json());
 app.use(cors({
     origin: ALLOWED_ORIGIN,
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], //[ÄNDERUNG: Methoden PUT und DELETE hinzugefügt]
-     allowedHeaders: ['Content-Type', 'x-gallery-token'], // [NEU]
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'x-gallery-token'],
 }));
 
 app.use(express.static(PUBLIC_DIR));
