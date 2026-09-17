@@ -1,5 +1,5 @@
 // [NEU] Backend-URL – zeigt auf euren Render-Server
-const BACKEND_URL =(window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost')
+const BACKEND_URL = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost')
   ? 'http://localhost:9090'
   : 'https://photobooth-4r1k.onrender.com';
 const API_BASE_URL = 'https://photobooth-4r1k.onrender.com';
@@ -474,7 +474,7 @@ document.getElementById('customize-next-btn').addEventListener('click', async ()
 
     // --- START: Upload-Logik ---
 // KORREKTUR: Verwenden Sie Backticks (`) statt Anführungszeichen (')
-const uploadURL = `${BACKEND_URL}/upload`; 
+const uploadURL = `${API_BASE_URL}/upload`; 
 //                               ^        ^
    
 
@@ -980,6 +980,11 @@ document.getElementById('undo-draw-btn')?.addEventListener('click', () => {
 async function uploadToGallery() {
   const finalCanvas = document.getElementById('final-canvas');
   const blob = await new Promise(resolve => finalCanvas.toBlob(resolve, 'image/png'));
+
+if (!blob) {
+    alert('Fehler: Konnte kein Bild (Blob) erstellen!');
+    return;
+  }
 
   const formData = new FormData();
   formData.append('file', blob, 'photostrip.png');
