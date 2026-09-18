@@ -1012,11 +1012,15 @@ document.getElementById("drawing-next-btn")?.addEventListener("click", () => {
     finalCanvas.getContext("2d").drawImage(drawingCanvas, 0, 0);
 
     drawingScreen.classList.remove("active");
+    
     document.getElementById("download-screen").classList.add("active");
 
     appStats.totalPhotos += 1; //offline zähler
 
-    uploadToGallery();
+    
+   if (isGast) {                 // [NEU] nur Gäste landen in der Galerie
+        uploadToGallery();
+    }
 });
 
 document.getElementById("undo-draw-btn")?.addEventListener("click", () => {
