@@ -756,7 +756,7 @@ if (loginForm) {
         const user = document.getElementById("username").value;
         const pass = document.getElementById("password").value;
 
-        document.getElementById("guest-gallery-btn").style.display = "inline-block";
+        //document.getElementById("guest-gallery-btn").style.display = "inline-block";
 
         // Zugriff auf das CDN-bcrypt Objekt
         const bcrypt = dcodeIO.bcrypt;
@@ -781,6 +781,7 @@ if (loginForm) {
             logAccess("gast", "Erfolgreich", "Main Login"); // Neu Access Log
             currentUser = "gast";
             document.getElementById("admin-settings-btn").style.display = "none";
+            document.getElementById("guest-gallery-btn").style.display = "inline-block";
             isGast = true;
             loginModal.style.display = "none";
             statusBadge.innerText = "👤 Gast";
