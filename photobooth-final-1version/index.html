@@ -26,8 +26,11 @@
     <div class="header-controls">
         <span id="user-status-badge" class="status-badge" style="display: none;"></span>
         <button class="login-button" id="guest-gallery-btn" style="display: none; margin-right: 10px;">Galerie</button>
+        <!-- NUR BEI GAST angezeigt -->
+        <button class="login-button" id="admin-dashboard-btn" style="display: none; margin-right: 10px;">Status</button>
+        <!-- NUR BEI ADMIN angezeigt -->
         <button class="login-button" id="admin-settings-btn"
-            style="display: none; margin-right: 10px;">Einstellungen</button>
+            style="display: none; margin-right: 10px;">Einstellungen</button> <!-- NUR BEI ADMIN angezeigt -->
         <button class="login-button" id="auth-btn">Login</button>
     </div>
 </header>
@@ -223,8 +226,9 @@
             <button class="btn btn-secondary" id="back-to-customize" style="margin-bottom: 1rem;">
                 ← Zurück zur Gestaltung
             </button>
+        
 
-            <h1>Dein Photostrip ist fertig!</h1>
+            <h1>Dein Foto ist fertig!</h1>
             <p class="subtitle">Herunterladen oder teilen</p>
 
             <div class="canvas-container">
@@ -341,6 +345,36 @@
                 <button type="submit" class="btn btn-primary">Entsperren</button>
             </form>
             <p id="gallery-password-error" style="color:red; display:none;">Falsches Passwort</p>
+        </div>
+    </div>
+
+    <!-- Das Admin-Dashboard-Modal -->
+    <div id="dashboard-modal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close-btn" id="close-dashboard-btn">&times;</span>
+            <h2> Status Übersicht</h2>
+            <p style="margin-bottom: 20px; font-size: 0.9em; color: #666;">Nur für den Admin sichtbar.</p>
+
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">📸</div>
+                    <div class="stat-value" id="stat-total-photos">0</div>
+                    <div class="stat-label">Fotos gesamt</div>
+                </div>
+
+                <div class="stat-card"
+                    style="background: linear-gradient(135deg, #f44336 0%, #e57373 100%);">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="stat-value" id="stat-failed-uploads">0</div>
+                    <div class="stat-label">Upload-Fehler</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-value" id="stat-top-layout" style="font-size: 1.2rem; margin-top: 10px;">-</div>
+                    <div class="stat-label">Beliebtestes Layout</div>
+                </div>
+            </div>
         </div>
     </div>
 

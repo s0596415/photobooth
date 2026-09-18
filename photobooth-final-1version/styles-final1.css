@@ -650,30 +650,7 @@ h1 {
     display: inline-block;
 }
 
-/* Responsive (V2) */
-@media (max-width: 968px) {
-    .camera-layout {
-        grid-template-columns: 1fr;
-    }
-}
 
-@media (max-width: 768px) {
-    h1 {
-        font-size: 1.8rem;
-    }
-
-    .container {
-        padding: 1rem;
-    }
-
-    .layout-grid {
-        gap: 1rem;
-    }
-
-    .download-buttons {
-        grid-template-columns: 1fr;
-    }
-}
 
 .filter-hint {
     display: none;
@@ -957,3 +934,186 @@ h1 {
     opacity: 1; /* Wird deutlicher, wenn man mit der Maus drüber geht */
 }
 
+<<<<<<< HEAD
+=======
+/* =========================================
+   ADMIN DASHBOARD STYLING
+   ========================================= */
+
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #2196f3 0%, #22c2ea 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Die zweite Karte machen wir leicht lila, zur Unterscheidung */
+.stat-card:nth-child(2) {
+    background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin-top: 5px;
+}
+
+/* =========================================
+   DASHBOARD MODAL BREITE ANPASSEN
+   ========================================= */
+
+/* Macht das weiße Fenster breit genug für 3 Kacheln */
+#dashboard-modal .modal-content {
+    width: 90%;
+    max-width: 700px; /* Erlaubt dem Fenster, deutlich breiter zu werden */
+    padding: 30px 20px; /* Etwas mehr Platz an den Rändern */
+}
+/* 
+
+@media (max-width: 968px) {
+    .camera-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    .container {
+        padding: 1rem;
+    }
+
+    .layout-grid {
+        gap: 1rem;
+    }
+
+    .download-buttons {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 650px) {
+    .dashboard-stats {
+        grid-template-columns: 1fr; 
+    }
+} */
+
+/* =========================================
+   RESPONSIVE DESIGN FÜR DAS GESAMTE PROJEKT (Handys & kleine Tablets)
+   ========================================= */
+@media (max-width: 768px) {
+
+    /* 1. HEADER OPTIMIERUNG (Titel und Buttons stapeln) */
+    .top-bar {
+        position: relative; /* NEU: Schiebt den Rest der Seite jetzt automatisch nach unten! */
+        flex-direction: column; 
+        justify-content: center;
+        height: auto; 
+        padding: 8px 10px;
+    }
+    
+    .title-box {
+        font-size: 1.2rem; 
+        padding: 5px 15px;
+        margin-bottom: 5px; 
+    }
+    
+    .header-controls {
+        position: relative; 
+        right: 0;
+        display: flex;
+        flex-wrap: wrap; 
+        justify-content: center;
+        width: 100%;
+        gap: 5px;
+    }
+    
+    .login-button, .status-badge {
+        padding: 5px 10px;
+        font-size: 0.85rem; 
+        margin-right: 0 !important; /* Verhindert das Inline-Styling aus dem HTML */
+    }
+
+    .container {
+        padding: 0.5rem 1rem;
+        margin-top: 10px; /* NEU: Drastisch reduziert, da der Header jetzt selbst Platz macht */
+    }
+
+    /* 1. Allgemeine Abstände & Header verkleinern */
+    .container {
+        padding: 1rem;
+        margin-top: 100px;
+    }
+    h1 {
+        font-size: 1.6rem;
+    }
+    .subtitle {
+        margin-bottom: 1rem;
+    }
+    .header-controls {
+        right: 15px; /* Weniger Abstand zum Rand */
+        gap: 5px;
+    }
+    .login-button, .status-badge {
+        padding: 6px 12px;
+        font-size: 0.8rem; /* Buttons kleiner machen, damit sie hinpassen */
+    }
+
+    /* 2. START-SCREEN: Layout-Karten zwingend im 2x2 Raster (nebeneinander!) */
+    .layout-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important; /* Exakt 2 Spalten */
+        gap: 10px;
+    }
+    .layout-card {
+        width: 100%; /* Überschreibt die festen 200px */
+        padding: 0.6rem;
+    }
+    .layout-name {
+        font-size: 0.85rem;
+    }
+
+    /* 3. CAMERA & CUSTOMIZE-SCREEN: Panels untereinander statt nebeneinander */
+    .camera-layout, .customize-layout {
+        grid-template-columns: 1fr; /* Kamera/Vorschau und Bearbeitungswerkzeuge stapeln sich */
+        gap: 1rem;
+    }
+    .customization-panel {
+        width: 100%;
+        padding: 1rem;
+    }
+    
+    /* 4. CANVAS & DOWNLOADS: Volle Breite nutzen */
+    #photostrip-canvas, #final-canvas, #drawing-canvas {
+        max-width: 100%;
+    }
+    .download-buttons {
+        grid-template-columns: 1fr; /* Download-Buttons untereinander für bessere Bedienbarkeit */
+    }
+}
+>>>>>>> d58407fa3af8f547341f6429449fe5b8463dc638
