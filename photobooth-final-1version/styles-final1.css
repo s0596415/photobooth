@@ -934,8 +934,6 @@ h1 {
     opacity: 1; /* Wird deutlicher, wenn man mit der Maus drüber geht */
 }
 
-<<<<<<< HEAD
-=======
 /* =========================================
    ADMIN DASHBOARD STYLING
    ========================================= */
@@ -1026,6 +1024,7 @@ h1 {
 /* =========================================
    RESPONSIVE DESIGN FÜR DAS GESAMTE PROJEKT (Handys & kleine Tablets)
    ========================================= */
+
 @media (max-width: 768px) {
 
     /* 1. HEADER OPTIMIERUNG (Titel und Buttons stapeln) */
@@ -1066,8 +1065,8 @@ h1 {
 
     /* 1. Allgemeine Abstände & Header verkleinern */
     .container {
-        padding: 1rem;
-        margin-top: 100px;
+        padding: 0.5rem 1rem;
+        margin-top: 0 !important; /* Entfernt den oberen Außenabstand komplett */
     }
     h1 {
         font-size: 1.6rem;
@@ -1115,5 +1114,18 @@ h1 {
     .download-buttons {
         grid-template-columns: 1fr; /* Download-Buttons untereinander für bessere Bedienbarkeit */
     }
+    #countdownOverlay, .countdown-overlay {
+        font-size: 1.5rem !important;       /* Schriftgröße auf Handys verkleinern */
+        padding: 0 15px !important;         /* Abstand zu den Bildschirmrändern */
+        text-align: center !important;      /* Text zentrieren */
+        white-space: normal !important;     /* Automatischer Zeilenumbruch erlauben */
+        word-wrap: break-word !important;   /* Langer Text bricht sauber um */
+        box-sizing: border-box !important;
+    }
+    
+    /* Speziell für Hinweistexte im Overlay */
+    #countdownOverlay.is-hint, .countdown-overlay.is-hint {
+        font-size: 1rem !important;        /* Noch etwas kleiner für längere Texte */
+        line-height: 1.3;
+    }
 }
->>>>>>> d58407fa3af8f547341f6429449fe5b8463dc638
