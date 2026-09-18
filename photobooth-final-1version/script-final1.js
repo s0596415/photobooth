@@ -744,15 +744,8 @@ function downloadLogsCSV() {
    ======================================================== */
 
 // Unsere Hashes
-<<<<<<< Updated upstream
 const ADMIN_HASH = '$2b$10$r/GjfuJv4Vk/NSH9LYXIJ.T0anlWDaQ8vYvzF2NO1l7nfaDPtNPPO';
 const GAST_HASH = '$2b$10$6GXt.RnGhffWYW5iC0yCNeI2SxXL2Ybf.jkTAqLxHpvFOVKNB0zzm';
-=======
-const ADMIN_HASH =
-    "$2b$10$r/GjfuJv4Vk/NSH9LYXIJ.T0anlWDaQ8vYvzF2NO1l7nfaDPtNPPO";
-const GAST_HASH =
-    "$2b$10$0bPjzvfJBNDedUkdrb/.auj4yNLEXdlXgrN23aYFXT8xgiYzlcP3W";
->>>>>>> Stashed changes
 
 let isGast = false; //new
 
