@@ -592,6 +592,8 @@ document.getElementById('restart-btn').addEventListener('click', () => {
     showScreen('start');
 });
 
+
+
 // "Zurück"-Button Event Listeners
 document.getElementById('back-to-start').addEventListener('click', () => {
     if (state.stream) {
@@ -712,7 +714,7 @@ function downloadLogsCSV() {
 
 // Unsere Hashes
 const ADMIN_HASH = '$2b$10$r/GjfuJv4Vk/NSH9LYXIJ.T0anlWDaQ8vYvzF2NO1l7nfaDPtNPPO';
-const GAST_HASH = '$2b$10$6GXt.RnGhffWYW5iC0yCNeI2SxXL2Ybf.jkTAqLxHpvFOVKNB0zzm';
+const GAST_HASH =  '$2b$10$6GXt.RnGhffWYW5iC0yCNeI2SxXL2Ybf.jkTAqLxHpvFOVKNB0zzm';
 
 let isGast = false; //new
 
@@ -888,6 +890,8 @@ if (customizeNextBtn) {
         drawHistory = [ctxDraw.getImageData(0, 0, drawingCanvas.width, drawingCanvas.height)];
     });
 }
+
+
 
 // Stiftfarben-Wechsel (Nur Gold & Blau)
 document.querySelectorAll('.pen-btn').forEach(btn => {
