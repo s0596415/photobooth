@@ -32,7 +32,7 @@ function requireGalleryAccess(req, res, next) {
 
 // [NEU] Galerie-Passwort prüfen
 router.post('/gallery/unlock', async (req, res) => {
-  const { password } = req.body;
+const { password } = req.body || {};
   if (!password) return res.status(400).json({ error: 'Passwort fehlt' });
 
   const valid = await bcrypt.compare(password, process.env.GALLERY_PASSWORD_HASH);
